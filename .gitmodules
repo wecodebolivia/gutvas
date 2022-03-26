@@ -22,3 +22,8 @@
 	path = wecodebolivia/mrp_sale_info
 	url = git@github.com:wecodebolivia/mrp_sale_info.git
 	branch = 15.0.1.0.5.2
+
+[submodule "wecodebolivia/sale_cash_rounding"]
+	path = wecodebolivia/sale_cash_rounding
+	url = git@github.com:wecodebolivia/sale_cash_rounding.git
+	branch = 15.4.0
