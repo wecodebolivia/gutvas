@@ -17,3 +17,8 @@
 	path = wecodebolivia/sh_sale_line_desc_picking
 	url = git@github.com:wecodebolivia/sh_sale_line_desc_picking.git
 	branch = 15.0.2
+
+[submodule "wecodebolivia/mrp_sale_info"]
+	path = wecodebolivia/mrp_sale_info
+	url = git@github.com:wecodebolivia/mrp_sale_info.git
+	branch = 15.0.1.0.5.2
