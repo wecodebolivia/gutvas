@@ -12,3 +12,8 @@
 	path = wecodebolivia/import_lot_serial_no
 	url = git@github.com:wecodebolivia/import_lot_serial_no.git
 	branch = 15.0.0.1
+
+[submodule "wecodebolivia/sh_sale_line_desc_picking"]
+	path = wecodebolivia/sh_sale_line_desc_picking
+	url = git@github.com:wecodebolivia/sh_sale_line_desc_picking.git
+	branch = 15.0.2
