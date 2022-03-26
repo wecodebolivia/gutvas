@@ -7,3 +7,8 @@
 	path = wecodebolivia/app_product_weight_sale
 	url = git@github.com:wecodebolivia/app_product_weight_sale.git
 	branch = 15.21.10.12
+
+[submodule "wecodebolivia/import_lot_serial_no"]
+	path = wecodebolivia/import_lot_serial_no
+	url = git@github.com:wecodebolivia/import_lot_serial_no.git
+	branch = 15.0.0.1
