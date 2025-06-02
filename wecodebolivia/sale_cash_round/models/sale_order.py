@@ -8,20 +8,19 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     def _get_default_cash_rounding_id(self):
-        round_ids=self.env['account.cash.rounding'].search([],limit=1)
+        round_ids = self.env['account.cash.rounding'].search([], limit=1)
         if round_ids:
             return round_ids[0]
 
-    cash_rounding_id = fields.Many2one('account.cash.rounding', string=u'抹零方式',default=_get_default_cash_rounding_id,
+    cash_rounding_id = fields.Many2one('account.cash.rounding', string=u'抹零方式', default=_get_default_cash_rounding_id,
                                        readonly=True, states={'draft': [('readonly', False)]},)
-    auto_cash_round=fields.Boolean(u'自动抹零',default=True,readonly=True, states={'draft': [('readonly', False)]},)
+    auto_cash_round = fields.Boolean(u'自动抹零', default=True, readonly=True, states={'draft': [('readonly', False)]},)
 
-    @api.onchange('order_line','cash_rounding_id','auto_cash_round')
+    @api.onchange('order_line', 'cash_rounding_id', 'auto_cash_round')
     def _onchange_cash_rounding(self):
         if self.auto_cash_round:
             self._cash_rounding()
 
-    @api.multi
     def button_cash_round(self):
         self._cash_rounding()
 
@@ -47,8 +46,8 @@ class SaleOrder(models.Model):
                 if not rounding_line in self.order_line:
                     self.order_line += rounding_line
 
+
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    is_rounding_line=fields.Boolean(u'抹零行')
-
+    is_rounding_line = fields.Boolean(u'抹零行')

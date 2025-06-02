@@ -3,7 +3,7 @@
     <record id="view_account_cash_rounding_inherit_form" model="ir.ui.view">
         <field name="name">account.cash.rounding.inherit.form</field>
         <field name="model">account.cash.rounding</field>
-        <field name="inherit_id" ref="account.rounding_form_view"/>
+        <field name="inherit_id" ref="account.view_account_cash_rounding_form"/>
         <field name="priority" eval="8"/>
         <field name="arch" type="xml">
             <field name="rounding_method" position="after">
