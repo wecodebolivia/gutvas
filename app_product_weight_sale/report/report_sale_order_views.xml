@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="app_report_saleorder_document" inherit_id="sale.report_saleorder_document">
+<!--            <xpath expr="//table[hasclass('o_main_table')]/thead/tr/th[1]" position="before">-->
+            <!--注意，odoo12 的 deb 发行版，没有了colspan，只有源码 master版中有-->
+<!--                <t t-set="colspan" t-value="colspan+2"/>-->
+<!--            </xpath>-->
+            <!--xpath 特殊处理，因为加载另的插件会影响顺序，要精确定位，可用th[contains(text(), 'Quantity')]-->
+            <xpath expr="//div[hasclass('page')]/table[1]/thead/tr/th[hasclass('text-right')][1]" position="after">
+                <th class="text-right app_odooai" groups="app_product_weight_sale.group_sale_weight_print"><strong>Weight Unit</strong></th>
+                <th class="text-right app_odooai" groups="app_product_weight_sale.group_sale_weight_print"><strong>Weight Subtotal</strong></th>
+            </xpath>
+            <xpath expr="//div[hasclass('page')]/table[1]/tbody/t/tr[1]/t/td[hasclass('text-right')][1]" position="after">
+                <td class="text-right app_odooai" groups="app_product_weight_sale.group_sale_weight_print"><span t-field="line.weight_unit"/></td>
+                <td class="text-right app_odooai" groups="app_product_weight_sale.group_sale_weight_print"><span t-field="line.weight"/></td>
+            </xpath>
+            <xpath expr="//div[hasclass('page')]//p[@t-field='doc.note']" position="before" groups="app_product_weight_sale.group_sale_weight_print">
+                <p class="app_odooai" groups="app_product_weight_sale.group_sale_weight_print">
+                    <Strong>Total Weight: </Strong>
+                    <span t-field="doc.weight"/> <span t-field="doc.weight_uom_name"/>
+                </p>
+            </xpath>
+        </template>
+    </data>
+</odoo>
