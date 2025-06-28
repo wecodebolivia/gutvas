@@ -1,2 +1,5 @@
-# largotek_custom_fields/__init__.py
+# -*- coding: utf-8 -*-
+
 from . import models
+
+

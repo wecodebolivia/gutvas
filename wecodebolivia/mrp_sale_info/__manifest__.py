@@ -1,16 +1,23 @@
-# largotek_custom_fields/__manifest__.py
+# Copyright 2016 Antiun Ingenieria S.L. - Javier Iniesta
+# Copyright 2019 Rubén Bravo <rubenred18@gmail.com>
+# Copyright 2020 Tecnativa - Pedro M. Baeza
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 {
-    'name': 'Largotek Custom Fields',
-    'version': '1.0',
-    'summary': 'Módulo personalizado para Largotek SRL que añade campos adicionales a Contactos y los referencia en Cotizaciones-Ventas.',
-    'description': 'Este módulo añade campos como Fecha de Nacimiento, Número de Matrícula, Patologías y Medicamentos utilizados al modelo de Contactos y los muestra en el formulario de Cotizaciones-Ventas.',
-    'author': 'Juan Luis Garvía, Largotek SRL',
-    'website': 'https://www.largotek.com',
-    'category': 'Customizations',
-    'depends': ['base'],
-    'data': [
-,
+    "name": "MRP Sale Info",
+    "summary": "Adds sale information to Manufacturing models",
+    "version": "15.0.1.0.1",
+    "category": "Manufacturing",
+    "website": "https://github.com/OCA/manufacture",
+    "author": "AvanzOSC, Tecnativa, Odoo Community Association (OCA)",
+    "license": "AGPL-3",
+    "application": False,
+    "installable": True,
+    "depends": [
+        "mrp",
+        "sale_stock",
     ],
-    'installable': True,
-    'application': True,
+    "data": [
+        "views/mrp_production.xml",
+        "views/mrp_workorder.xml",
+    ],
 }

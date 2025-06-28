@@ -1,2 +1,4 @@
-# largotek_custom_fields/__init__.py
+# -*- coding: utf-8 -*-
+# Part of Softhealer Technologies.
+
 from . import models

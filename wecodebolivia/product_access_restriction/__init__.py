@@ -1,2 +1,6 @@
-# largotek_custom_fields/__init__.py
+# -*- coding: utf-8 -*-
+
 from . import models
+from . import controllers
+from . import reports
+from . import wizard
