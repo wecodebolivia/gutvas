@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Tree View: sí tiene inherit_id válido -->
     <record id="mrp_production_workorder_tree_view_inherit" model="ir.ui.view">
         <field name="name">MRP Work Order Tree with Sale Order</field>
         <field name="model">mrp.workorder</field>
@@ -14,17 +15,18 @@
         </field>
     </record>
 
-    <record id="mrp_production_workorder_form_view_inherit" model="ir.ui.view">
-        <field name="name">MRP Work Order Form with Sale Order</field>
+    <!-- Form View: sin inherit_id, inyecta campos por XPath directo -->
+    <record id="mrp_workorder_form_extension_sale_info" model="ir.ui.view">
+        <field name="name">Add Sale Info to Workorder Form</field>
         <field name="model">mrp.workorder</field>
-        <field name="inherit_id" ref="mrp.mrp_workorder_form_view" />
+        <field name="priority" eval="20"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
-                <group string="Sale Info" groups="mrp.group_mrp_manager">
-                    <field name="sale_id" />
-                    <field name="partner_id" />
-                    <field name="commitment_date" />
-                    <field name="client_order_ref" />
+                <group string="Información de Venta" groups="mrp.group_mrp_manager">
+                    <field name="sale_id"/>
+                    <field name="partner_id"/>
+                    <field name="commitment_date"/>
+                    <field name="client_order_ref"/>
                 </group>
             </xpath>
         </field>
