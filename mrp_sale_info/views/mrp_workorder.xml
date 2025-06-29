@@ -17,7 +17,7 @@
     <record id="mrp_production_workorder_form_view_inherit" model="ir.ui.view">
         <field name="name">MRP Work Order Form with Sale Order</field>
         <field name="model">mrp.workorder</field>
-        <field name="inherit_id" ref="mrp.mrp_production_workorder_form_view" />
+        <field name="inherit_id" ref="mrp.mrp_workorder_view_form" />
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
                 <group string="Sale Info" groups="mrp.group_mrp_manager">
