@@ -1,0 +1,101 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sh_sale_line_desc_picking
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-11-02 11:52+0000\n"
+"PO-Revision-Date: 2020-11-02 11:52+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sh_sale_line_desc_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_inherit_report_picking_for_sale_line_desc_in_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_report_delivery_doc_for_so_line_desc_in_picking
+msgid "<span><strong>Customer Address:</strong></span>"
+msgstr "<span><strong>عنوان العملاء:</strong></span>"
+
+#. module: sh_sale_line_desc_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_inherit_report_picking_for_sale_line_desc_in_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_report_delivery_doc_for_so_line_desc_in_picking
+msgid "<span><strong>Delivery Address:</strong></span>"
+msgstr "<span><strong>عنوان التسليم:</strong></span>"
+
+#. module: sh_sale_line_desc_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_inherit_report_picking_for_sale_line_desc_in_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_report_delivery_doc_for_so_line_desc_in_picking
+msgid "<span><strong>Invoice Address:</strong></span>"
+msgstr "<span><strong>عنوان الفاتورة:</strong></span>"
+
+#. module: sh_sale_line_desc_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_inherit_report_picking_for_sale_line_desc_in_picking
+msgid "<span><strong>Vendor Address:</strong></span>"
+msgstr "<span><strong>عنوان البائع:</strong></span>"
+
+#. module: sh_sale_line_desc_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_inherit_report_picking_for_sale_line_desc_in_picking
+msgid "<span><strong>Warehouse Address:</strong></span>"
+msgstr "<span><strong>عنوان المستودع:</strong></span>"
+
+#. module: sh_sale_line_desc_picking
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_report_delivery_doc_for_so_line_desc_in_picking
+msgid "<strong>Description</strong>"
+msgstr "<strong>عنوان العملاء</strong>"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_picking__sh_line_desc_partner_id
+msgid "Customer Address"
+msgstr "عنوان العملاء"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_move_line__sh_so_line_desc_sml
+#: model_terms:ir.ui.view,arch_db:sh_sale_line_desc_picking.sh_inherit_report_picking_for_sale_line_desc_in_picking
+msgid "Description"
+msgstr "وصف"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_sale_order__display_name
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_move_line__display_name
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_picking__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_sale_order__id
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_move_line__id
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_picking__id
+msgid "ID"
+msgstr "هوية شخصية"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_picking__sh_line_desc_partner_inv_id
+msgid "Invoice Address"
+msgstr "عنوان الفاتورة"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_sale_order____last_update
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_move_line____last_update
+#: model:ir.model.fields,field_description:sh_sale_line_desc_picking.field_stock_picking____last_update
+msgid "Last Modified on"
+msgstr "آخر تعديل ل"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model,name:sh_sale_line_desc_picking.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "التحركات المنتج (الأسهم نقل الخط)"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model,name:sh_sale_line_desc_picking.model_sale_order
+msgid "Sales Order"
+msgstr "طلب المبيعات"
+
+#. module: sh_sale_line_desc_picking
+#: model:ir.model,name:sh_sale_line_desc_picking.model_stock_picking
+msgid "Transfer"
+msgstr "نقل"
