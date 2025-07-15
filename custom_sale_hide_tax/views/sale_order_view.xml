@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_order_form_inherit_hide_tax" model="ir.ui.view">
+        <field name="name">sale.order.form.hide.tax</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Oculta el resumen de impuestos en la parte inferior -->
+            <xpath expr="//group[@name='sale_total']/field[@name='tax_totals']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Oculta la columna tax_id del árbol embebido en order_line -->
+            <xpath expr="//field[@name='order_line']//field[@name='tax_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
