@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="account_move_cancel_form" model="ir.ui.view">
+            <field name="name">account.move.form</field>
+            <field name="model">account.move.cancel</field>
+            <field name="arch" type="xml">
+                <form string="Register move">
+                    <group>
+                        <group>
+                            <field name="code_type_motive" force_save="1" widget="many2one"
+                                   options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"
+                                   required="1" domain="[('company_id','=', allowed_company_ids[0])]"/>
+                            <field name="invoice_code" readonly="1"/>
+                            <field name="number_invoice" readonly="1" widget="email"/>
+                            <field name="cucu_email" readonly="0"/>
+                            <field name="siat_code_state" readonly="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Anulate Invoice" name="handle_create_cancel" type="object" class="" data-hotkey="q"
+                                invisible="siat_code_state in ['ANULACION CONFIRMADA', 'ANULADA']"/>
+                        <button string="Revert Invoices" name="handle_revert_cancel" type="object" class="" data-hotkey="w"
+                                invisible="siat_code_state not in ['ANULACION CONFIRMADA', 'ANULADA']"/>
+                        <button string="Send Invoice Email" name="handle_send_invoice" type="object" class="" data-hotkey="e"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_cancel_wizard" model="ir.actions.act_window">
+            <field name="name">Invoice Options</field>
+            <field name="res_model">account.move.cancel</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="account_move_cancel_form"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

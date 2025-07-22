@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_cucu_pos_form" model="ir.ui.view">
+            <field name="name">view.cucu.pos.form</field>
+            <field name="model">cucu.pos</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="pos_id" string="Pos Id"/>
+                            <field name="name" string="Name"/>
+                            <field name="siat_branch_code" string="Branch Code"/>
+                            <field name="branch_id" string="Branch"/>
+                        </group>
+                        <group>
+                            <field name="cuis"/>
+                            <field name="cufd"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_cucu_pos_tree" model="ir.ui.view">
+            <field name="name">view.cucu.pos.tree</field>
+            <field name="model">cucu.pos</field>
+            <field name="arch" type="xml">
+                <list string="Pos" create="0" export_xlsx="0" delete="0">
+                    <field name="pos_id" string="Pos Id"/>
+                    <field name="name" string="Name"/>
+                    <field name="description" string="Description"/>
+                    <field name="siat_code" string="Pos Code"/>
+                    <field name="siat_branch_code" string="Branch Code"/>
+                    <field name="branch_id" string="Branch"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

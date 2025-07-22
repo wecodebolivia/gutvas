@@ -1,0 +1,38 @@
+/*
+* Copyright (c) 2018-Present i Sas!. https://isascloud.com
+* See LICENSE file for full copyright and licensing details.
+*/
+@font-face {
+    font-family: 'Cucu Font';
+    src: url('NotoSansMono-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/*@font-face {*/
+/*    font-family: 'Cucu Font';*/
+/*    src: url('NotoSansMono-Bold.ttf') format('truetype');*/
+/*    font-weight: bold;*/
+/*    font-style: normal;*/
+/*    font-display: swap;*/
+/*}*/
+
+/*@font-face {*/
+/*    font-family: 'Cucu Font';*/
+/*    src: url('NotoSansMono-SemiBold.ttf') format('truetype');*/
+/*    font-weight: 600;*/
+/*    font-style: normal;*/
+/*    font-display: swap;*/
+/*}*/
+
+@font-face {
+    font-family: 'Fake Receipt';
+    src: url('FakeReceipt-Regular.woff2') format('woff2'),
+    url('FakeReceipt-Regular.woff') format('woff'),
+    url('FakeReceipt-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

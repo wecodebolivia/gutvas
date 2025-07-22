@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+   <t t-extend="KanbanView.buttons" t-name="cucu_fact_core.button">
+       <t t-jquery="button" t-operation="replace">
+               <button t-if="widget.modelName == 'cucu.branch.office'"
+                       class="btn btn-primary cucu_branch_open oe_highlight"
+                       type="button">Sync Branchs</button>
+       </t>
+   </t>
+</templates>
