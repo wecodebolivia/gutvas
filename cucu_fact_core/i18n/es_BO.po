@@ -1,0 +1,1242 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* cucu_fact_core
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__account_move_id
+msgid "Account Move"
+msgstr "Movimientos Cuenta"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_account_move_cancel
+msgid "Account Move Cancel"
+msgstr "Cancelar movimiento cuenta"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_needaction
+msgid "Action Needed"
+msgstr "Acción Necesaria"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_pos_config__is_cucu_invoice
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_config_settings__is_cucu_invoice
+msgid "Active invoice"
+msgstr "Factura activa"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs_activities
+msgid "Activities"
+msgstr "Actividades"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__additional_discount
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__additional_discount
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__additional_discount
+msgid "Additional Discount"
+msgstr "Descuento Adicional"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__address
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_form
+msgid "Address"
+msgstr "Dirección"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__amount_gift_card
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__amount_gift_card
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__amount_gift_card
+msgid "Amount Gift Card"
+msgstr "Monto Gift Card"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__amount_literal
+msgid "Amount Literal"
+msgstr "Monto literal"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__amount_usd
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__amount_usd
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__amount_usd
+msgid "Amount USD"
+msgstr "Monto USD"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__amount_total
+msgid "Amount total"
+msgstr "Monto total"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__amount_total_currency
+msgid "Amount total currency"
+msgstr "Monto total moneda"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__amount_subject_iva
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__amount_total_discount
+msgid "Amount total discount"
+msgstr "Monto total descuento"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_cucu_manager
+msgid "Api manager user"
+msgstr "Usuario API Manager"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_attachment_count
+msgid "Attachment Count"
+msgstr "Cantidad Adjuntos"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__30
+msgid "BOLETO AÉREO"
+msgstr "Boleto aéreo"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__branch_office
+msgid "BRANCH OFFICE"
+msgstr "Sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__branch_ids
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_form
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_tree
+msgid "Branch"
+msgstr "Sucursal"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_form
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_tree
+msgid "Branch Code"
+msgstr "Código sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__branch_id_api
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__branch_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__branch_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_pos_config__branch_id
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_form
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_tree
+msgid "Branch Id"
+msgstr "ID sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.actions.act_window,name:cucu_fact_core.action_view_branch_office
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_tree
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_manager_form
+msgid "Branch Office"
+msgstr "Sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__branch_configs
+msgid "Branch Office Config"
+msgstr "Configuración sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__branch_id
+msgid "Branch Office Id"
+msgstr "ID Sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__cafc
+msgid "Cafc"
+msgstr "CAFC"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.account_move_cancel_form
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.invoice_report_action_wizard_form_view
+msgid "Cancel"
+msgstr "Anular"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs
+msgid "Catalogs"
+msgstr "Catálogos"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__city
+#: model:ir.model.fields,field_description:cucu_fact_core.field_pos_config__cucu_city
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_config_settings__cucu_city
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_form
+msgid "City"
+msgstr "Ciudad"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__client_email
+msgid "Client Email"
+msgstr "Correo electrónico cliente"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__code_type_motive
+msgid "Code Type Motive"
+msgstr "Código tipo motivo"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__invoice_code
+msgid "Code invoice"
+msgstr "Código factura"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_config_form_inherit
+msgid "Color Border"
+msgstr "Color Borde"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_config_form_inherit
+msgid "Color Primary"
+msgstr "Color Primario"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_config_form_inherit
+msgid "Color Shadow"
+msgstr "Color Sombra"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_company__color_border
+msgid "Color border"
+msgstr "Color Borde"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_company__color_primary
+msgid "Color primary"
+msgstr "Color Primario"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_company__color_shadow
+msgid "Color shadow"
+msgstr "Color Sombra"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__company_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__company_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__company_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_res_company
+msgid "Company cucu"
+msgstr "Compañía cucu"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__client_complement
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__client_complement
+msgid "Complement"
+msgstr "Complemento"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.pos_config_setting_form_inherit
+msgid "Config Invoice Pos Sync - Api Token"
+msgstr "Config Factura Pos Sync - API Token"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_res_config_settings
+msgid "Config Settings"
+msgstr "Configuración"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_config_form_inherit
+msgid "Config invoice style"
+msgstr "Configuración estilo factura"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__contingency
+msgid "Contigencia"
+msgstr "Contigencia"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__count_items
+msgid "Count items"
+msgstr "Cant. Artículos"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__create_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__create_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__create_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__create_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__create_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__create_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__create_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__create_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__create_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__create_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__create_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__create_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_config_form_inherit
+msgid "Cucu Config (BO)"
+msgstr "Cucu Configuración"
+
+#. module: cucu_fact_core
+#: model:res.groups,name:cucu_fact_core.group_cucu_fact
+msgid "Cucu Fact"
+msgstr "Cucu Factura"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_cucu_log
+msgid "Cucu Log"
+msgstr "Cucu Log"
+
+#. module: cucu_fact_core
+#: model:ir.actions.act_window,name:cucu_fact_core.action_cucu_manager
+msgid "Cucu Manager"
+msgstr "Cucu Manager"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_pos_config__cucu_pos_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_config_settings__cucu_pos_id
+msgid "Cucu Pos"
+msgstr "Cucu POS"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_cucu_branch_office
+msgid "Cucu branch office"
+msgstr "Cucu Sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_cucu_pos
+msgid "Cucu pos"
+msgstr "Cucu POS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__cuf
+msgid "Cuf"
+msgstr "CUF"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__cufd
+msgid "Cufd"
+msgstr "CUFD"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__cuis
+msgid "Cuis"
+msgstr "CUIS"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs_currency
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__date_emission
+msgid "Date Emission"
+msgstr "Fecha Emisión"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Datos Cliente"
+msgstr "Datos Cliente"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Datos factura"
+msgstr "Datos factura"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__description
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__description
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__siat_description
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_tree
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_tree
+msgid "Description"
+msgstr "Descripción"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__display_name
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__display_name
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__display_name
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__display_name
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__display_name
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__display_name
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__display_name
+msgid "Display Name"
+msgstr "Nombre"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__doc_sector
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__doc_sector
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__doc_sector_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__doc_sector
+#: model:ir.model.fields,field_description:cucu_fact_core.field_pos_config__doc_sector
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_config_settings__doc_sector_id
+msgid "Doc Sector"
+msgstr "Documento Sector"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__doc_sector
+msgid "Doc sector"
+msgstr "Doc sector"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__client_doc_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__client_doc_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__doc_id
+msgid "Document type"
+msgstr "Tipo Documento"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__client_email
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__client_email
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__cucu_email
+msgid "Email"
+msgstr "Correo electrónico"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__end_date
+msgid "End Date"
+msgstr "Fecha finalización"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs_event_significant
+msgid "Event Significant"
+msgstr "Evento significativo"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__exchange_rate
+msgid "Exchange Rate"
+msgstr "Tipo de cambio"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__exchange_rate
+msgid "Exchange rate"
+msgstr "Tipo de cambio"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__45
+msgid "FACTURA COMERCIAL DE EXPORTACION PRECIO VENTA"
+msgstr "FACTURA COMERCIAL DE EXPORTACION PRECIO VENTA"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__3
+msgid "FACTURA COMERCIAL DE EXPORTACIÓN"
+msgstr "FACTURA COMERCIAL DE EXPORTACIÓN"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__20
+msgid "FACTURA COMERCIAL DE EXPORTACIÓN DE MINERALES"
+msgstr "FACTURA COMERCIAL DE EXPORTACIÓN DE MINERALES"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__28
+msgid "FACTURA COMERCIAL DE EXPORTACIÓN DE SERVICIOS"
+msgstr "FACTURA COMERCIAL DE EXPORTACIÓN DE SERVICIOS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__4
+msgid "FACTURA COMERCIAL DE EXPORTACIÓN EN LIBRE CONSIGNACIÓN"
+msgstr "FACTURA COMERCIAL DE EXPORTACIÓN EN LIBRE CONSIGNACIÓN"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__43
+msgid "FACTURA COMERCIAL DE EXPORTACIÓN HIDROCARBUROS"
+msgstr "FACTURA COMERCIAL DE EXPORTACIÓN HIDROCARBUROS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__35
+msgid "FACTURA COMPRA VENTA BONIFICACIONES"
+msgstr "FACTURA COMPRA VENTA BONIFICACIONES"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__41
+msgid "FACTURA COMPRA VENTA TASAS"
+msgstr "FACTURA COMPRA VENTA TASAS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__1
+msgid "FACTURA COMPRA-VENTA"
+msgstr "FACTURA COMPRA-VENTA"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__2
+msgid "FACTURA DE ALQUILER DE BIENES INMUEBLES"
+msgstr "FACTURA DE ALQUILER DE BIENES INMUEBLES"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__7
+msgid "FACTURA DE COMERCIALIZACIÓN DE ALIMENTOS - SEGURIDAD"
+msgstr "FACTURA DE COMERCIALIZACIÓN DE ALIMENTOS - SEGURIDAD"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__37
+msgid "FACTURA DE COMERCIALIZACIÓN DE GNV"
+msgstr "FACTURA DE COMERCIALIZACIÓN DE GNV"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__12
+msgid "FACTURA DE COMERCIALIZACIÓN DE HIDROCARBUROS"
+msgstr "FACTURA DE COMERCIALIZACIÓN DE HIDROCARBUROS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__9
+msgid "FACTURA DE COMPRA Y VENTA DE MONEDA EXTRANJERA"
+msgstr "FACTURA DE COMPRA Y VENTA DE MONEDA EXTRANJERA"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__15
+msgid "FACTURA DE ENTIDADES FINANCIERAS"
+msgstr "FACTURA DE ENTIDADES FINANCIERAS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__17
+msgid "FACTURA DE HOSPITALES/CLÍNICAS"
+msgstr "FACTURA DE HOSPITALES/CLÍNICAS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__16
+msgid "FACTURA DE HOTELES"
+msgstr "FACTURA DE HOTELES"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__18
+msgid "FACTURA DE JUEGOS DE AZAR"
+msgstr "FACTURA DE JUEGOS DE AZAR"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__34
+msgid "FACTURA DE SEGUROS"
+msgstr "FACTURA DE SEGUROS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__6
+msgid "FACTURA DE SERVICIO TURÍSTICO Y HOSPEDAJE"
+msgstr "FACTURA DE SERVICIO TURÍSTICO Y HOSPEDAJE"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__13
+msgid "FACTURA DE SERVICIOS BÁSICOS"
+msgstr "FACTURA DE SERVICIOS BÁSICOS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__5
+msgid "FACTURA DE ZONA FRANCA"
+msgstr "FACTURA DE ZONA FRANCA"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__10
+msgid "FACTURA DUTTY FREE"
+msgstr "FACTURA DUTTY FREE"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__51
+msgid "FACTURA ENGARRAFADORAS"
+msgstr "FACTURA ENGARRAFADORAS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__19
+msgid "FACTURA HIDROCARBUROS ALCANZADA IEHD"
+msgstr "FACTURA HIDROCARBUROS ALCANZADA IEHD"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__38
+msgid "FACTURA HIDROCARBUROS NO ALCANZADA IEHD"
+msgstr "FACTURA HIDROCARBUROS NO ALCANZADA IEHD"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__44
+msgid "FACTURA IMPORTACION COMERCIALIZACION LUBRICANTES"
+msgstr "FACTURA IMPORTACION COMERCIALIZACION LUBRICANTES"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__23
+msgid "FACTURA PREVALORADA"
+msgstr "FACTURA PREVALORADA"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__14
+msgid "FACTURA PRODUCTOS ALCANZADOS POR EL ICE"
+msgstr "FACTURA PRODUCTOS ALCANZADOS POR EL ICE"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__11
+msgid "FACTURA SECTORES EDUCATIVOS"
+msgstr "FACTURA SECTORES EDUCATIVOS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__22
+msgid "FACTURA TELECOMUNICACIONES"
+msgstr "FACTURA TELECOMUNICACIONES"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__21
+msgid "FACTURA VENTA INTERNA MINERALES"
+msgstr "FACTURA VENTA INTERNA MINERALES"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.pos_config_setting_form_inherit
+msgid "Fact Invoice Config"
+msgstr "Configuración factura"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Factura SIN JSON"
+msgstr "Factura SIN JSON"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Factura SIN XML"
+msgstr "Factura SIN XML"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Facturación en Linea"
+msgstr "Facturación en línea"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_fact_root
+msgid "Facturación en Línea"
+msgstr "Facturación en línea"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Facturar productos"
+msgstr "Facturar productos"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__canceled_invoices
+msgid "Facturas Anuladas"
+msgstr "Facturas Anuladas"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_follower_ids
+msgid "Followers"
+msgstr "Seguimiento"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (Colaboradores)"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.invoice_report_action_wizard_form_view
+msgid "Generate"
+msgstr "Generar"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__has_message
+msgid "Has Message"
+msgstr "Tiene Mensaje"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__id
+msgid "ID"
+msgstr "ID"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,help:cucu_fact_core.field_cucu_manager__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está marcada, nuevos mensajes requieren su atención."
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,help:cucu_fact_core.field_cucu_manager__message_has_error
+#: model:ir.model.fields,help:cucu_fact_core.field_cucu_manager__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si está marcada, algunos mensajes tienen un error de entrega."
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__invoice_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__invoice_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__invoice_id
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__exception_code
+msgid "Invoice Exception Code"
+msgstr "Factura Código de excepción"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__invoice_json
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__invoice_json
+msgid "Invoice JSON"
+msgstr "Factura JSON"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__invoice_number
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__invoice_number
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__invoice_number
+msgid "Invoice Number"
+msgstr "Número factura"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Invoice Option"
+msgstr "Anular factura"
+
+#. module: cucu_fact_core
+#: model:ir.actions.act_window,name:cucu_fact_core.action_cancel_wizard
+msgid "Invoice Options"
+msgstr "Anulación de factura"
+
+#. module: cucu_fact_core
+#: model:ir.actions.act_window,name:cucu_fact_core.action_invoice_report_wizard
+#: model:ir.ui.menu,name:cucu_fact_core.menu_report_invoice
+msgid "Invoice Reports"
+msgstr "Formato facturas"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__url_cucu
+msgid "Invoice Url"
+msgstr "Factura URL"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__invoice_xml
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__invoice_xml
+msgid "Invoice XML"
+msgstr "Factura XML"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__invoice_code
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__invoice_code
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__invoice_code
+msgid "Invoice code"
+msgstr "Código factura"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__invoice_json
+msgid "Invoice json"
+msgstr "Factura JSON"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__invoice_xml
+msgid "Invoice xml"
+msgstr "Factura XML"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__is_electronic
+msgid "Is Electronic"
+msgstr "Facturación electrónica"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_is_follower
+msgid "Is Follower"
+msgstr "Seguimiento facturas"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__is_offline
+msgid "Is Offline"
+msgstr "Fuera de línea"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__is_sin
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__is_sin
+msgid "Is SIN"
+msgstr "SIAT"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__is_send_email
+msgid "Is Send Email"
+msgstr "Envío correo electrónico"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__is_ticket
+msgid "Is Ticket"
+msgstr "Formato Ticket"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento Contable"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__write_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__write_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__write_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__write_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__write_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__write_uid
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__write_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__write_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__write_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__write_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__write_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__write_date
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__log_ids
+msgid "Logs"
+msgstr "Logs"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__manager_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__manager_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__manager_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_pos_config__manager_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_config_settings__manager_id
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_manager
+msgid "Manager"
+msgstr "Manager"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_manager_list
+msgid "Manager Api"
+msgstr "API Manager"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_has_error
+msgid "Message Delivery error"
+msgstr "Error entrega mensaje"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs_method_payment
+msgid "Method payment"
+msgstr "Método de pago"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__municipality
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__municipality
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_tree
+msgid "Municipality"
+msgstr "Municipio"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__47
+msgid "NOTA CRÉDITO DÉBITO DESCUENTO"
+msgstr "NOTA CRÉDITO DÉBITO DESCUENTO"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__48
+msgid "NOTA CRÉDITO DÉBITO ICE"
+msgstr "NOTA CRÉDITO DÉBITO ICE"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__29
+msgid "NOTA DE CONCILIACION"
+msgstr "NOTA DE CONCILIACION"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields.selection,name:cucu_fact_core.selection__cucu_manager__doc_sector_id__24
+msgid "NOTA DE CRÉDITO-DÉBITO"
+msgstr "NOTA DE CRÉDITO-DÉBITO"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__name
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__name
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_tree
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_form
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_tree
+msgid "Name"
+msgstr "Nombre"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Name legal"
+msgstr "Razón Social"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__nit_emissor
+msgid "Nit"
+msgstr "NIT"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__client_nro_document
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__client_nro_document
+msgid "Number Document"
+msgstr "Número Documento"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__number_card
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__number_card
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__card_number
+msgid "Number card"
+msgstr "Número Tarjeta"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__number_invoice
+msgid "Number invoice"
+msgstr "Número Factura"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número eventos"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_has_error_counter
+msgid "Number of errors"
+msgstr "Número errores"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,help:cucu_fact_core.field_cucu_manager__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Número de mensajes que requieren una acción"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,help:cucu_fact_core.field_cucu_manager__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensajes con error de entrega"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__observations
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__observations
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__observations
+msgid "Observations"
+msgstr "Comentarios"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__pos
+msgid "POS"
+msgstr "POS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__pos_configs
+msgid "POS Config"
+msgstr "POS Configuración"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__partner_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__partner_id
+msgid "Partner"
+msgstr "Socio"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__password
+msgid "Password"
+msgstr "API Token"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__payment_method_code
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__payment_method_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__payment_method_code
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__payment_method_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__payment_method_code
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__payment_method_id
+msgid "Payment Method"
+msgstr "Método pago"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Payment method"
+msgstr "Método pago"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__phone
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_tree
+msgid "Phone"
+msgstr "Teléfono"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__pos_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__pos_id
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs_point_of_sale
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.pos_config_setting_form_inherit
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_form
+msgid "Point Of Sale"
+msgstr "Punto de venta"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Punto de Venta Configuración"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "Punto de Venta Pedidos"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_tree
+msgid "Pos"
+msgstr "POS"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_tree
+msgid "Pos Code"
+msgstr "POS Código"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__pos_id_api
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__pos_id
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__pos_id
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_form
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_pos_tree
+msgid "Pos Id"
+msgstr "POS ID"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__pos_name
+msgid "Pos Name"
+msgstr "POS Nombre"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__pos_session_id
+msgid "Pos Session"
+msgstr "POS Sesión"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__pos_id
+msgid "Pos lines"
+msgstr "POS Líneas"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs_product_service
+msgid "Product Service"
+msgstr "Catálogo productos"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__qr_code
+msgid "QR Code"
+msgstr "Código QR"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__client_reason_social
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__client_reason_social
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__reason_social_emissor
+msgid "Reason social"
+msgstr "Razón Social"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.account_move_cancel_form
+msgid "Register move"
+msgstr "Registrar movimiento"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_manager_form
+msgid "Renew Token"
+msgstr "Renovar Token"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Report A4"
+msgstr "Factura A4"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Report Cucu"
+msgstr "Facturas"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Report SIN"
+msgstr "Factura SIAT"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Report Ticket"
+msgstr "Factura Ticket"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_action_account_invoice_report_wizard
+msgid "Reportes Impuestos"
+msgstr "Reportes Impuestos"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__json_response
+msgid "Response"
+msgstr "Respuesta"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.account_move_cancel_form
+msgid "Revert"
+msgstr "Rectificar"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de entrega SMS"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.invoice_report_action_wizard_form_view
+msgid "Sales and stock report"
+msgstr "Informe ventas y existencias"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.account_move_cancel_form
+msgid "Send"
+msgstr "Enviar"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__siat_type_pos
+msgid "Siat Type Pos"
+msgstr "Siat Tipo POS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__siat_branch_code
+msgid "Siat branch code"
+msgstr "Siat Código sucursal"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_branch_office__siat_code
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_pos__siat_code
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_form
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_tree
+msgid "Siat code"
+msgstr "Siat Código"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__sin_code_reception
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__sin_code_reception
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__sin_code_reception
+msgid "Siat code reception"
+msgstr "Siat Código recepción"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__sin_code_state
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__sin_code_state
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move_cancel__siat_code_state
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__sin_code_state
+msgid "Siat code state"
+msgstr "Siat Código estado"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_bank_statement_line__sin_description_status
+#: model:ir.model.fields,field_description:cucu_fact_core.field_account_move__sin_description_status
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_invoice__sin_description_status
+msgid "Siat description status"
+msgstr "Siat Descripción estado"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Sin Status"
+msgstr "Estado factura"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_invoice_report__start_date
+msgid "Start Date"
+msgstr "Fecha Inicio"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Status Invoice SIN"
+msgstr "Estado factura SIAT"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Status SIN"
+msgstr "Estado SIAT"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_manager_form
+msgid "Sync Branch"
+msgstr "Sincronizar Sucursal"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_cucu_manager_form
+msgid "Sync Catalog"
+msgstr "Sincronizar Catálogo"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_branch_office_form
+msgid "Sync Pos"
+msgstr "Sincronizar POS"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__token
+msgid "Token"
+msgstr "Token"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_log__type_event
+msgid "Type Event"
+msgstr "Tipo Evento"
+
+#. module: cucu_fact_core
+#: model:ir.ui.menu,name:cucu_fact_core.menu_cucu_catalogs_unit_measure
+msgid "Unit Measure"
+msgstr "Unidad de medida"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__host
+msgid "Url"
+msgstr "URL"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__username
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Ver Factura Cucu A4"
+msgstr "Factura Cucu A4"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Ver Factura Cucu Ticket"
+msgstr "Factura Cucu Ticket"
+
+#. module: cucu_fact_core
+#: model_terms:ir.ui.view,arch_db:cucu_fact_core.view_move_form_inherit
+msgid "Ver Factura SIN"
+msgstr "Factura SIAT"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_company__water_mark_top
+msgid "Water Mark Top"
+msgstr "Marca de Agua Superior"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_company__water_mark_width
+msgid "Water Mark Width"
+msgstr "Marca de Agua Ancho"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_res_company__water_mark
+msgid "Water mark"
+msgstr "Marca de Agua"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,field_description:cucu_fact_core.field_cucu_manager__website_message_ids
+msgid "Website Messages"
+msgstr "Mensajes Sitio Web"
+
+#. module: cucu_fact_core
+#: model:ir.model.fields,help:cucu_fact_core.field_cucu_manager__website_message_ids
+msgid "Website communication history"
+msgstr "Historial comunicación web"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_cucu_invoice
+msgid "cucu.invoice"
+msgstr "cucu.invoice"
+
+#. module: cucu_fact_core
+#: model:ir.model,name:cucu_fact_core.model_invoice_report
+msgid "invoice.report"
+msgstr "invoice.report"
+
+#. module: cucu_fact_core
+#: model:ir.model.constraint,message:cucu_fact_core.constraint_cucu_manager_username_unique
+msgid "username exist"
+msgstr "usuario ya existe"

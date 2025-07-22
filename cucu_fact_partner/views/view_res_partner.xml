@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_res_partner_inherit_cucu" model="ir.ui.view">
+    <field name="name">res.partner.form.inherit</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//form//sheet//group" position="after">
+        <group>
+          <group string="Datos de facturación">
+            <field name="doc_id" widget="many2one" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+            <field name="nit_client"/>
+            <!-- <field name="complement" attrs="{'invisible': 0}"/> -->
+            <field name="complement"/>
+            <field name="reason_social"/>
+            <field name="cucu_email"/>
+            <field name="nit_valid" invisible="1"/>
+          </group>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>
+

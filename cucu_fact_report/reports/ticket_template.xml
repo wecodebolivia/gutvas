@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2021-Present cucu | soluciones digitales -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <template id="cucu_report_ticket">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family:'Cucu Font' !important;font-weight: normal">
+                        <div class="page text-gray-800 relative" style="color: #000000">
+                            <t t-if="o.sin_code_state == 905">
+                                <h1 class="mr-4 font-semibold fixed top-[430px] -left-1"
+                                    style="transform: rotate(-45deg);-webkit-transform: rotate(-45deg);-ms-transform: rotate(-45deg);transform: rotate(-45deg);font-size:100px;color: rgba(0, 0, 0, 0.1);">
+                                    ANULADO
+                                </h1>
+                            </t>
+                            <div class="text-center mt-2">
+                                <t t-if="header['doc_sector'] == 1">
+                                    <div style="font-weight: bold; font-size: 1rem">FACTURA</div>
+                                    <div style="font-weight: bold; font-size: 0.9rem">CON DERECHO A CRÉDITO FISCAL</div>
+                                </t>
+                                <t t-if="header['doc_sector'] == 24">
+                                    <div style="font-weight: bold; font-size: 1rem">NOTA CRÉDITO-DÉBITO</div>
+                                </t>
+                                <div class="text-center" style="font-size: 13px">
+                                    <div t-esc="header['razonSocialEmisor']"/>
+                                    <div t-esc="header['branch_name']"/>
+                                    <div t-esc="header['codigoPuntoVenta']"/>
+                                    <div t-esc="header['direccion']"/>
+                                    <div t-esc="header['telefono']"/>
+                                    <div t-esc="header['municipio']"/>
+                                </div>
+                            </div>
+                            <div class="text-center" style="font-size: 12px">
+                                <div class="my-2 tw-dashed"/>
+                                <div class="mt-1">
+                                    <div class="text-center">
+                                        <b>NIT</b>
+                                        <div t-esc="header['nitEmisor']"/>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <b t-if="header['doc_sector'] == 1">N° FACTURA</b>
+                                        <b t-if="header['doc_sector'] == 24">N° NOTA CRÉDITO-DÉBITO:</b>
+                                        <div t-if="header['doc_sector'] == 1" t-esc="header['numeroFactura']"/>
+                                        <div t-if="header['doc_sector'] == 24" t-esc="header['numeroNotaCreditoDebito']"/>
+                                    </div>
+                                    <div class="text-center break-all">
+                                        <b>CÓD. AUTORIZACIÓN</b>
+                                        <div t-esc="header['cuf']"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="my-2 tw-dashed"/>
+                            <div class="flex flex-col mt-2" style="font-size:12px" id="invoice_params">
+                                <div class="">
+                                    <b class="pr-1 font-semibold">
+                                        Nombre/Razón social:
+                                    </b>
+                                    <t t-esc="header['nombreRazonSocial']"/>
+                                </div>
+                                <div>
+                                    <b class="pr-1 font-semibold">
+                                        NIT/CI/CEX:
+                                    </b>
+                                    <t t-esc="header['numeroDocumento']"/>
+                                </div>
+                                <div>
+                                    <b class="pr-1 font-semibold">
+                                        Cod. Cliente:
+                                    </b>
+                                    <t t-esc="header['codigoCliente']"/>
+                                </div>
+                                <div>
+                                    <b class="pr-1 font-semibold">
+                                        Fecha de emisión:
+                                    </b>
+                                    <t t-if="header['doc_sector'] == 1" t-esc="header['fechaEmision']"/>
+                                    <t t-if="header['doc_sector'] == 24" t-esc="header['fechaEmisionFactura']"/>
+                                </div>
+                            </div>
+                            <div class="my-2 tw-dashed"/>
+                            <div t-if="header['doc_sector'] == 1" id="invoice_sale">
+                                <div class="text-center" style="margin-top: 0.5rem">
+                                    <b>DETALLE</b>
+                                </div>
+                                <table class="w-full mt-1" style="font-size: 12px" name="invoice_line_table" cellpadding="15" cellspacing="15">
+                                    <tbody class="">
+                                        <t t-foreach="detail" t-as="line">
+                                            <tr>
+                                                <div style="font-size: 12px;margin-top: 0.2rem;padding-top: 0.3rem;border-bottom:1px solid #eee;padding-bottom:0.3rem">
+                                                    <div t-esc="line['descripcion']" class="font-semibold" style="padding-top: 0.4rem"/>
+                                                    <div style="font-size: 9px;padding-top: 0.2rem; padding-bottom: 0.1rem"
+                                                         t-esc="'Unidad de medida: ' + line['unit_description']"/>
+                                                    <div class="flex flex-row justify-between" style="margin-top: 0.25rem:font-size:11px">
+                                                        <div t-esc="line['cantidad'] + ' X ' + line['precioUnitario'] + ' - ' + line['montoDescuento']"/>
+                                                        <div t-esc="line['subTotal']"/>
+                                                    </div>
+                                                </div>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th style="border-bottom:1px dashed black"/>
+                                            <th style="border-bottom:1px dashed black"/>
+                                            <th style="border-bottom:1px dashed black"/>
+                                            <th style="border-bottom:1px dashed black"/>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" style="font-weight:normal" class="text-right pt-2">SUB TOTAL
+                                                Bs:
+                                            </th>
+                                            <th colspan="2" style="font-weight:normal" class="text-right font-normal pt-2"
+                                                t-esc="header['montoTotal']"/>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" style="font-weight:normal" class="text-right pt-2">DESCUENTO
+                                                Bs:
+                                            </th>
+                                            <th colspan="2" style="font-weight:normal" class="text-right font-normal pt-2"
+                                                t-esc="header['descuentoAdicional']"/>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" style="font-weight:normal" class="text-right pt-2">TOTAL Bs:
+                                            </th>
+                                            <th colspan="2" style="font-weight:normal" class="text-right font-normal pt-2"
+                                                t-esc="header['montoTotalMoneda']"/>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" style="font-weight:normal" class="text-right pt-2">MONTO GIFT
+                                                CARD Bs:
+                                            </th>
+                                            <th colspan="2" style="font-weight:normal" class="text-right font-normal pt-2" t-esc="header['montoGiftCard']"/>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" style="font-weight:bold" class="text-right pt-2">MONTO A
+                                                PAGAR Bs:
+                                            </th>
+                                            <th colspan="2" style="font-weight:normal" class="text-right font-normal pt-2"
+                                                t-esc="header['montoTotalSujetoIva']"/>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" style="font-weight:bold" class="text-right pt-2">IMPORTE
+                                                BASE CRÉDITO FISCAL Bs:
+                                            </th>
+                                            <th colspan="2" style="font-weight:normal" class="text-right font-normal pt-2"
+                                                t-esc="header['montoTotalSujetoIva']"/>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div t-esc="'Son: ' + header['montoLiteral']" style="margin-top: 1rem;font-size:12px"/>
+<!--                            <div class="my-2 tw-dashed"/>-->
+                            <t t-if="header['observations']">
+                                <div t-esc="'Nota Factura: ' + header['observations']" style="margin-top: 0.5rem;font-size: 13px"/>
+                            </t>
+<!--                            <t t-if="o.exchange_rate">-->
+<!--                                Tipo de Cambio-->
+<!--                                <div t-esc="o.exchange_rate" style="margin-top: 0.5rem;font-size: 13px"/>-->
+<!--                            </t>-->
+<!--                            <t t-if="o.amount_usd">-->
+<!--                                Monto USD-->
+<!--                                <div t-esc="round(o.amount_usd, 2)" style="margin-top: 0.5rem;font-size: 13px"/>-->
+<!--                            </t>-->
+                            <div class="my-2 tw-dashed"/>
+                            <div class="flex flex-col text-center" style="font-size:11px">
+                                <div class="flex flex-col">
+                                    <div class="flex flex-col text-center">
+                                        ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS,
+                                        EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE
+                                        ACUERDO A LEY
+                                    </div>
+                                    <div class="text-center pt-2 text-center">
+                                        <p t-esc="header['leyenda']"/>
+                                    </div>
+                                    <div style="margin-top:0.5rem" class="text-center">
+                                        "Este documento es la Representación Gráfica de un Documento Fiscal Digital
+                                        emitido en una modalidad de facturación en línea"
+                                    </div>
+                                </div>
+                                <div class="flex justify-center w-full">
+                                    <img t-att-src="header['qr']" width="120" height="120" class="mt-2 mx-auto text-center"/>
+                                </div>
+                                <div class="my-2 tw-dashed"/>
+                                <div class="text-center w-full text-center">GRACIAS POR SU COMPRA!!!!</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_form_inherit" model="ir.ui.view">
+        <field name="name">product.form</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='purchase_ok']" position="before">
+                <span class="d-inline-block">
+                    <field name="sin_ok"/>
+                    <label for="sin_ok"/>
+                </span>
+            </xpath>
+            <notebook>
+                <page string="Homologación Sin" name="Homologación" invisible="sin_ok == False">
+                    <group>
+                        <field name="unit_measure_id" widget="many2one" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"
+                               domain="[('is_visible', '=', True),('company_id','=',allowed_company_ids[0])]"
+                               invisible="sin_ok == False" required="sin_ok == True"/>
+                        <field name="code_type_activity" invisible="True"/>
+                        <field name="code_product_sin_id" widget="many2one" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"
+                               domain="[('is_visible', '=', True),('company_id','=',allowed_company_ids[0]),('code_type', '=', code_type_activity)]"
+                               required="sin_ok == True" />
+                        <field name="number_serial" invisible="sin_ok == False"/>
+                        <field name="number_imei" invisible="sin_ok == False"/>
+                    </group>
+                </page>
+            </notebook>
+            <xpath expr="//field[@name='default_code']" position="attributes">
+                <attribute name="required">sin_ok == True</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

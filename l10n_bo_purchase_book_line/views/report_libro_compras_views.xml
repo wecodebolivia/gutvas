@@ -1,0 +1,32 @@
+<!-- l10n_bo_purchase_book_line/views/report_libro_compras_views.xml -->
+
+<odoo>
+    <record id="view_report_libro_compras_form" model="ir.ui.view">
+        <field name="name">report.libro.compras.form</field>
+        <field name="model">report.libro.compras</field>
+        <field name="arch" type="xml">
+            <form string="Generar Reporte de Libro de Compras">
+                <group>
+                    <field name="fecha_inicio" required="1"/>
+                    <field name="fecha_fin" required="1"/>
+                </group>
+                <footer>
+                    <button name="exportar_excel" type="object" string="Generar Reporte" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir el formulario del reporte -->
+    <record id="action_report_libro_compras" model="ir.actions.act_window">
+        <field name="name">Generar Reporte de Libro de Compras</field>
+        <field name="res_model">report.libro.compras</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menú principal del reporte -->
+    <menuitem id="menu_report_libro_compras" name="Libro de Compras v2" parent="account.menu_finance_reports" sequence="100"/>
+    <menuitem id="menu_action_report_libro_compras" name="Generar Reporte" parent="menu_report_libro_compras" action="action_report_libro_compras" sequence="10"/>
+</odoo>

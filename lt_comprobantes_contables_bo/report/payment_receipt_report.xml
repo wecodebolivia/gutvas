@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_custom_payment_receipt_document">
+        <t t-name="lt_comprobantes_contables_bo.report_custom_payment_receipt_document">
+            <t t-call="web.external_layout">
+                <t t-set="o" t-value="docs[0].with_context(lang=lang)"/>
+                
+                <main> <!-- Elemento main añadido para compatibilidad -->
+                    <div class="page" style="font-size: 18px;">
+                        <!-- Encabezado -->
+                        <div class="text-center mb-4">
+                            <h2>
+                                <strong>COMPROBANTE DE <span t-esc="'INGRESO' if o.payment_type == 'inbound' else 'EGRESO'"/></strong>
+                            </h2>
+                            <h3 t-field="o.name"/>
+                        </div>
+
+                        <!-- Información básica del pago -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <p><strong>Fecha:</strong> <span t-field="o.date"/></p>
+                                <p><strong>Monto:</strong> 
+                                    <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                     <br/>
+                                    <span t-esc="o.currency_id.amount_to_text(o.amount)"/>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p t-if="o.partner_type == 'customer'">
+                                    <strong>Cliente:</strong> <span t-field="o.partner_id"/>
+                                </p>
+                                <p t-elif="o.partner_type == 'supplier'">
+                                    <strong>Proveedor:</strong> <span t-field="o.partner_id"/>
+                                </p>
+                                <p>
+                                    <strong>Método de pago:</strong> <span t-field="o.payment_method_line_id.name"/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Referencia -->
+                        <div class="mb-4">
+                            <p><strong>Referencia:</strong> 
+                                <span t-if="o.memo" t-field="o.memo"/>
+                                <span t-else="">-</span>
+                            </p>
+                        </div>
+
+                        <!-- Detalle contable -->
+                        <div class="mb-4">
+                            <h4 class="text-center">DETALLE CONTABLE</h4>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Cuenta</th>
+                                        <th>Descripción</th>
+                                        <th class="text-end">Débito</th>
+                                        <th class="text-end">Crédito</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="total_debit" t-value="0"/>
+                                    <t t-set="total_credit" t-value="0"/>
+                                    <tr t-foreach="o.move_id.line_ids" t-as="line">
+                                        <t t-set="total_debit" t-value="total_debit + line.debit"/>
+                                        <t t-set="total_credit" t-value="total_credit + line.credit"/>
+                                        <td><span t-field="line.account_id"/></td>
+                                        <td>
+                                            <span t-if="o.memo" t-field="o.memo"/>
+                                            <span t-else="">-</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-field="line.debit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-field="line.credit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" class="text-end"><strong>TOTALES</strong></td>
+                                        <td class="text-end">
+                                            <strong t-esc="total_debit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong t-esc="total_credit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Facturas relacionadas -->
+                        <div class="mb-4" t-if="o.reconciled_bill_ids or o.reconciled_invoice_ids">
+                            <h4 class="text-center">DOCUMENTOS RELACIONADOS</h4>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Número</th>
+                                        <th>Fecha</th>
+                                        <th class="text-end">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.reconciled_bill_ids" t-as="bill">
+                                        <td>Factura Proveedor</td>
+                                        <td><span t-field="bill.name"/></td>
+                                        <td><span t-field="bill.invoice_date"/></td>
+                                        <td class="text-end">
+                                            <span t-field="bill.amount_total" t-options="{'widget': 'monetary', 'display_currency': bill.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-foreach="o.reconciled_invoice_ids" t-as="invoice">
+                                        <td>Factura Cliente</td>
+                                        <td><span t-field="invoice.name"/></td>
+                                        <td><span t-field="invoice.invoice_date"/></td>
+                                        <td class="text-end">
+                                            <span t-field="invoice.amount_total" t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Firmas -->
+                        <div class="mt-5">
+                            <table style="width: 100%; margin-top: 80px;">
+                                <tr>
+                                    <td style="width: 25%; text-align: center;">
+                                        <p>________________________</p>
+                                        <p>Elaborado por</p>
+                                    </td>
+                                    <td style="width: 25%; text-align: center;">
+                                        <p>________________________</p>
+                                        <p>Revisado por</p>
+                                    </td>
+                                    <td style="width: 25%; text-align: center;">
+                                        <p>________________________</p>
+                                        <p>Autorizado por</p>
+                                    </td>
+                                    <td style="width: 25%; text-align: center;">
+                                        <p>________________________</p>
+                                        <p>Recibí conforme</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </t>
+        </t>
+    </template>
+
+    <record id="payment_receipt_report_id" model="ir.actions.report">
+        <field name="name">Comprobante de Pago</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lt_comprobantes_contables_bo.report_custom_payment_receipt_document</field>
+        <field name="report_file">lt_comprobantes_contables_bo.report_custom_payment_receipt_document</field>
+        <field name="print_report_name">'Comprobante - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

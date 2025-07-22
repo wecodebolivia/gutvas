@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2021-Present cucu | soluciones digitales -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <record id="paper_format_cucu_ticket" model="report.paperformat">
+        <field name="name">Cucu invoice A4</field>
+        <field name="format">custom</field>
+        <field name="page_height">500</field>
+        <field name="page_width">75</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">3</field>
+        <field name="margin_bottom">0</field>
+        <field name="margin_left">1</field>
+        <field name="margin_right">1</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">100</field>
+        <field name="dpi">120</field>
+        <field name="disable_shrinking" eval="True"/>
+    </record>
+    <record id="action_report_cucu_ticket" model="ir.actions.report">
+        <field name="name">Factura ticket</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cucu_fact_report.cucu_report_ticket</field>
+        <field name="report_file">cucu_fact_report.cucu_report_ticket</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="paperformat_id" ref="cucu_fact_report.paper_format_cucu_ticket"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

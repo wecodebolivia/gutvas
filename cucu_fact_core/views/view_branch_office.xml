@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_branch_office_form" model="ir.ui.view">
+            <field name="name">view.branch.office.form</field>
+            <field name="model">cucu.branch.office</field>
+            <field name="arch" type="xml">
+                <form create="0" delete="0" duplicate="0" edit="0">
+                    <header>
+                        <button name="action_sync_pos" string="Sync Pos" class="btn-primary" type="object"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="branch_id" string="Branch Id"/>
+                            <field name="siat_code" string="Siat code"/>
+                            <field name="city" string="City"/>
+                            <field name="address" string="Address"/>
+                            <field name="municipality"/>
+                            <field name="description"/>
+                        </group>
+                        <notebook>
+                            <page string="Point Of Sale" name="cucu_point_of_sale">
+                                <field name="pos_id" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_branch_office_tree" model="ir.ui.view">
+            <field name="name">view.branch.office.tree</field>
+            <field name="model">cucu.branch.office</field>
+            <field name="arch" type="xml">
+                <list string="Branch Office" create="0" export_xlsx="0" delete="0">
+                    <field name="branch_id" string="Branch Id"/>
+                    <field name="siat_code" string="Siat code"/>
+                    <field name="description" string="Description"/>
+                    <field name="name" string="Name"/>
+                    <field name="phone" string="Phone"/>
+                    <field name="municipality" string="Municipality"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_view_branch_office" model="ir.actions.act_window">
+            <field name="name">Branch Office</field>
+            <field name="res_model">cucu.branch.office</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('company_id','=', allowed_company_ids[0])]</field>
+        </record>
+    </data>
+</odoo>

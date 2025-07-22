@@ -1,0 +1,24 @@
+<odoo>
+    <data noupdate="1">
+        <record id="document_1" model="cucu.catalogs.documents">
+            <field name="code_type">1</field>
+            <field name="description">CI - CEDULA DE IDENTIDAD</field>
+        </record>
+         <record id="document_2" model="cucu.catalogs.documents">
+            <field name="code_type">2</field>
+            <field name="description">CEX - CEDULA DE IDENTIDAD DE EXTRANJERO</field>
+        </record>
+         <record id="document_3" model="cucu.catalogs.documents">
+            <field name="code_type">3</field>
+            <field name="description">PAS - PASAPORTE</field>
+        </record>
+         <record id="document_4" model="cucu.catalogs.documents">
+            <field name="code_type">4</field>
+            <field name="description">OD - OTRO DOCUMENTO DE IDENTIDAD</field>
+        </record>
+         <record id="document_5" model="cucu.catalogs.documents">
+            <field name="code_type">5</field>
+            <field name="description">NIT - NÚMERO DE IDENTIFICACIÓN TRIBUTARIA</field>
+        </record>
+    </data>
+</odoo>

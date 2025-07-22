@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+  <t t-name="PartnerDetailsEdit" t-inherit="point_of_sale.PartnerDetailsEdit" t-inherit-mode="extension" owl="1">
+    <xpath expr="//section//div" position="replace">
+        <div class="container" style="margin-top: 1rem">
+            <div class="partner-details-header d-flex pe-2 gap-2">
+                    <div class="partner-picture position-relative rounded text-center overflow-hidden">
+                        <t t-if="partnerImageUrl">
+                            <img class="rounded" t-att-src="partnerImageUrl" alt="Partner"
+                                 style="width: 64px; height: 64px; object-fit: cover;"/>
+                        </t>
+                        <t t-else="">
+                            <i class="fa fa-camera" role="img" aria-label="Picture" title="Picture"></i>
+                        </t>
+                        <input type="file" class="image-uploader" t-on-change="uploadImage"/>
+                    </div>
+                <input class="detail partner-name form-control form-control-lg" t-model="changes.name" name="name"
+                       placeholder="Name"/>
+                </div>
+            <div class="partner-details-box row row-cols-1 row-cols-sm-2 gy-3 mt-3">
+            <div class="partner-detail col">
+                <label class="form-label label" for="doc_id">Tipo Documento</label>
+                <select class="detail form-select" id="doc_id" name="doc_id" t-model="changes.doc_id"
+                        t-att-class="{'border-danger': missingFields.includes('doc_id')}">
+                            <option value="">Seleccione documento</option>
+                    <t t-foreach="pos.documents_id" t-as="doc" t-key="doc.code_type">
+
+                                    <option t-att-value="doc.code_type"
+                                            t-att-selected="changes.doc_id ? ((doc.code_type == changes.doc_id) ? true : undefined) : undefined">
+                                    <t t-esc="doc.description"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                <div class="partner-detail col">
+                <label class="form-label label" for="nit_client">Número Documento</label>
+                    <input class="detail form-control"
+                           id="nit_client"
+                           name="nit_client"
+                           type="text"
+                           t-model="changes.nit_client"
+                           placeholder="Ej. 123456789"
+                    />
+            </div>
+                <div class="partner-detail col">
+                <label class="form-label label" for="nit_client">Complemento</label>
+                    <input class="detail form-control"
+                           id="complement"
+                           name="complement"
+                           type="text"
+                           t-model="changes.complement"
+                           placeholder="Ej. 2K"
+                           maxlength="2"
+                    />
+                </div>
+                <div class="partner-detail col">
+                <label class="form-label label" for="reason_social">Razón Social</label>
+                    <input class="detail form-control"
+                           id="reason_social"
+                           name="reason_social"
+                           type="text"
+                           t-model="changes.reason_social"
+                           placeholder="Ej. Cucu"
+                    />
+                </div>
+                <div class="partner-detail col">
+                <label class="form-label label" for="cucu_email">Email</label>
+                    <input class="detail form-control"
+                           id="cucu_email"
+                           name="cucu_email"
+                           type="email"
+                           t-model="changes.cucu_email"
+                           placeholder="Ej. api@cucu.bo"
+                    />
+                </div>
+                <t t-foreach="['Street', 'City', 'Phone',  ]" t-as="item" t-key="item">
+                    <div class="partner-detail col">
+                        <label class="form-label label" t-attf-for="{{item}}" t-esc="item"/>
+                        <input class="detail form-control"
+                               t-attf-id="{{item}}"
+                               t-attf-name="{{item}}"
+                               t-model="changes[item.toLowerCase()]"
+                               t-attf-placeholder="{{item}}"
+                               t-att-class="{'border-danger': missingFields.includes(item.toLowerCase())}"/>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </xpath>
+  </t>
+</templates>

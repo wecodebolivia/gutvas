@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_cucu_fact_root" name="Facturación en Línea" sequence="0"
+              web_icon="cucu_fact_core,static/description/icon.png"  groups="base.group_system" />
+
+    <menuitem id="menu_cucu_manager" parent="menu_cucu_fact_root" name="Manager"
+              action="action_cucu_manager" groups="group_cucu_fact"
+              sequence="1"/>
+
+    <!--    <menuitem id="menu_cucu_branch_office" parent="menu_cucu_fact_root" name="Branch office"-->
+    <!--              action="action_view_branch_office" groups="group_cucu_fact"-->
+    <!--              sequence="1"/>-->
+
+    <menuitem id="menu_cucu_catalogs" parent="menu_cucu_fact_root" name="Catalogs" groups="group_cucu_fact"
+              sequence="2"/>
+
+    <menuitem id="menu_cucu_catalogs_product_service" parent="menu_cucu_catalogs" name="Product Service"
+              action="cucu_fact_catalog.action_view_catalog_product_service"
+              sequence="2" groups="group_cucu_fact"/>
+
+    <menuitem id="menu_cucu_catalogs_activities" parent="menu_cucu_catalogs" name="Activities"
+              action="cucu_fact_catalog.action_view_catalog_activities"
+              sequence="2"
+              groups="group_cucu_fact"/>
+
+    <menuitem id="menu_cucu_catalogs_event_significant" parent="menu_cucu_catalogs" name="Event Significant"
+              action="cucu_fact_catalog.action_view_catalog_event_significant"
+              sequence="2" groups="group_cucu_fact"/>
+
+    <menuitem id="menu_cucu_catalogs_method_payment" parent="menu_cucu_catalogs" name="Method payment"
+              action="cucu_fact_catalog.action_view_catalog_method_payment"
+              sequence="2"
+              groups="group_cucu_fact"/>
+
+    <menuitem id="menu_cucu_catalogs_currency" parent="menu_cucu_catalogs" name="Currency"
+              action="cucu_fact_catalog.action_view_catalog_currency" sequence="2"
+              groups="group_cucu_fact"/>
+
+    <menuitem id="menu_cucu_catalogs_point_of_sale" parent="menu_cucu_catalogs" name="Point Of Sale"
+              action="cucu_fact_catalog.action_view_catalog_point_of_sale"
+              sequence="2"
+              groups="group_cucu_fact"/>
+
+    <menuitem id="menu_cucu_catalogs_unit_measure" parent="menu_cucu_catalogs" name="Unit Measure"
+              action="cucu_fact_catalog.action_view_catalog_unit_measure"
+              sequence="2"
+              groups="group_cucu_fact"/>
+</odoo>

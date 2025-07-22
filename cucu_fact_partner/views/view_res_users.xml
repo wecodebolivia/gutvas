@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2021-Present cucu | soluciones digitales -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+  <record id="view_res_users_form_inherit_cucu" model="ir.ui.view">
+    <field name="name">view.res.users.form.inherit.cucu</field>
+    <field name="model">res.users</field>
+    <field name="inherit_id" ref="base.view_users_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Facturación en Linea">
+          <group>
+            <field name="company_id"/>
+            <field name="pos_id"/>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+</odoo>

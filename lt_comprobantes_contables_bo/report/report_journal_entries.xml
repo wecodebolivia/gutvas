@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="journal_entry_report_id" model="ir.actions.report">
+            <field name="name">Comprobante de movimiento</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">lt_comprobantes_contables_bo.journal_entry_report_template_id</field>
+            <field name="report_file">lt_comprobantes_contables_bo.journal_entry_report_template_id</field>
+            <field name="print_report_name">'Comprobante de movimiento - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <!-- Eliminada completamente la línea de paperformat_id -->
+        </record>
+    </data>
+</odoo>

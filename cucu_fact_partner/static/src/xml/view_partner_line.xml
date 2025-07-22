@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2021-Present cucu | soluciones digitales -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<templates id="template" xml:space="preserve">
+    <t t-inherit="point_of_sale.PartnerListScreen" t-inherit-mode="extension">
+      <xpath expr="//table//thead//tr//th[1]" position="after">
+          <th class="py-2">Nit Client</th>
+      </xpath>
+    </t>
+    <t t-inherit="point_of_sale.PartnerLine" t-inherit-mode="extension">
+      <xpath expr="//tr//td[1]" position="after">
+          <td>
+                <div class="" t-if="props.partner.nit_client">
+                    <t t-esc="props.partner.nit_client"/>
+                </div>
+                <div class="" t-else="">
+                    -
+                </div>
+            </td>
+      </xpath>
+    </t>
+</templates>
+
+
+
+
+
+
