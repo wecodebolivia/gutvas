@@ -11,7 +11,7 @@
                 <attribute name="required">is_sin</attribute>
             </xpath>
             <xpath expr="//header" position="inside">
-                <button name="%(cucu_fact_core.action_cancel_wizard)d" string="Invoice Siat Options" type="action" class="oe_highlight"
+                <button name="%(cucu_fact_core.action_cancel_wizard)d" string="Invoice Option" type="action" class="oe_highlight"
                         invisible="state == 'draft'" groups="base.group_user"/>
                 <div class="btn-group" invisible="state == 'draft'">
                     <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" name="object">
