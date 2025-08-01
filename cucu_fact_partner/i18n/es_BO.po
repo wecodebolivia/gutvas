@@ -1,0 +1,151 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* cucu_fact_partner
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20250123\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-10 00:43+0000\n"
+"PO-Revision-Date: 2025-02-09 22:02-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_BO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__client_code
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__client_code
+msgid "Client code"
+msgstr "Código cliente"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__code_type
+msgid "Code type"
+msgstr "Código tipo"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__complement
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__complement
+msgid "Complement"
+msgstr "Complemento"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: cucu_fact_partner
+#: model:ir.model,name:cucu_fact_partner.model_res_partner
+msgid "Cucu Clients"
+msgstr "Cucu Clientes"
+
+#. module: cucu_fact_partner
+#: model_terms:ir.ui.view,arch_db:cucu_fact_partner.view_res_partner_inherit_cucu
+msgid "Datos de facturación"
+msgstr "Datos de facturación"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__description
+msgid "Description"
+msgstr "Descripción"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__display_name
+msgid "Display Name"
+msgstr "Nombre"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__doc_id
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__doc_id
+msgid "Document type"
+msgstr "Tipo documento"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__cucu_email
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__cucu_email
+msgid "Email"
+msgstr "Correo electrónico"
+
+#. module: cucu_fact_partner
+#: model_terms:ir.ui.view,arch_db:cucu_fact_partner.view_res_users_form_inherit_cucu
+msgid "Facturación en Linea"
+msgstr "Facturación electrónica"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__id
+msgid "ID"
+msgstr "ID"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__is_sin
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__is_sin
+msgid "Is Sin"
+msgstr "Homologado"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_cucu_catalogs_documents__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__nit_valid
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__nit_valid
+msgid "Nit valid"
+msgstr "NIT Válido"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__nit_client
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__nit_client
+msgid "Number Document"
+msgstr "Número Documento"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__pos_id
+msgid "Point Of Sale"
+msgstr "Punto de Venta"
+
+#. module: cucu_fact_partner
+#: model:ir.model,name:cucu_fact_partner.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión Punto de Venta"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_partner__reason_social
+#: model:ir.model.fields,field_description:cucu_fact_partner.field_res_users__reason_social
+msgid "Reason social"
+msgstr "Razón Social"
+
+#. module: cucu_fact_partner
+#: model:ir.model.fields,help:cucu_fact_partner.field_res_users__company_id
+msgid "The default company for this user."
+msgstr "Compañía por defecto para este usuario."
+
+#. module: cucu_fact_partner
+#: model:ir.model,name:cucu_fact_partner.model_res_users
+msgid "User"
+msgstr "Usuario"
+
+#. module: cucu_fact_partner
+#: model:ir.model,name:cucu_fact_partner.model_cucu_catalogs_documents
+msgid "cucu.catalogs.documents"
+msgstr "cucu.catalogs.documents"

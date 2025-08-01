@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2021-Present cucu | soluciones digitales -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data>
+        <template id="cucu_report_ticket_note" inherit_id="cucu_fact_report.cucu_report_ticket">
+            <xpath expr="//div[@id='invoice_params']" position="inside">
+                <t t-if="header['doc_sector'] == 24">
+                    <div>
+                        <b class="pr-2 font-semibold" style="font-weight: 600">
+                            N° Autorización/Cuf:
+                        </b>
+                        <t class="break-all" style="min-width: 200px; width:200px" t-esc="header['numeroAutorizacionCuf']"/>
+                    </div>
+                    <div>
+                        <b class="pr-2 font-semibold" style="font-weight: 600">N° Factura original:
+                        </b>
+                        <t t-esc="header['numeroFactura']"/>
+                    </div>
+                    <div>
+                        <b class="pr-2 font-semibold" style="font-weight: 600">Fecha de emisión nota:
+                        </b>
+                        <t t-esc="header['fechaEmisionFactura']"/>
+                    </div>
+                </t>
+            </xpath>
+            <xpath expr="//div[@id='invoice_sale']" position="before">
+                <div t-if="header['doc_sector'] == 24" id="invoice_note">
+                    <div style="font-size:0.75rem">
+                        <b>DATOS FACTURA ORIGINAL</b>
+                    </div>
+                    <table class="w-full mt-1" style="font-size: 12px" name="invoice_line_table_note_not_return" cellpadding="15" cellspacing="15">
+                        <tbody class="">
+                            <t t-foreach="detail" t-as="line">
+                                <tr t-if="line['codigoDetalleTransaccion'] == 1">
+                                    <div style="font-size: 12px;margin-top: 0.2rem;padding-top: 0.3rem;border-bottom:1px solid #eee;padding-bottom:0.3rem">
+                                        <div t-esc="line['descripcion']" class="font-semibold" style="padding-top: 0.4rem"/>
+                                        <div style="font-size: 9px;padding-top: 0.2rem; padding-bottom: 0.1rem" t-esc="'Unidad de medida: ' + line['unit_description']"/>
+                                        <div class="flex flex-row justify-between" style="margin-top: 0.25rem:font-size:11px">
+                                            <div t-esc="line['cantidad'] + ' X ' + line['precioUnitario'] + ' - ' + line['montoDescuento']"/>
+                                            <div t-esc="line['subTotal']"/>
+                                        </div>
+                                    </div>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th style="border-bottom:1px dashed black"/>
+                                <th style="border-bottom:1px dashed black"/>
+                                <th style="border-bottom:1px dashed black"/>
+                                <th style="border-bottom:1px dashed black"/>
+                            </tr>
+                            <tr>
+                                <th colspan="2" style="font-weight:bold;;font-size:12px" class="text-right pt-2">Monto Total Original Bs.
+                                </th>
+                                <th colspan="2" style="font-weight:normal;font-size:12px" class="text-right pt-2"
+                                    t-esc="header['montoTotalOriginal']"/>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div style="font-size: 0.75rem">
+                        <b>DETALLE DE LA DEVOLUCIÓN O RESCISIÓN</b>
+                    </div>
+                    <table class="w-full mt-1" style="font-size: 12px" name="invoice_line_table_note_return" cellpadding="15" cellspacing="15">
+                        <tbody class="">
+                            <t t-foreach="detail" t-as="line">
+                                <tr t-if="line['codigoDetalleTransaccion'] == 2">
+                                    <div style="font-size: 12px;margin-top: 0.2rem;padding-top: 0.3rem;border-bottom:1px solid #eee;padding-bottom:0.3rem">
+                                        <div t-esc="line['descripcion']" class="font-semibold" style="padding-top: 0.4rem"/>
+                                        <div style="font-size: 9px;padding-top: 0.2rem; padding-bottom: 0.1rem" t-esc="'Unidad de medida: ' + line['unit_description']"/>
+                                        <div class="flex flex-row justify-between" style="margin-top: 0.25rem:font-size:11px">
+                                            <div t-esc="line['cantidad'] + ' X ' + line['precioUnitario'] + ' - ' + line['montoDescuento']"/>
+                                            <div t-esc="line['subTotal']"/>
+                                        </div>
+                                    </div>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th style="border-bottom:1px dashed black"/>
+                                <th style="border-bottom:1px dashed black"/>
+                                <th style="border-bottom:1px dashed black"/>
+                                <th style="border-bottom:1px dashed black"/>
+                            </tr>
+                            <t t-if="o.company_id">
+                                <tr>
+                                    <th colspan="2" style="font-weight:bold;;font-size:12px" class="text-right pt-2">Monto Total Devuelto Bs.
+                                    </th>
+                                    <th colspan="2" style="font-weight:normal;font-size:12px" class="text-right pt-2" t-esc="header['montoTotalDevuelto']"/>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" style="font-weight:bold;;font-size:12px" class="text-right pt-2">
+                                        Monto Efectivo Debito-Credito Bs.
+                                    </th>
+                                    <th colspan="2" style="font-weight:normal;font-size:12px" class="text-right pt-2" t-esc="header['montoEfectivoCreditoDebito']"/>
+                                </tr>
+                            </t>
+                        </tfoot>
+                    </table>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

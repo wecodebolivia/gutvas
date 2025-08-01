@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="invoice_report_action_wizard_form_view" model="ir.ui.view">
+            <field name="name">invoice.report.form</field>
+            <field name="model">invoice.report</field>
+            <field name="arch" type="xml">
+                <form string="Sales and stock report">
+                    <sheet>
+                        <group>
+                            <field name="start_date" required="1"/>
+                            <field name="end_date" required="1"/>
+                        </group>
+
+                        <group>
+                            <field name="pos" invisible = "branch_office == True" />
+                            <field name="branch_office" invisible = "pos == True" />
+                            <field name="canceled_invoices" invisible = "contingency == True" />
+                            <field name="contingency" invisible = "canceled_invoices == True" />
+                        </group>
+                        <group>
+                            <field name="pos_configs" invisible = "pos == False" required = "pos == True" options="{'no_create': True}" widget="many2many_tags" />
+                            <field name="branch_configs" invisible = "branch_office == False" required = "branch_office == True" options="{'no_create': True}" widget="many2many_tags"/> 
+                            <field name="doc_id" options="{'no_create': True}" widget="many2many_tags"/>
+                        </group>
+                    </sheet>
+
+                    <footer>
+                        <button string="Generate" class="btn-primary" type="object" name="generate_report"/>
+                        <button string="Cancel" class="btn-default" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_invoice_report_wizard" model="ir.actions.act_window">
+            <field name="name">Invoice Reports</field>
+            <field name="res_model">invoice.report</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="invoice_report_action_wizard_form_view"/>
+            <field name="target">new</field>
+        </record>
+        <menuitem id="menu_action_account_invoice_report_wizard" name="Reportes Impuestos" sequence="20" parent="account.menu_finance_reports" groups="account.group_account_invoice,account.group_account_readonly">
+            <menuitem id="menu_report_invoice" action="action_invoice_report_wizard" sequence="1"/>
+        </menuitem>
+    </data>
+</odoo>

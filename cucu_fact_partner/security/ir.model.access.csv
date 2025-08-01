@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cucu_catalogs_documents,cucu_catalogs_documents_user,model_cucu_catalogs_documents,,1,1,1,1
