@@ -14,7 +14,7 @@
                             <field name="color_shadow" string="Color Shadow" widget="color"/>
                         </group>
                         <group>
-                            <field name="water_mark" widget="image"/>
+                            <field name="water_mark" widget="image" width="100"/>
                             <field name="water_mark_width"/>
                             <field name="water_mark_top"/>
                         </group>
