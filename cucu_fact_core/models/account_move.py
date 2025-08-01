@@ -358,14 +358,13 @@ class AccountMove(models.Model):
         self.env.cr.commit()
 
     def _post(self, soft=True):
+        if not self.is_sin:
+            res = super(AccountMove, self)._post(soft)
+            return res
         res = super(AccountMove, self)._post(soft)
-
-        first_sin_move = self.filtered(lambda m: m.is_sin)[:1]
-        if first_sin_move:
-            first_sin_move.create_invoice_account()
-            # first_sin_move._payment_pos_invoices() 
+        self.create_invoice_account()
+        # self._payment_pos_invoices()
         return res
-
 
     def report_invoice_view(self, type_report="SIN"):
         return self.invoice_id._get_url_open(type_report)
