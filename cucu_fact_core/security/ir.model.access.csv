@@ -1,8 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_cucu_manager,cucu_manager_user,model_cucu_manager,,1,1,1,1
-access_cucu_branch_office,cucu_branch_office_user,model_cucu_branch_office,,1,1,1,1
-access_cucu_pos,cucu_pos_user,model_cucu_pos,,1,1,1,1
-access_cucu_invoice,cucu_invoice_user,model_cucu_invoice,,1,1,1,1
-access_invoice_report,invoice_report_user,model_invoice_report,,1,1,1,1
-access_cucu_log,cucu_log_user,model_cucu_log,,1,1,1,1
-access_account_move_cancel,account_move_cancel_user,model_account_move_cancel,,1,1,1,1
