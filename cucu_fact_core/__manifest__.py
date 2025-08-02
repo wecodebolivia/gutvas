@@ -15,6 +15,7 @@
     "website": "https://cucu.bo",
     "category": "Uncategorized",
     "version": "1.0",
+    "license": "LGPL-3",
     "depends": [
         "base",
         "point_of_sale",
