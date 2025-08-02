@@ -25,9 +25,9 @@
         </page>
       </xpath>
       
-      <xpath expr="//field[@name='default_code']" position="attributes">
+      <!-- <xpath expr="//field[@name='default_code']" position="attributes">
         <attribute name="required">sin_ok == True</attribute>
-      </xpath>
+      </xpath> -->
     </field>
   </record>
 </odoo>
