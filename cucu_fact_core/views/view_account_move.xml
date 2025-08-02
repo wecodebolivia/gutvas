@@ -11,8 +11,7 @@
                 <attribute name="required">is_sin</attribute>
             </xpath>
             <xpath expr="//header" position="inside">
-                <button name="%(cucu_fact_core.action_cancel_wizard)d" string="Invoice Option" type="action" class="oe_highlight"
-                        invisible="state == 'draft'" groups="base.group_user"/>
+                <button name="%(cucu_fact_core.action_cancel_wizard)d" string="Invoice Siat Options" type="action" class="oe_highlight" invisible="state == 'draft'" groups="base.group_user"/>
                 <div class="btn-group" invisible="state == 'draft'">
                     <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" name="object">
                         Report Cucu
@@ -33,46 +32,28 @@
             <xpath expr="//form//sheet//group" position="after">
                 <group id="group_cucu_invoice" invisible="is_sin == False">
                     <group string="Datos Cliente" id="group_cucu_clients">
-                        <field name="client_doc_id" widget="many2one" invisible="is_sin == False"
-                               readonly="sin_code_reception != '0000'"
-                               options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"/>
-                        <field name="client_complement" invisible="is_sin == False"
-                               readonly="sin_code_reception != '0000'"/>
-                        <field name="client_nro_document" invisible="is_sin == False"
-                               readonly="sin_code_reception != '0000'"/>
-                        <field name="client_reason_social" string="Name legal" invisible="is_sin == False"
-                               readonly="sin_code_reception != '0000'"/>
+                        <field name="client_doc_id" widget="many2one" invisible="is_sin == False" readonly="sin_code_reception != '0000'" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"/>
+                        <field name="client_complement" invisible="is_sin == False" readonly="sin_code_reception != '0000'"/>
+                        <field name="client_nro_document" invisible="is_sin == False" readonly="sin_code_reception != '0000'"/>
+                        <field name="client_reason_social" string="Name legal" invisible="is_sin == False" readonly="sin_code_reception != '0000'"/>
                         <field name="client_email" invisible="is_sin == False" readonly="sin_code_reception != '0000'"/>
                     </group>
                     <group string="Datos factura">
                         <field name="sin_code_reception" invisible="1"/>
-                        <field name="payment_method_id" string="Payment method" widget="many2one"
-                               options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"
-                               domain="[('is_visible', '=', True),('company_id','=',allowed_company_ids[0])]"
-                               invisible="is_sin == False" required="is_sin == True"
-                               readonly="sin_code_reception != '0000'"/>
+                        <field name="payment_method_id" string="Payment method" widget="many2one" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}" domain="[('is_visible', '=', True),('company_id','=',allowed_company_ids[0])]" invisible="is_sin == False" required="is_sin == True" readonly="sin_code_reception != '0000'"/>
                         <field name="payment_method_code" invisible="1"/>
-                        <field name="additional_discount" invisible="is_sin == False"
-                               readonly="sin_code_reception != '0000'"/>
-                        <field name="amount_gift_card" readonly="sin_code_reception != '0000'"
-                               invisible="payment_method_code not in ['27','40']"/>
-                        <field name="number_card" widget="card" required="payment_method_code  in ['2','40']"
-                               invisible="payment_method_code not in ['2','40']"/>
-                        <field name="observations" invisible="is_sin == False"
-                               readonly="sin_code_reception != '0000'"/>
+                        <field name="additional_discount" invisible="is_sin == False" readonly="sin_code_reception != '0000'"/>
+                        <field name="amount_gift_card" readonly="sin_code_reception != '0000'" invisible="payment_method_code not in ['27','40']"/>
+                        <field name="number_card" widget="card" required="payment_method_code  in ['2','40']" invisible="payment_method_code not in ['2','40']"/>
+                        <field name="observations" invisible="is_sin == False" readonly="sin_code_reception != '0000'"/>
 
-                        <field name="sin_description_status" invisible="is_sin == False" string="Sin Status" widget="badge"
-                               decoration-success="sin_description_status in ['VALIDADA','VALIDA']"
-                               decoration-danger="sin_description_status in ['ANULACION CONFIRMADA', 'ANULADA']"
-                               decoration-warning="sin_description_status in ['REVERSION DE ANULACION CONFIRMADA']"
-                               readonly="sin_code_reception != '0000'"/>
+                        <field name="sin_description_status" invisible="is_sin == False" string="Sin Status" widget="badge" decoration-success="sin_description_status in ['VALIDADA','VALIDA']" decoration-danger="sin_description_status in ['ANULACION CONFIRMADA', 'ANULADA']" decoration-warning="sin_description_status in ['REVERSION DE ANULACION CONFIRMADA']" readonly="sin_code_reception != '0000'"/>
                     </group>
                 </group>
             </xpath>
             <xpath expr="//group[@id='header_left_group']" position="inside">
                 <field name="is_sin" string="Facturar productos"/>
-                <field name="pos_id" required="True" invisible="is_sin == False" readonly="sin_code_reception != '0000'"
-                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"/>
+                <field name="pos_id" required="True" invisible="is_sin == False" readonly="sin_code_reception != '0000'" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}"/>
             </xpath>
             <xpath expr="//group[@id='header_right_group']" position="inside">
             </xpath>
@@ -133,10 +114,8 @@
                             </sheet>
                             <footer>
                                 <button name="get_url_sin" string="Ver Factura SIN" type="object" class="btn-dark"/>
-                                <button name="get_url_a4" string="Ver Factura Cucu A4" type="object"
-                                        class="btn-outline-secondary"/>
-                                <button name="get_url_ticket" string="Ver Factura Cucu Ticket" type="object"
-                                        class="btn-outline-secondary"/>
+                                <button name="get_url_a4" string="Ver Factura Cucu A4" type="object" class="btn-outline-secondary"/>
+                                <button name="get_url_ticket" string="Ver Factura Cucu Ticket" type="object" class="btn-outline-secondary"/>
                             </footer>
                         </form>
                     </field>
@@ -148,7 +127,8 @@
                 </page>
                 <page id="fact_invoice_xml" string="Factura SIN JSON" invisible="is_sin == False">
                     <group>
-                        <field name="invoice_json" readonly="1" widget="ace" options="{'mode': 'json'}"/>
+                        <!-- <field name="invoice_json" readonly="1" widget="ace" options="{'mode': 'json'}"/> -->
+                        <field name="invoice_json" readonly="1" widget="ace" options="{'language': 'json'}"/>
                     </group>
                 </page>
             </xpath>
@@ -161,10 +141,7 @@
         <field name="inherit_id" ref="account.view_out_invoice_tree"/>
         <field name="arch" type="xml">
             <field name="status_in_payment" position="before">
-                <field name="sin_description_status" widget="badge"
-                       decoration-success="sin_description_status in ['VALIDADA','VALIDA']"
-                       decoration-danger="sin_description_status in ['ANULACION CONFIRMADA', 'ANULADA']"
-                       decoration-warning="sin_description_status in ['REVERSION DE ANULACION CONFIRMADA']"/>
+                <field name="sin_description_status" widget="badge" decoration-success="sin_description_status in ['VALIDADA','VALIDA']" decoration-danger="sin_description_status in ['ANULACION CONFIRMADA', 'ANULADA']" decoration-warning="sin_description_status in ['REVERSION DE ANULACION CONFIRMADA']"/>
                 <field name="invoice_number"/>
                 <field name="doc_sector"/>
             </field>
