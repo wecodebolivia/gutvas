@@ -5,7 +5,6 @@ from odoo import models, fields, api
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    # Campos específicos para el libro de compras
     lc_codigo_autorizacion = fields.Char(string='Código de Autorización')
     lc_numero_factura = fields.Char(string='Número de Factura')
     lc_numero_dui_dim = fields.Char(string='Número DUI/DIM')
@@ -29,15 +28,13 @@ class AccountMoveLine(models.Model):
     ], string='Tipo de Compra', default='1')
     lc_codigo_control = fields.Char(string='Código de Control')
 
-    # Campos calculados (NO almacenados en base de datos)
     lc_subtotal = fields.Float(string='Subtotal', compute='_compute_subtotal', digits=(16, 2))
     lc_importe_base_cf = fields.Float(string='Importe Base CF', compute='_compute_importe_base_cf', digits=(16, 2))
     lc_credito_fiscal = fields.Float(string='Crédito Fiscal', compute='_compute_credito_fiscal', digits=(16, 2))
 
-    # Métodos para cálculos automáticos
     @api.depends(
-        'lc_importe_total_compra', 'lc_importe_ice', 'lc_importe_iehd', 
-        'lc_importe_ipj', 'lc_tasas', 'lc_otros_no_sujeto_cf', 
+        'lc_importe_total_compra', 'lc_importe_ice', 'lc_importe_iehd',
+        'lc_importe_ipj', 'lc_tasas', 'lc_otros_no_sujeto_cf',
         'lc_importes_exentos', 'lc_compras_gravadas_tasa_cero'
     )
     def _compute_subtotal(self):
@@ -53,19 +50,46 @@ class AccountMoveLine(models.Model):
                 - line.lc_compras_gravadas_tasa_cero
             )
 
-    @api.depends('lc_subtotal', 'lc_descuentos_bonificaciones', 'lc_importe_gift_card')
+    @api.depends(
+        'lc_importe_total_compra', 'lc_importe_ice', 'lc_importe_iehd',
+        'lc_importe_ipj', 'lc_tasas', 'lc_otros_no_sujeto_cf',
+        'lc_importes_exentos', 'lc_compras_gravadas_tasa_cero',
+        'lc_descuentos_bonificaciones', 'lc_importe_gift_card'
+    )
     def _compute_importe_base_cf(self):
         for line in self:
-            line.lc_importe_base_cf = (
-                line.lc_subtotal
-                - line.lc_descuentos_bonificaciones
-                - line.lc_importe_gift_card
+            subtotal = (
+                line.lc_importe_total_compra
+                - line.lc_importe_ice
+                - line.lc_importe_iehd
+                - line.lc_importe_ipj
+                - line.lc_tasas
+                - line.lc_otros_no_sujeto_cf
+                - line.lc_importes_exentos
+                - line.lc_compras_gravadas_tasa_cero
             )
+            line.lc_importe_base_cf = subtotal - line.lc_descuentos_bonificaciones - line.lc_importe_gift_card
 
-    @api.depends('lc_importe_base_cf')
+    @api.depends(
+        'lc_importe_total_compra', 'lc_importe_ice', 'lc_importe_iehd',
+        'lc_importe_ipj', 'lc_tasas', 'lc_otros_no_sujeto_cf',
+        'lc_importes_exentos', 'lc_compras_gravadas_tasa_cero',
+        'lc_descuentos_bonificaciones', 'lc_importe_gift_card'
+    )
     def _compute_credito_fiscal(self):
         for line in self:
-            line.lc_credito_fiscal = line.lc_importe_base_cf * 0.13
+            subtotal = (
+                line.lc_importe_total_compra
+                - line.lc_importe_ice
+                - line.lc_importe_iehd
+                - line.lc_importe_ipj
+                - line.lc_tasas
+                - line.lc_otros_no_sujeto_cf
+                - line.lc_importes_exentos
+                - line.lc_compras_gravadas_tasa_cero
+            )
+            importe_base = subtotal - line.lc_descuentos_bonificaciones - line.lc_importe_gift_card
+            line.lc_credito_fiscal = importe_base * 0.13
 
     def action_open_libro_compras_wizard(self):
         self.ensure_one()
