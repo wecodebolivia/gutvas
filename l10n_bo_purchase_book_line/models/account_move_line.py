@@ -29,10 +29,10 @@ class AccountMoveLine(models.Model):
     ], string='Tipo de Compra', default='1')
     lc_codigo_control = fields.Char(string='Código de Control')
 
-    # Campos calculados
-    lc_subtotal = fields.Float(string='Subtotal', compute='_compute_subtotal', store=True, digits=(16, 2))
-    lc_importe_base_cf = fields.Float(string='Importe Base CF', compute='_compute_importe_base_cf', store=True, digits=(16, 2))
-    lc_credito_fiscal = fields.Float(string='Crédito Fiscal', compute='_compute_credito_fiscal', store=True, digits=(16, 2))
+    # Campos calculados (NO almacenados en base de datos)
+    lc_subtotal = fields.Float(string='Subtotal', compute='_compute_subtotal', digits=(16, 2))
+    lc_importe_base_cf = fields.Float(string='Importe Base CF', compute='_compute_importe_base_cf', digits=(16, 2))
+    lc_credito_fiscal = fields.Float(string='Crédito Fiscal', compute='_compute_credito_fiscal', digits=(16, 2))
 
     # Métodos para cálculos automáticos
     @api.depends(
