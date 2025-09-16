@@ -1,10 +1,9 @@
-# l10n_bo_purchase_book_line/models/res_partner.py
-
+# -*- coding: utf-8 -*-
 from odoo import models, fields
 
 class ResPartner(models.Model):
-    _inherit = 'res.partner'
+    _inherit = "res.partner"
 
-    # Campos adicionales para el Libro de Compras
-    lc_razon_social = fields.Char(string='Razón Social para Libro de Compras')
-    lc_nit = fields.Char(string='NIT para Libro de Compras')
+    # Datos propios que usaremos en el Libro de Compras
+    lc_nit = fields.Char(string="NIT", help="NIT usado en el Libro de Compras")
+    lc_razon_social = fields.Char(string="Razón Social", help="Razón social para Libro de Compras")

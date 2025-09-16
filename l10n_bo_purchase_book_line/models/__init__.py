@@ -1,7 +1,5 @@
-from . import account_move
-from . import account_move_line
-from . import libro_compras_wizard
-from . import report_libro_compras
+# -*- coding: utf-8 -*-
+
 from . import res_partner
 from . import account_move_line
-
+from . import libro_compras_wizard
