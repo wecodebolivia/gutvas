@@ -30,19 +30,9 @@ class AccountMoveLine(models.Model):
         'move_id.move_type', 'display_type'
     )
     def _compute_lc_totals(self):
-        """Siempre asigna los 3 campos calculados (evita errores de compute).
-        Fórmulas base:
-          subtotal = total_compra - (ice + iehd + ipj + tasas + otros_no_cf + exentos + tasa_cero + descuentos + giftcard)
-          base_cf  = subtotal
-          cf       = base_cf * 0.13
-        Solo tiene relevancia en facturas de proveedor/nota de crédito; en otros casos queda 0.
-        """
+        """Asignar SIEMPRE los 3 campos calculados para evitar errores de compute."""
         for line in self:
-            # valores por defecto
-            subtotal = 0.0
-            base_cf = 0.0
-            cf = 0.0
-
+            subtotal = base_cf = cf = 0.0
             if line.move_id.move_type in ('in_invoice', 'in_refund') and not line.display_type:
                 total = line.lc_importe_total_compra or 0.0
                 restas = (
@@ -58,23 +48,22 @@ class AccountMoveLine(models.Model):
                 )
                 subtotal = max(total - restas, 0.0)
                 base_cf = subtotal
-                cf = base_cf * 0.13  # 13% IT/IVA BO
+                cf = base_cf * 0.13
 
-            # Asigna SIEMPRE (clave para evitar "Compute method failed to assign ...")
             line.lc_subtotal = subtotal
             line.lc_importe_base_cf = base_cf
             line.lc_credito_fiscal = cf
 
-    # -------- Acción para botón en la línea (abre modal) --------
+    # -------- Acción del botón: abrir nuestro form específico --------
     def action_open_lc_fields(self):
-        """Abrir la línea en modal para editar/ver campos del Libro de Compras."""
         self.ensure_one()
+        view = self.env.ref('l10n_bo_purchase_book_line.view_account_move_line_form_lc')
         return {
             'type': 'ir.actions.act_window',
             'name': 'Libro de Compras (Línea)',
             'res_model': 'account.move.line',
             'view_mode': 'form',
-            'views': [(False, 'form')],
+            'views': [(view.id, 'form')],
             'target': 'new',
             'res_id': self.id,
             'context': dict(self.env.context or {}),

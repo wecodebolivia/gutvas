@@ -1,13 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- 1) Agregar columnas LC en la lista de líneas de factura (invoice_line_ids) -->
+    <!-- A) FORMULARIO PROPIO PARA EL BOTÓN -->
+    <record id="view_account_move_line_form_lc" model="ir.ui.view">
+        <field name="name">account.move.line.form.lc</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Compras (Línea)" create="0" delete="0">
+                <sheet>
+                    <group>
+                        <group string="Contexto" colspan="2">
+                            <field name="name" string="Etiqueta"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="move_id" readonly="1" context="{'form_view_ref': 'account.view_move_form'}"/>
+                            <field name="account_id" readonly="1"/>
+                        </group>
+
+                        <group string="Importes (manual)">
+                            <field name="lc_importe_total_compra"/>
+                            <field name="lc_importe_ice"/>
+                            <field name="lc_importe_iehd"/>
+                            <field name="lc_importe_ipj"/>
+                            <field name="lc_tasas"/>
+                            <field name="lc_otros_no_sujeto_cf"/>
+                            <field name="lc_importes_exentos"/>
+                            <field name="lc_compras_gravadas_tasa_cero"/>
+                            <field name="lc_descuentos_bonificaciones"/>
+                            <field name="lc_importe_gift_card"/>
+                        </group>
+
+                        <group string="Calculados" colspan="2">
+                            <field name="lc_subtotal" readonly="1"/>
+                            <field name="lc_importe_base_cf" readonly="1"/>
+                            <field name="lc_credito_fiscal" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- B) Columnas LC en la lista de líneas de factura (invoice_line_ids) -->
     <record id="view_move_form_inherit_lc_on_invoice_lines" model="ir.ui.view">
         <field name="name">account.move.form.inherit.lc.on.invoice.lines</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <!-- En Odoo 18 el contenedor es <list>, no <tree> -->
             <xpath expr="//field[@name='invoice_line_ids']//list" position="inside">
                 <field name="lc_importe_total_compra" optional="hide"/>
                 <field name="lc_importe_ice" optional="hide"/>
@@ -26,7 +65,7 @@
         </field>
     </record>
 
-    <!-- 2) Botón "Libro de Compras" en la pestaña Apuntes contables (line_ids) -->
+    <!-- C) Botón "Libro de Compras" en Apuntes contables (line_ids) -->
     <record id="view_move_form_inherit_lc_button_on_lines" model="ir.ui.view">
         <field name="name">account.move.form.inherit.lc.button.on.lines</field>
         <field name="model">account.move</field>

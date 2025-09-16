@@ -13,7 +13,7 @@
         'views/account_move_views.xml',
         'views/res_partner_views.xml',
         'views/report_libro_compras_views.xml',
-        'security/ir.model.access.csv',
+        'security/ir.model.access.csv',        
     ],
     'installable': True,
     'application': True,
