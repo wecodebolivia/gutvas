@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- Extiende el formulario de facturas/bills -->
-    <record id="view_move_form_inherit_libro_compras" model="ir.ui.view">
-        <field name="name">account.move.form.inherit.libro.compras</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
+    <!-- 1) Extiende la LISTA de líneas de factura -->
+    <record id="view_invoice_line_list_inherit_lc" model="ir.ui.view">
+        <field name="name">account.move.line.list.inherit.libro.compras</field>
+        <field name="model">account.move.line</field>
+        <!-- Nombre histórico, pero en 18.0 su arch raíz es <list> -->
+        <field name="inherit_id" ref="account.view_invoice_line_tree"/>
         <field name="arch" type="xml">
-
-            <!-- Agregar columnas al árbol de líneas de factura -->
-            <xpath expr="//field[@name='invoice_line_ids']/tree" position="inside">
+            <!-- Insertamos nuestras columnas al final de la lista -->
+            <xpath expr="//list" position="inside">
                 <field name="lc_importe_total_compra" optional="hide"/>
                 <field name="lc_importe_ice" optional="hide"/>
                 <field name="lc_importe_iehd" optional="hide"/>
@@ -20,14 +20,22 @@
                 <field name="lc_compras_gravadas_tasa_cero" optional="hide"/>
                 <field name="lc_descuentos_bonificaciones" optional="hide"/>
                 <field name="lc_importe_gift_card" optional="hide"/>
-                <!-- Computados (solo lectura en el árbol) -->
+                <!-- Computados / solo lectura -->
                 <field name="lc_subtotal" readonly="1" optional="show"/>
                 <field name="lc_importe_base_cf" readonly="1" optional="show"/>
                 <field name="lc_credito_fiscal" readonly="1" optional="show"/>
             </xpath>
+        </field>
+    </record>
 
-            <!-- Asegurar que el formulario de línea muestre los campos -->
-            <xpath expr="//field[@name='invoice_line_ids']/form/sheet/group" position="inside">
+    <!-- 2) Extiende el FORM de líneas de factura (popup de edición de la línea) -->
+    <record id="view_invoice_line_form_inherit_lc" model="ir.ui.view">
+        <field name="name">account.move.line.form.inherit.libro.compras</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_form"/>
+        <field name="arch" type="xml">
+            <!-- Añadimos grupos con nuestros campos -->
+            <xpath expr="//sheet/group" position="inside">
                 <group string="Libro de Compras (Línea)">
                     <field name="lc_importe_total_compra"/>
                     <field name="lc_importe_ice"/>
@@ -40,13 +48,12 @@
                     <field name="lc_descuentos_bonificaciones"/>
                     <field name="lc_importe_gift_card"/>
                 </group>
-                <group string="Cálculo" colspan="2">
+                <group string="Cálculo">
                     <field name="lc_subtotal" readonly="1"/>
                     <field name="lc_importe_base_cf" readonly="1"/>
                     <field name="lc_credito_fiscal" readonly="1"/>
                 </group>
             </xpath>
-
         </field>
     </record>
 
