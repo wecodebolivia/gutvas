@@ -1,65 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Botón en las líneas del asiento -->
+
+    <!-- Extiende el formulario de facturas/bills -->
     <record id="view_move_form_inherit_libro_compras" model="ir.ui.view">
         <field name="name">account.move.form.inherit.libro.compras</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='line_ids']//tree/field[@name='name']" position="after">
-                <button name="action_open_libro_compras_wizard"
-                        type="object"
-                        string="Libro Compras"
-                        class="oe_highlight"
-                        icon="fa-book"/>
+
+            <!-- Agregar columnas al árbol de líneas de factura -->
+            <xpath expr="//field[@name='invoice_line_ids']/tree" position="inside">
+                <field name="lc_importe_total_compra" optional="hide"/>
+                <field name="lc_importe_ice" optional="hide"/>
+                <field name="lc_importe_iehd" optional="hide"/>
+                <field name="lc_importe_ipj" optional="hide"/>
+                <field name="lc_tasas" optional="hide"/>
+                <field name="lc_otros_no_sujeto_cf" optional="hide"/>
+                <field name="lc_importes_exentos" optional="hide"/>
+                <field name="lc_compras_gravadas_tasa_cero" optional="hide"/>
+                <field name="lc_descuentos_bonificaciones" optional="hide"/>
+                <field name="lc_importe_gift_card" optional="hide"/>
+                <!-- Computados (solo lectura en el árbol) -->
+                <field name="lc_subtotal" readonly="1" optional="show"/>
+                <field name="lc_importe_base_cf" readonly="1" optional="show"/>
+                <field name="lc_credito_fiscal" readonly="1" optional="show"/>
             </xpath>
-        </field>
-    </record>
 
-    <!-- Vista del wizard -->
-    <record id="view_libro_compras_wizard_form" model="ir.ui.view">
-        <field name="name">libro.compras.wizard.form</field>
-        <field name="model">libro.compras.wizard</field>
-        <field name="arch" type="xml">
-            <form string="Libro de Compras">
-                <group>
-                    <field name="move_line_id" invisible="1"/>
-                    <group string="Proveedor">
-                        <field name="lc_nit" readonly="1"/>
-                        <field name="lc_razon_social" readonly="1"/>
-                    </group>
-                    <group string="Datos">
-                        <field name="lc_codigo_autorizacion"/>
-                        <field name="lc_numero_factura"/>
-                        <field name="lc_numero_dui_dim"/>
-                        <field name="lc_fecha_factura"/>
-                        <field name="lc_importe_total_compra"/>
-                        <field name="lc_importe_ice"/>
-                        <field name="lc_importe_iehd"/>
-                        <field name="lc_importe_ipj"/>
-                        <field name="lc_tasas"/>
-                        <field name="lc_otros_no_sujeto_cf"/>
-                        <field name="lc_importes_exentos"/>
-                        <field name="lc_compras_gravadas_tasa_cero"/>
-                        <field name="lc_descuentos_bonificaciones"/>
-                        <field name="lc_importe_gift_card"/>
-                        <field name="lc_tipo_compra"/>
-                        <field name="lc_codigo_control"/>
-                    </group>
+            <!-- Asegurar que el formulario de línea muestre los campos -->
+            <xpath expr="//field[@name='invoice_line_ids']/form/sheet/group" position="inside">
+                <group string="Libro de Compras (Línea)">
+                    <field name="lc_importe_total_compra"/>
+                    <field name="lc_importe_ice"/>
+                    <field name="lc_importe_iehd"/>
+                    <field name="lc_importe_ipj"/>
+                    <field name="lc_tasas"/>
+                    <field name="lc_otros_no_sujeto_cf"/>
+                    <field name="lc_importes_exentos"/>
+                    <field name="lc_compras_gravadas_tasa_cero"/>
+                    <field name="lc_descuentos_bonificaciones"/>
+                    <field name="lc_importe_gift_card"/>
                 </group>
-                <footer>
-                    <button name="action_confirm" type="object" string="Guardar" class="btn-primary"/>
-                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
-                </footer>
-            </form>
+                <group string="Cálculo" colspan="2">
+                    <field name="lc_subtotal" readonly="1"/>
+                    <field name="lc_importe_base_cf" readonly="1"/>
+                    <field name="lc_credito_fiscal" readonly="1"/>
+                </group>
+            </xpath>
+
         </field>
     </record>
 
-    <!-- Acción (útil para abrir desde otros lugares) -->
-    <record id="action_open_libro_compras_wizard" model="ir.actions.act_window">
-        <field name="name">Libro de Compras</field>
-        <field name="res_model">libro.compras.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_move_line_id': active_id}</field>
-    </record>
 </odoo>
