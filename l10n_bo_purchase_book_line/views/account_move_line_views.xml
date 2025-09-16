@@ -1,0 +1,17 @@
+<!-- l10n_bo_purchase_book_line/views/account_move_line_views.xml -->
+<odoo>
+    <!-- Inherit the generic move line tree to add button per line -->
+    <record id="view_move_line_tree_inherit_lc" model="ir.ui.view">
+        <field name="name">account.move.line.tree.inherit.libro.compras</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='name']" position="after">
+                <button name="action_open_libro_compras_wizard"
+                        type="object"
+                        string="Libro Compras"
+                        class="btn-primary"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
