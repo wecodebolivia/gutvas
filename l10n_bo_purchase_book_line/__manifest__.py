@@ -1,24 +1,21 @@
-# l10n_bo_purchase_book_line/__manifest__.py
 {
     'name': 'Libro de Compras Línea por Línea',
-    'version': '18.0.1.1.0',
+    'version': '18.0.1.0.3',
     'category': 'Accounting',
-    'summary': 'Campos del Libro de Compras en líneas contables + asistente y reporte Excel',
-    'description': '''
-Módulo para registrar campos del Libro de Compras por línea en asientos/ facturas,
-editar desde un asistente, y generar un reporte en Excel por rango de fechas.
-    ''',
-    'author': 'Largotek SRL',
-    'website': 'https://largotek.com',
+    'summary': 'Registro de campos del libro de compras línea por línea en asientos contables.',
+    'description': """
+        Este módulo permite registrar los campos del libro de compras línea por línea en los asientos contables.
+    """,
+    'author': 'Tu Nombre',
+    'website': 'https://tusitio.com',
     'depends': ['account'],
     'data': [
-        'security/ir.model.access.csv',
+        'views/account_move_views.xml',
         'views/res_partner_views.xml',
-        'views/account_move_line_views.xml',
-        'views/libro_compras_wizard_views.xml',
         'views/report_libro_compras_views.xml',
+        'security/ir.model.access.csv',
     ],
     'installable': True,
-    'application': False,
+    'application': True,
     'license': 'LGPL-3',
 }

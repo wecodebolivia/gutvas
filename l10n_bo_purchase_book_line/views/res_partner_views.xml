@@ -1,14 +1,16 @@
 <!-- l10n_bo_purchase_book_line/views/res_partner_views.xml -->
+
 <odoo>
-    <record id="view_partner_form_inherit_lc" model="ir.ui.view">
-        <field name="name">res.partner.form.inherit.libro.compras</field>
+    <record id="view_partner_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet/group" position="after">
+            <!-- Insertar después del primer grupo del formulario -->
+            <xpath expr="//form//sheet//group" position="after">
                 <group string="Datos para Libro de Compras">
-                    <field name="lc_razon_social"/>
-                    <field name="lc_nit"/>
+                    <field name="lc_razon_social" options="{'size': 50}"/>
+                    <field name="lc_nit" options="{'size': 20}"/>
                 </group>
             </xpath>
         </field>
