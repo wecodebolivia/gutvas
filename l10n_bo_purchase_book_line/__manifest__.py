@@ -1,17 +1,19 @@
-# l10n_bo_purchase_book_line/__manifest__.py
 {
-    "name": "Libro de Compras Bolivia",
-    "version": "18.0.1.0.0",
-    "category": "Accounting",
-    "summary": "Agrega campos del libro de compras boliviano en facturas de proveedor",
-    "depends": ["account"],
-"data": [
-    "views/account_move_views.xml",
-    "views/res_partner_views.xml",
-    "views/report_libro_compras_views.xml",
-    # "security/ir.model.access.csv",  ← ← ← comenta esta línea por ahora
-],
-   
-    "application": False,
-    "installable": True,
+    'name': 'Libro de Compras Bolivia',
+    'version': '1.0',
+    'category': 'Accounting',
+    'summary': 'Libro de Compras para Bolivia',
+    'description': 'Generación del libro de compras según normativa boliviana.',
+    'author': 'Tu Nombre o Empresa',
+    'depends': [
+        'account',
+    ],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/account_move_views.xml',
+        'wizard/libro_compras_wizard_view.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'auto_install': False,
 }
