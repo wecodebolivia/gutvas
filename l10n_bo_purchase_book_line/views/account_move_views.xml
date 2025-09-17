@@ -1,46 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- l10n_bo_purchase_book_line/views/account_move_views.xml -->
 <odoo>
-
-    <!-- 1) Agregar columnas LC en la lista de líneas de factura (invoice_line_ids) -->
-    <record id="view_move_form_inherit_lc_on_invoice_lines" model="ir.ui.view">
-        <field name="name">account.move.form.inherit.lc.on.invoice.lines</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
+    <record id="view_move_line_purchase_book_form" model="ir.ui.view">
+        <field name="name">account.move.line.purchase.book.form</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_form"/>
         <field name="arch" type="xml">
-            <!-- En Odoo 18 el contenedor es <list>, no <tree> -->
-            <xpath expr="//field[@name='invoice_line_ids']//list" position="inside">
-                <field name="lc_importe_total_compra" optional="hide"/>
-                <field name="lc_importe_ice" optional="hide"/>
-                <field name="lc_importe_iehd" optional="hide"/>
-                <field name="lc_importe_ipj" optional="hide"/>
-                <field name="lc_tasas" optional="hide"/>
-                <field name="lc_otros_no_sujeto_cf" optional="hide"/>
-                <field name="lc_importes_exentos" optional="hide"/>
-                <field name="lc_compras_gravadas_tasa_cero" optional="hide"/>
-                <field name="lc_descuentos_bonificaciones" optional="hide"/>
-                <field name="lc_importe_gift_card" optional="hide"/>
-                <field name="lc_subtotal" readonly="1" optional="show"/>
-                <field name="lc_importe_base_cf" readonly="1" optional="show"/>
-                <field name="lc_credito_fiscal" readonly="1" optional="show"/>
+            <xpath expr="//field[@name='price_unit']" position="after">
+                <field name="is_purchase_book_line"/>
+                <field name="nit"/>
+                <field name="invoice_number"/>
+                <field name="authorization_number"/>
+                <field name="control_code"/>
+                <field name="purchase_amount"/>
+                <field name="fiscal_credit"/>
             </xpath>
         </field>
     </record>
-
-    <!-- 2) Botón "Libro de Compras" en la pestaña Apuntes contables (line_ids) -->
-    <record id="view_move_form_inherit_lc_button_on_lines" model="ir.ui.view">
-        <field name="name">account.move.form.inherit.lc.button.on.lines</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='line_ids']//list" position="inside">
-                <button name="action_open_lc_fields"
-                        type="object"
-                        string="Libro de Compras"
-                        icon="fa-book"
-                        attrs="{'invisible': ['|', ('display_type', '!=', False), ('move_id.move_type', 'not in', ('in_invoice','in_refund'))]}"
-                />
-            </xpath>
-        </field>
-    </record>
-
 </odoo>
