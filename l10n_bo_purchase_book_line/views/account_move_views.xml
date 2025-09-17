@@ -8,13 +8,14 @@
         <field name="arch" type="xml">
 
             <!-- Insertar el botón dentro del header -->
-            <header position="inside">
-                <button name="action_open_libro_compras_wizard"
-                        type="object"
-                        string="Generar Libro de Compras"
-                        class="btn-primary"
-                        attrs="{'invisible': [('move_type', '!=', 'in_invoice')]}"/>
-            </header>
+<header position="inside">
+    <button name="action_open_libro_compras_wizard"
+            type="object"
+            string="Generar Libro de Compras"
+            class="btn-primary"
+            invisible="move_type != 'in_invoice'"/>
+</header>
+
 
         </field>
     </record>
