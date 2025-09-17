@@ -11,6 +11,10 @@ class LibroComprasWizard(models.TransientModel):
     lc_header_nit = fields.Char(string='NIT', related='move_line_id.lc_partner_nit_display', readonly=True)
     lc_header_razon_social = fields.Char(string='Razón Social', related='move_line_id.lc_partner_name_display', readonly=True)
 
+    # --- ALIAS backward-compatible (por si alguna vista antigua los usa) ---
+    lc_nit = fields.Char(string='NIT (alias)', related='lc_header_nit', readonly=True)
+    lc_razon_social = fields.Char(string='Razón Social (alias)', related='lc_header_razon_social', readonly=True)
+
     # Documento
     lc_codigo_autorizacion = fields.Char(string='Código de Autorización')
     lc_numero_factura = fields.Char(string='Número de Factura')
