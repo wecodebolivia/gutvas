@@ -5,8 +5,8 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <!-- Lo ubicamos después del grupo principal de direcciones/datos -->
-            <xpath expr="//sheet//group[1]" position="after">
+            <!-- Insertamos al final del sheet para evitar choques con personalizaciones -->
+            <xpath expr="//sheet" position="inside">
                 <group string="DATOS PARA LIBRO DE COMPRAS">
                     <group>
                         <field name="lc_purchase_book_name"/>
