@@ -1,69 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
- <record id="view_move_form_inherit_libro_compras" model="ir.ui.view">
-        <field name="name">account.move.form.inherit.libro.compras</field>
+
+    <!-- Columnas LC dentro de invoice_line_ids (form de factura proveedor) -->
+    <record id="view_move_form_inherit_lc_on_invoice_lines" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.lc.on.invoice.lines</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            
-      
-            <xpath expr="//field[@name='line_ids']//field[@name='name']" position="after">
-                <button
-                    name="action_open_libro_compras_wizard"
-                    type="object"
-                    string="Libro Compras"
-                    class="oe_stat_button"
-                    icon="fa-book"
-                    groups="account.group_account_invoice"
-                    attrs="{'invisible': [('parent.move_type', 'not in', ['in_invoice', 'in_refund'])]}"
-                />
-                <field name="lc_numero_factura"/>
+            <xpath expr="//field[@name='invoice_line_ids']//list" position="inside">
+                <button name="action_open_lc_fields"
+                        type="object"
+                        string="Libro de Compras"
+                        icon="fa-book"
+                        attrs="{'invisible': ['|', ('display_type','!=',False), ('move_id.move_type','not in', ('in_invoice','in_refund'))]}"/>
             </xpath>
-
         </field>
     </record>
-    <!-- Vista del Wizard -->
-    <record id="view_libro_compras_wizard_form" model="ir.ui.view">
-        <field name="name">libro.compras.wizard.form</field>
-        <field name="model">libro.compras.wizard</field>
+
+    <!-- Botón para line_ids (en entradas de diario que representen facturas) -->
+    <record id="view_move_form_inherit_lc_on_line_ids" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.lc.on.line.ids</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <form string="Libro de Compras">
-                <group>
-                    <field name="lc_nit" readonly="1"/>
-                    <field name="lc_razon_social" readonly="1"/>
-                    <field name="lc_codigo_autorizacion"/>
-                    <field name="lc_numero_factura"/>
-                    <field name="lc_numero_dui_dim"/>
-                    <field name="lc_fecha_factura"/>
-                    <field name="lc_importe_total_compra"/>
-                    <field name="lc_importe_ice"/>
-                    <field name="lc_importe_iehd"/>
-                    <field name="lc_importe_ipj"/>
-                    <field name="lc_tasas"/>
-                    <field name="lc_otros_no_sujeto_cf"/>
-                    <field name="lc_importes_exentos"/>
-                    <field name="lc_compras_gravadas_tasa_cero"/>
-                    <field name="lc_descuentos_bonificaciones"/>
-                    <field name="lc_importe_gift_card"/>
-                    <field name="lc_tipo_compra"/>
-                    <field name="lc_codigo_control"/>
-                    <field name="lc_subtotal" readonly="1"/>
-                    <field name="lc_importe_base_cf" readonly="1"/>
-                    <field name="lc_credito_fiscal" readonly="1"/>
-                </group>
-                <footer>
-                    <button name="action_guardar" type="object" string="Guardar" class="btn-primary"/>
-                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
-                </footer>
-            </form>
+            <xpath expr="//field[@name='line_ids']//list" position="inside">
+                <button name="action_open_lc_fields"
+                        type="object"
+                        string="Libro de Compras"
+                        icon="fa-book"
+                        attrs="{'invisible': ['|', ('display_type','!=',False), ('move_id.move_type','not in', ('in_invoice','in_refund'))]}"/>
+            </xpath>
         </field>
     </record>
 
-    <!-- Acción para abrir el wizard -->
-    <record id="action_open_libro_compras_wizard" model="ir.actions.act_window">
-        <field name="name">Libro de Compras</field>
-        <field name="res_model">libro.compras.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_move_line_id': active_id}</field>
-    </record>
 </odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_libro_compras_wizard_form" model="ir.ui.view">
+        <field name="name">libro.compras.wizard.form</field>
+        <field name="model">libro.compras.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Compras">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="lc_nit" readonly="0"/>
+                            <field name="lc_razon_social" readonly="0"/>
+                        </group>
+                    </group>
+
+                    <group string="Datos del Documento">
+                        <group>
+                            <field name="lc_codigo_autorizacion"/>
+                            <field name="lc_numero_factura"/>
+                            <field name="lc_numero_dui_dim"/>
+                            <field name="lc_fecha_factura"/>
+                        </group>
+                    </group>
+
+                    <group string="Montos">
+                        <group>
+                            <field name="lc_importe_total_compra"/>
+                            <field name="lc_importe_ice"/>
+                            <field name="lc_importe_iehd"/>
+                            <field name="lc_importe_ipj"/>
+                            <field name="lc_tasas"/>
+                            <field name="lc_otros_no_sujeto_cf"/>
+                            <field name="lc_importes_exentos"/>
+                            <field name="lc_compras_gravadas_tasa_cero"/>
+                            <field name="lc_descuentos_bonificaciones"/>
+                            <field name="lc_importe_gift_card"/>
+                            <field name="lc_tipo_compra"/>
+                            <field name="lc_codigo_control"/>
+                        </group>
+                    </group>
+
+                    <group string="Totales">
+                        <group>
+                            <field name="lc_subtotal" readonly="1"/>
+                            <field name="lc_importe_base_cf" readonly="1"/>
+                            <field name="lc_credito_fiscal" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Guardar" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
