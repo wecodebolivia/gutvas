@@ -1,11 +1,12 @@
 <!-- l10n_bo_purchase_book_line/views/account_move_views.xml -->
 <odoo>
-    <record id="view_move_line_purchase_book_form" model="ir.ui.view">
-        <field name="name">account.move.line.purchase.book.form</field>
-        <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_move_line_form"/>
+    <!-- Heredar vista de factura de proveedor -->
+    <record id="view_move_form_purchase_book_fields" model="ir.ui.view">
+        <field name="name">account.move.purchase.book.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='price_unit']" position="after">
+            <xpath expr="//field[@name='invoice_line_ids']/tree" position="inside">
                 <field name="is_purchase_book_line"/>
                 <field name="nit"/>
                 <field name="invoice_number"/>
