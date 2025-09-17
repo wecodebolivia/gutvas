@@ -15,7 +15,7 @@
                     class="btn-primary"
                     icon="fa-book"
                     groups="account.group_account_invoice"
-                    attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"
+                    invisible="move_type not in ('in_invoice', 'in_refund')"
                 />
             </xpath>
 
