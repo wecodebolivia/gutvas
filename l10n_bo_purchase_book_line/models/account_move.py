@@ -4,12 +4,12 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     def action_open_libro_compras(self):
-        # Aquí puedes poner lógica más adelante
+        # Este es solo un ejemplo temporal para confirmar que el botón funciona
         return {
             'type': 'ir.actions.act_window',
             'name': 'Libro de Compras',
             'res_model': 'account.move',
-            'view_mode': 'form',
+            'view_mode': 'tree,form',
             'target': 'current',
-            'res_id': self.id,
+            'domain': [('move_type', '=', 'in_invoice')],
         }
