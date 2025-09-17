@@ -1,99 +1,37 @@
-# l10n_bo_purchase_book_line/models/account_move_line.py
-from odoo import models, fields, api
+from odoo import api, fields, models
 
 class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
+    _inherit = "account.move.line"
 
-    # === Datos del Libro de Compras ===
-    lc_codigo_autorizacion = fields.Char(string='Código de Autorización')
-    lc_numero_factura = fields.Char(string='Número de Factura')
-    lc_numero_dui_dim = fields.Char(string='Número DUI/DIM')
-    lc_fecha_factura = fields.Date(string='Fecha de Factura')
-
-    # Monetarios: con default=0.0 para evitar NULL y escrituras masivas
-    lc_importe_total_compra = fields.Monetary(
-        string='Importe Total Compra', currency_field='company_currency_id', default=0.0
-    )
-    lc_importe_ice = fields.Monetary(
-        string='Importe ICE', currency_field='company_currency_id', default=0.0
-    )
-    lc_importe_iehd = fields.Monetary(
-        string='Importe IEHD', currency_field='company_currency_id', default=0.0
-    )
-    lc_importe_ipj = fields.Monetary(
-        string='Importe IPJ', currency_field='company_currency_id', default=0.0
-    )
-    lc_tasas = fields.Monetary(
-        string='Tasas', currency_field='company_currency_id', default=0.0
-    )
-    lc_otros_no_sujeto_cf = fields.Monetary(
-        string='Otros No Sujetos a CF', currency_field='company_currency_id', default=0.0
-    )
-    lc_importes_exentos = fields.Monetary(
-        string='Importes Exentos', currency_field='company_currency_id', default=0.0
-    )
-    lc_compras_gravadas_tasa_cero = fields.Monetary(
-        string='Compras Gravadas a Tasa Cero', currency_field='company_currency_id', default=0.0
-    )
-    lc_descuentos_bonificaciones = fields.Monetary(
-        string='Descuentos y Bonificaciones', currency_field='company_currency_id', default=0.0
-    )
-    lc_importe_gift_card = fields.Monetary(
-        string='Importe Gift Card', currency_field='company_currency_id', default=0.0
-    )
-
-    # Calculados: SIN store para evitar recompute pesado en la instalación
+    # Campos del libro de compras (sin compute/store para no colgar instalación)
     lc_importe_base_cf = fields.Monetary(
-        string='Importe Base CF', currency_field='company_currency_id',
-        compute='_compute_importe_base_cf', readonly=True
+        string="Importe base CF",
+        currency_field="company_currency_id",
+        help="Importe base para crédito fiscal (Libro de Compras).",
     )
     lc_credito_fiscal = fields.Monetary(
-        string='Crédito Fiscal (13%)', currency_field='company_currency_id',
-        compute='_compute_credito_fiscal', readonly=True
+        string="Crédito fiscal",
+        currency_field="company_currency_id",
+        help="Crédito fiscal de la línea (Libro de Compras).",
     )
-
-    lc_tipo_compra = fields.Selection([
-        ('cf', 'Con derecho a Crédito Fiscal'),
-        ('sf', 'Sin derecho a Crédito Fiscal'),
-        ('an', 'Anulación/Devolución'),
-        ('tc', 'Tasa Cero'),
-    ], string='Tipo de Compra', default='cf')
-
-    lc_codigo_control = fields.Char(string='Código de Control')
-
-    @api.depends(
-        'lc_importe_total_compra', 'lc_importe_ice', 'lc_importe_iehd', 'lc_importe_ipj',
-        'lc_tasas', 'lc_otros_no_sujeto_cf', 'lc_importes_exentos',
-        'lc_compras_gravadas_tasa_cero', 'lc_descuentos_bonificaciones', 'lc_importe_gift_card'
-    )
-    def _compute_importe_base_cf(self):
-        for line in self:
-            total = line.lc_importe_total_compra or 0.0
-            restas = (
-                (line.lc_importe_ice or 0.0)
-                + (line.lc_importe_iehd or 0.0)
-                + (line.lc_importe_ipj or 0.0)
-                + (line.lc_tasas or 0.0)
-                + (line.lc_otros_no_sujeto_cf or 0.0)
-                + (line.lc_importes_exentos or 0.0)
-                + (line.lc_compras_gravadas_tasa_cero or 0.0)
-                + (line.lc_descuentos_bonificaciones or 0.0)
-                + (line.lc_importe_gift_card or 0.0)
-            )
-            line.lc_importe_base_cf = max(total - restas, 0.0)
-
-    @api.depends('lc_importe_base_cf')
-    def _compute_credito_fiscal(self):
-        for line in self:
-            line.lc_credito_fiscal = (line.lc_importe_base_cf or 0.0) * 0.13
 
     def action_open_libro_compras_wizard(self):
+        """Abre el wizard para editar los campos de la línea."""
         self.ensure_one()
+        view = self.env.ref(
+            "l10n_bo_purchase_book_line.view_libro_compras_wizard_form"
+        )
+        ctx = {
+            "default_move_line_id": self.id,
+            "default_lc_importe_base_cf": self.lc_importe_base_cf,
+            "default_lc_credito_fiscal": self.lc_credito_fiscal,
+        }
         return {
-            'type': 'ir.actions.act_window',
-            'name': 'Libro de Compras',
-            'res_model': 'libro.compras.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {'default_move_line_id': self.id},
+            "name": "Libro de Compras (Línea)",
+            "type": "ir.actions.act_window",
+            "res_model": "libro.compras.line.wizard",
+            "view_mode": "form",
+            "view_id": view.id,
+            "target": "new",
+            "context": ctx,
         }

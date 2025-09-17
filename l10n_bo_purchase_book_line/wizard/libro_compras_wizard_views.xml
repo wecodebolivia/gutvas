@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+    <record id="view_libro_compras_wizard_form" model="ir.ui.view">
+      <field name="name">libro.compras.line.wizard.form</field>
+      <field name="model">libro.compras.line.wizard</field>
+      <field name="arch" type="xml">
+        <form string="Libro de Compras (Línea)">
+          <group>
+            <field name="move_line_id"/>
+            <field name="lc_importe_base_cf"/>
+            <field name="lc_credito_fiscal"/>
+          </group>
+          <footer>
+            <button string="Aplicar" type="object" name="action_apply" class="btn-primary"/>
+            <button string="Cancelar" class="btn-secondary" special="cancel"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+  </data>
+</odoo>
