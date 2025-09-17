@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inserta el botón en el tree base de account.move.line -->
+    <record id="view_move_line_tree_inherit_lc_button" model="ir.ui.view">
+        <field name="name">account.move.line.tree.inherit.lc.button</field>
+        <field name="model">account.move.line</field>
+        <!-- Vista tree estándar que usan "Líneas de factura" y "Apuntes contables" -->
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <!-- Robusto: después de la primera columna del tree -->
+            <xpath expr="//tree/field[1]" position="after">
+                <button name="action_open_libro_compras_wizard"
+                        type="object"
+                        string="Libro Compras"
+                        icon="fa-book"
+                        attrs="{'invisible': [('display_type','!=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

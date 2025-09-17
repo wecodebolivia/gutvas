@@ -16,6 +16,7 @@ asistente por línea, y un reporte XLSX por rango de fechas.
     'security/ir.model.access.csv',
     'views/libro_compras_wizard_views.xml',
     'views/res_partner_views.xml',
+    'views/account_move_line_tree_views.xml',   # <— NUEVO
     'views/account_move_views.xml',
     'views/report_libro_compras_views.xml',
 ],
