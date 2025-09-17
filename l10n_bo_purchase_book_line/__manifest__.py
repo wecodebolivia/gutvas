@@ -11,7 +11,7 @@
     "views/report_libro_compras_views.xml",
     # "security/ir.model.access.csv",  ← ← ← comenta esta línea por ahora
 ],
-    ],
+   
     "application": False,
     "installable": True,
 }
