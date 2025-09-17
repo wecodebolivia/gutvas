@@ -1,71 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-    <!-- Vista del Wizard (form) -->
-    <record id="view_libro_compras_wizard_form" model="ir.ui.view">
-        <field name="name">libro.compras.wizard.form</field>
-        <field name="model">libro.compras.wizard</field>
+    <record id="view_report_libro_compras_form" model="ir.ui.view">
+        <field name="name">report.libro.compras.form</field>
+        <field name="model">report.libro.compras</field>
         <field name="arch" type="xml">
-            <form string="Libro de Compras (por línea)" create="false" edit="false">
-                <sheet>
-                    <group>
-                        <field name="move_line_id" readonly="1"/>
-                    </group>
-
-                    <group string="Proveedor">
-                        <field name="lc_razon_social" readonly="1"/>
-                        <field name="lc_nit" readonly="1"/>
-                    </group>
-
-                    <notebook>
-                        <page string="Información General">
-                            <group>
-                                <field name="lc_fecha_factura"/>
-                                <field name="lc_numero_factura"/>
-                                <field name="lc_codigo_autorizacion"/>
-                                <field name="lc_numero_dui_dim"/>
-                                <field name="lc_tipo_compra"/>
-                                <field name="lc_codigo_control"/>
-                            </group>
-                        </page>
-
-                        <page string="Importes">
-                            <group>
-                                <field name="lc_importe_total_compra"/>
-                                <field name="lc_importe_ice"/>
-                                <field name="lc_importe_iehd"/>
-                                <field name="lc_importe_ipj"/>
-                                <field name="lc_tasas"/>
-                                <field name="lc_otros_no_sujeto_cf"/>
-                                <field name="lc_importes_exentos"/>
-                                <field name="lc_compras_gravadas_tasa_cero"/>
-                                <field name="lc_descuentos_bonificaciones"/>
-                                <field name="lc_importe_gift_card"/>
-                            </group>
-                            <group string="Cálculos">
-                                <field name="lc_importe_base_cf" readonly="1"/>
-                                <field name="lc_credito_fiscal" readonly="1"/>
-                            </group>
-                        </page>
-                    </notebook>
-
-                    <footer>
-                        <button name="action_apply" type="object" string="Aplicar" class="btn-primary"/>
-                        <button string="Cancelar" special="cancel" class="btn-secondary"/>
-                    </footer>
-                </sheet>
+            <form string="Generar Reporte de Libro de Compras">
+                <group>
+                    <field name="fecha_inicio" required="1"/>
+                    <field name="fecha_fin" required="1"/>
+                </group>
+                <footer>
+                    <button name="generar_reporte" type="object" string="Generar Reporte" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
             </form>
         </field>
     </record>
 
-    <!-- Acción para abrir el wizard (usada por el método action_open_libro_compras_wizard) -->
-    <record id="action_open_libro_compras_wizard" model="ir.actions.act_window">
-        <field name="name">Libro de Compras</field>
-        <field name="res_model">libro.compras.wizard</field>
+    <record id="action_report_libro_compras" model="ir.actions.act_window">
+        <field name="name">Generar Reporte de Libro de Compras</field>
+        <field name="res_model">report.libro.compras</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_libro_compras_wizard_form"/>
         <field name="target">new</field>
-        <field name="context">{}</field>
     </record>
 
+    <menuitem id="menu_report_libro_compras" name="Libro de Compras (Excel)" parent="account.menu_finance_reports" sequence="100"/>
+    <menuitem id="menu_action_report_libro_compras" name="Generar Reporte" parent="menu_report_libro_compras" action="action_report_libro_compras" sequence="10"/>
 </odoo>
