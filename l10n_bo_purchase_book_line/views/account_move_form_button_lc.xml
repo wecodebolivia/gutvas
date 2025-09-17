@@ -6,7 +6,6 @@
     <field name="inherit_id" ref="account.view_move_form"/>
     <field name="priority" eval="90"/>
     <field name="arch" type="xml">
-      <!-- Insertamos dentro del button_box un smart button -->
       <xpath expr="//div[@name='button_box']" position="inside">
         <button name="%(action_open_libro_compras_wizard)d"
                 type="action"
