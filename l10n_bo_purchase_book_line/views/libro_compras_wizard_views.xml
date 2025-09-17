@@ -8,8 +8,8 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="lc_header_nit" readonly="1"/>
-                            <field name="lc_header_razon_social" readonly="1"/>
+                            <field name="lc_header_nit" readonly="0"/>
+                            <field name="lc_header_razon_social" readonly="0"/>
                         </group>
                     </group>
                     <group string="Datos del Documento">
