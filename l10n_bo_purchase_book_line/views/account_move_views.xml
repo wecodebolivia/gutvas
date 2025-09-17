@@ -1,81 +1,48 @@
-<!-- l10n_bo_purchase_book_line/views/account_move_views.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- Botón por línea en el árbol de líneas de factura -->
-    <record id="view_move_line_tree_inherit_lc" model="ir.ui.view">
-        <field name="name">account.move.line.tree.inherit.lc</field>
-        <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_move_line_tree"/>
+    <!--
+      Inserta un botón por línea en la grilla de invoice_line_ids del formulario de factura.
+      XPath robusto: usamos field[1] dentro del <tree> para no depender de un nombre de campo específico.
+      attrs:
+        - Oculta en líneas de sección/notas (display_type != False).
+        - Oculta si el documento no es de compra (parent.move_type no in in_invoice, in_refund, in_receipt).
+    -->
+    <record id="view_move_form_inherit_lc_button" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.lc.button</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree//field[@name='name']" position="after">
+            <xpath expr="//field[@name='invoice_line_ids']//tree/field[1]" position="after">
                 <button name="action_open_libro_compras_wizard"
                         type="object"
                         string="Libro Compras"
-                        icon="fa-book"/>
+                        icon="fa-book"
+                        attrs="{'invisible': ['|', ('display_type','!=', False), ('parent.move_type','not in', ['in_invoice','in_refund','in_receipt'])]}"/>
             </xpath>
         </field>
     </record>
 
-    <!-- Vista del Wizard -->
-    <record id="view_libro_compras_wizard_form" model="ir.ui.view">
-        <field name="name">libro.compras.wizard.form</field>
-        <field name="model">libro.compras.wizard</field>
+    <!--
+      Fallback opcional:
+      Algunas personalizaciones usan line_ids (apuntando al tree de apuntes contables en la pestaña contable).
+      Este bloque inserta el botón también ahí por si el usuario trabaja desde esa grilla.
+      Se marca con priority mayor para aplicarse después si existe ese nodo en tu vista base.
+    -->
+    <record id="view_move_form_inherit_lc_button_fallback" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.lc.button.fallback</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">20</field>
         <field name="arch" type="xml">
-            <form string="Libro de Compras (por línea)">
-                <group>
-                    <field name="move_line_id" readonly="1"/>
-                </group>
-
-                <group string="Proveedor">
-                    <field name="lc_razon_social" readonly="1"/>
-                    <field name="lc_nit" readonly="1"/>
-                </group>
-
-                <notebook>
-                    <page string="Información General">
-                        <group>
-                            <field name="lc_fecha_factura"/>
-                            <field name="lc_numero_factura"/>
-                            <field name="lc_codigo_autorizacion"/>
-                            <field name="lc_numero_dui_dim"/>
-                            <field name="lc_tipo_compra"/>
-                            <field name="lc_codigo_control"/>
-                        </group>
-                    </page>
-                    <page string="Importes">
-                        <group>
-                            <field name="lc_importe_total_compra"/>
-                            <field name="lc_importe_ice"/>
-                            <field name="lc_importe_iehd"/>
-                            <field name="lc_importe_ipj"/>
-                            <field name="lc_tasas"/>
-                            <field name="lc_otros_no_sujeto_cf"/>
-                            <field name="lc_importes_exentos"/>
-                            <field name="lc_compras_gravadas_tasa_cero"/>
-                            <field name="lc_descuentos_bonificaciones"/>
-                            <field name="lc_importe_gift_card"/>
-                        </group>
-                        <group string="Cálculos">
-                            <field name="lc_importe_base_cf" readonly="1"/>
-                            <field name="lc_credito_fiscal" readonly="1"/>
-                        </group>
-                    </page>
-                </notebook>
-
-                <footer>
-                    <button name="action_apply" type="object" string="Aplicar" class="btn-primary"/>
-                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
-                </footer>
-            </form>
+            <xpath expr="//field[@name='line_ids']//tree/field[1]" position="after">
+                <button name="action_open_libro_compras_wizard"
+                        type="object"
+                        string="Libro Compras"
+                        icon="fa-book"
+                        attrs="{'invisible': ['|', ('display_type','!=', False), ('parent.move_type','not in', ['in_invoice','in_refund','in_receipt'])]}"/>
+            </xpath>
         </field>
-    </record>
-
-    <!-- Acción del wizard -->
-    <record id="action_open_libro_compras_wizard" model="ir.actions.act_window">
-        <field name="name">Libro de Compras</field>
-        <field name="res_model">libro.compras.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
     </record>
 
 </odoo>
