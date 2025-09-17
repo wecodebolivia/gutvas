@@ -5,7 +5,36 @@ from odoo import api, fields, models
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    # -------- Campos Libro de Compras (ingreso manual) --------
+    # -------- Identidad resuelta para Libro de Compras (siempre disponible en la línea) --------
+    lc_partner_name_display = fields.Char(
+        string='LC Razón Social (resuelta)', compute='_compute_lc_partner_identity', store=True)
+    lc_partner_nit_display = fields.Char(
+        string='LC NIT (resuelto)', compute='_compute_lc_partner_identity', store=True)
+
+    @api.depends('partner_id.name', 'partner_id.vat',
+                 'partner_id.lc_purchase_book_name', 'partner_id.lc_purchase_book_nit',
+                 'move_id.move_type')
+    def _compute_lc_partner_identity(self):
+        for line in self:
+            partner = line.partner_id
+            if not partner:
+                line.lc_partner_name_display = False
+                line.lc_partner_nit_display = False
+                continue
+
+            if line.move_id.move_type in ('in_invoice', 'in_refund'):
+                # Compras → usar datos específicos del partner si existen; si no, fallback a name/vat
+                name = partner.lc_purchase_book_name or partner.name
+                nit = partner.lc_purchase_book_nit or partner.vat
+            else:
+                # Asientos contables/otros → usar name y vat del partner de la línea
+                name = partner.name
+                nit = partner.vat
+
+            line.lc_partner_name_display = name or False
+            line.lc_partner_nit_display = nit or False
+
+    # -------- Campos Libro de Compras (ingreso manual de montos) --------
     lc_importe_total_compra = fields.Float(string='LC Importe total compra', default=0.0)
     lc_importe_ice = fields.Float(string='LC ICE', default=0.0)
     lc_importe_iehd = fields.Float(string='LC IEHD', default=0.0)
@@ -30,12 +59,6 @@ class AccountMoveLine(models.Model):
         'move_id.move_type', 'display_type'
     )
     def _compute_lc_totals(self):
-        """Siempre asigna los 3 campos calculados.
-        subtotal = total_compra - (ice + iehd + ipj + tasas + otros_no_cf + exentos + tasa_cero + descuentos + giftcard)
-        base_cf  = subtotal
-        cf       = base_cf * 0.13
-        Solo aplica para facturas de proveedor / NC proveedor.
-        """
         for line in self:
             subtotal = base_cf = cf = 0.0
             if line.move_id.move_type in ('in_invoice', 'in_refund') and not line.display_type:
@@ -58,9 +81,8 @@ class AccountMoveLine(models.Model):
             line.lc_importe_base_cf = base_cf
             line.lc_credito_fiscal = cf
 
-    # -------- Acción para el botón (abre el WIZARD en modal) --------
+    # -------- Acción del botón: abre wizard en modal --------
     def action_open_lc_fields(self):
-        """Abrir el wizard de Libro de Compras para esta línea."""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
@@ -68,7 +90,5 @@ class AccountMoveLine(models.Model):
             'res_model': 'libro.compras.wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {
-                'default_move_line_id': self.id,
-            },
+            'context': {'default_move_line_id': self.id},
         }
