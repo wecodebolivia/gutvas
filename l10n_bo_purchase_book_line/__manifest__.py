@@ -13,6 +13,7 @@
         'views/account_move_views.xml',
         'views/res_partner_views.xml',
         'views/report_libro_compras_views.xml',
+        'views/libro_compras_wizard_views.xml',  # <-- NUEVA
         'security/ir.model.access.csv',
     ],
     'installable': True,

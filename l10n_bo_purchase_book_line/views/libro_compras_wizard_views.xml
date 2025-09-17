@@ -8,10 +8,11 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="lc_header_nit" readonly="0"/>
-                            <field name="lc_header_razon_social" readonly="0"/>
+                            <field name="lc_nit" readonly="0"/>
+                            <field name="lc_razon_social" readonly="0"/>
                         </group>
                     </group>
+
                     <group string="Datos del Documento">
                         <group>
                             <field name="lc_codigo_autorizacion"/>
@@ -20,6 +21,7 @@
                             <field name="lc_fecha_factura"/>
                         </group>
                     </group>
+
                     <group string="Montos">
                         <group>
                             <field name="lc_importe_total_compra"/>
@@ -36,6 +38,7 @@
                             <field name="lc_codigo_control"/>
                         </group>
                     </group>
+
                     <group string="Totales">
                         <group>
                             <field name="lc_subtotal" readonly="1"/>
@@ -46,7 +49,7 @@
                 </sheet>
                 <footer>
                     <button name="action_confirm" string="Guardar" type="object" class="btn-primary"/>
-                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
