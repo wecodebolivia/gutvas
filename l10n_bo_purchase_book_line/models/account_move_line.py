@@ -1,87 +1,81 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2025
-# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0.html).
-
-from odoo import models, fields, api
+from odoo import api, fields, models
 
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    # ---- Campos manuales (NO usar default para evitar UPDATE masivo al instalar) ----
-    lc_importe_total_compra = fields.Float(
-        string='Importe Total Compra', digits=(16, 2),
-        help='Importe total de la compra según documento del proveedor.'
-    )
-    lc_importe_ice = fields.Float(
-        string='Importe ICE', digits=(16, 2),
-        help='Impuesto al Consumo Específico (ICE) no sujeto a crédito fiscal.'
-    )
-    lc_importe_iehd = fields.Float(
-        string='Importe IEHD', digits=(16, 2),
-        help='Impuesto a los Hidrocarburos y sus Derivados (IEHD).'
-    )
-    lc_importe_ipj = fields.Float(
-        string='Importe IPJ', digits=(16, 2),
-        help='Impuesto a la Participación en Juegos (IPJ).'
-    )
-    lc_tasas = fields.Float(
-        string='Tasas', digits=(16, 2),
-        help='Tasas y otros tributos no sujetos a crédito fiscal.'
-    )
-    lc_otros_no_sujeto_cf = fields.Float(
-        string='Otros No Sujetos a CF', digits=(16, 2),
-        help='Otros importes no sujetos a crédito fiscal.'
-    )
-    lc_importes_exentos = fields.Float(
-        string='Importes Exentos', digits=(16, 2),
-        help='Importes exentos según normativa.'
-    )
-    lc_compras_gravadas_tasa_cero = fields.Float(
-        string='Compras Gravadas Tasa Cero', digits=(16, 2),
-        help='Compras gravadas a tasa cero.'
-    )
-    lc_descuentos_bonificaciones = fields.Float(
-        string='Descuentos y Bonificaciones', digits=(16, 2),
-        help='Descuentos, bonificaciones y rebajas sujetas al documento.'
-    )
-    lc_importe_gift_card = fields.Float(
-        string='Importe Gift Card', digits=(16, 2),
-        help='Importe cancelado mediante gift card (no sujeto a CF).'
-    )
+    # -------- Campos Libro de Compras (ingreso manual) --------
+    lc_importe_total_compra = fields.Float(string='LC Importe total compra', default=0.0)
+    lc_importe_ice = fields.Float(string='LC ICE', default=0.0)
+    lc_importe_iehd = fields.Float(string='LC IEHD', default=0.0)
+    lc_importe_ipj = fields.Float(string='LC IPJ', default=0.0)
+    lc_tasas = fields.Float(string='LC Tasas', default=0.0)
+    lc_otros_no_sujeto_cf = fields.Float(string='LC Otros no sujeto a CF', default=0.0)
+    lc_importes_exentos = fields.Float(string='LC Importes exentos', default=0.0)
+    lc_compras_gravadas_tasa_cero = fields.Float(string='LC Compras gravadas a 0%', default=0.0)
+    lc_descuentos_bonificaciones = fields.Float(string='LC Descuentos/Bonificaciones', default=0.0)
+    lc_importe_gift_card = fields.Float(string='LC Gift Card', default=0.0)
 
-    # ---- Campos calculados (sin store para no llenar la tabla al instalar) ----
-    lc_subtotal = fields.Float(
-        string='Subtotal', digits=(16, 2),
-        compute='_compute_l10n_bo_purchase_book',
-        help='Subtotal sujeto a base de cálculo, luego de restar conceptos no CF.'
-    )
-    lc_importe_base_cf = fields.Float(
-        string='Importe Base CF', digits=(16, 2),
-        compute='_compute_l10n_bo_purchase_book',
-        help='Base de crédito fiscal (referencial).'
-    )
-    lc_credito_fiscal = fields.Float(
-        string='Crédito Fiscal', digits=(16, 2),
-        compute='_compute_l10n_bo_purchase_book',
-        help='Crédito fiscal estimado sobre la base (13% por defecto).'
-    )
+    # -------- Campos calculados --------
+    lc_subtotal = fields.Float(string='LC Subtotal', compute='_compute_lc_totals', store=True)
+    lc_importe_base_cf = fields.Float(string='LC Importe base CF', compute='_compute_lc_totals', store=True)
+    lc_credito_fiscal = fields.Float(string='LC Crédito fiscal', compute='_compute_lc_totals', store=True)
 
     @api.depends(
         'lc_importe_total_compra',
-        'lc_importe_ice', 'lc_importe_iehd', 'lc_importe_ipj',
-        'lc_tasas', 'lc_otros_no_sujeto_cf',
-        'lc_importes_exentos', 'lc_compras_gravadas_tasa_cero',
+        'lc_importe_ice', 'lc_importe_iehd', 'lc_importe_ipj', 'lc_tasas',
+        'lc_otros_no_sujeto_cf', 'lc_importes_exentos', 'lc_compras_gravadas_tasa_cero',
         'lc_descuentos_bonificaciones', 'lc_importe_gift_card',
+        'move_id.move_type', 'display_type'
     )
-    def _compute_l10n_bo_purchase_book(self):
+    def _compute_lc_totals(self):
+        """Siempre asigna los 3 campos calculados (evita errores de compute).
+        Fórmulas base:
+          subtotal = total_compra - (ice + iehd + ipj + tasas + otros_no_cf + exentos + tasa_cero + descuentos + giftcard)
+          base_cf  = subtotal
+          cf       = base_cf * 0.13
+        Solo tiene relevancia en facturas de proveedor/nota de crédito; en otros casos queda 0.
         """
-        Cálculo simple y seguro (no persistido):
-        subtotal = total_compra - (rubros no CF, exentos, tasa cero, descuentos, gift card)
-        base_cf = subtotal
-        crédito_fiscal = 13% de base_cf (ajusta la tasa si tu normativa exige otra)
-        """
-        VAT_RATE = 0.13  # Ajusta si corresponde a tu localización
+        for line in self:
+            # valores por defecto
+            subtotal = 0.0
+            base_cf = 0.0
+            cf = 0.0
 
-        def v(x):
-            return x or 0.0
+            if line.move_id.move_type in ('in_invoice', 'in_refund') and not line.display_type:
+                total = line.lc_importe_total_compra or 0.0
+                restas = (
+                    (line.lc_importe_ice or 0.0)
+                    + (line.lc_importe_iehd or 0.0)
+                    + (line.lc_importe_ipj or 0.0)
+                    + (line.lc_tasas or 0.0)
+                    + (line.lc_otros_no_sujeto_cf or 0.0)
+                    + (line.lc_importes_exentos or 0.0)
+                    + (line.lc_compras_gravadas_tasa_cero or 0.0)
+                    + (line.lc_descuentos_bonificaciones or 0.0)
+                    + (line.lc_importe_gift_card or 0.0)
+                )
+                subtotal = max(total - restas, 0.0)
+                base_cf = subtotal
+                cf = base_cf * 0.13  # 13% IT/IVA BO
+
+            # Asigna SIEMPRE (clave para evitar "Compute method failed to assign ...")
+            line.lc_subtotal = subtotal
+            line.lc_importe_base_cf = base_cf
+            line.lc_credito_fiscal = cf
+
+    # -------- Acción para botón en la línea (abre modal) --------
+    def action_open_lc_fields(self):
+        """Abrir la línea en modal para editar/ver campos del Libro de Compras."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Libro de Compras (Línea)',
+            'res_model': 'account.move.line',
+            'view_mode': 'form',
+            'views': [(False, 'form')],
+            'target': 'new',
+            'res_id': self.id,
+            'context': dict(self.env.context or {}),
+        }
