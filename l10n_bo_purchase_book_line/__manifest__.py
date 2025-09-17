@@ -1,6 +1,6 @@
 {
     "name": "Libro de Compras - Línea por Línea",
-    "version": "16.0.1.0.0",  # o tu versión
+    "version": "18.0.1.0.5",  # o tu versión
     "summary": "Campos y acción para libro de compras en facturas de proveedor",
     "author": "Tu Empresa",
     "license": "LGPL-3",
