@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_report_libro_compras,access.report.libro.compras,report.libro.compras,,1,1,1,0
-access_libro_compras_wizard,access.libro.compras.wizard,libro.compras.wizard,,1,1,1,0
+access_account_move_libro_compras,access_account_move_libro_compras,model_account_move,,1,0,0,0
