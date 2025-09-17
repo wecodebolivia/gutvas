@@ -11,7 +11,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/account_move_views.xml',
-        'wizard/libro_compras_wizard_view.xml',
+        # 'wizard/libro_compras_wizard_view.xml',  # Comentado porque aún no existe
     ],
     'installable': True,
     'application': False,
