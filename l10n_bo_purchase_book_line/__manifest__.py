@@ -8,11 +8,13 @@
     "website": "https://largotek.com",
     "license": "LGPL-3",
     "depends": ["account"],
-    "data": [
-        "security/ir.model.access.csv",
-        "views/account_move_line_tree_views.xml",
-        "wizard/libro_compras_wizard_views.xml",  # <- ruta correcta
-    ],
+"data": [
+    "security/ir.model.access.csv",
+    "wizard/libro_compras_wizard_views.xml",   # debe existir (ya lo tienes)
+    "views/account_move_form_lines_lc.xml",
+    "views/account_move_form_button_lc.xml",
+],
+
     "installable": True,
     "application": False,
 }
