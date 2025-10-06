@@ -5,22 +5,36 @@ from odoo import api, fields, models
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    # -------- Campos Libro de Compras (ingreso manual) --------
-    lc_importe_total_compra = fields.Float(string='LC Importe total compra', default=0.0)
-    lc_importe_ice = fields.Float(string='LC ICE', default=0.0)
-    lc_importe_iehd = fields.Float(string='LC IEHD', default=0.0)
-    lc_importe_ipj = fields.Float(string='LC IPJ', default=0.0)
-    lc_tasas = fields.Float(string='LC Tasas', default=0.0)
-    lc_otros_no_sujeto_cf = fields.Float(string='LC Otros no sujeto a CF', default=0.0)
-    lc_importes_exentos = fields.Float(string='LC Importes exentos', default=0.0)
-    lc_compras_gravadas_tasa_cero = fields.Float(string='LC Compras gravadas a 0%', default=0.0)
-    lc_descuentos_bonificaciones = fields.Float(string='LC Descuentos/Bonificaciones', default=0.0)
-    lc_importe_gift_card = fields.Float(string='LC Gift Card', default=0.0)
+    # -------- Campos Libro de Compras (ingreso manual y metadatos del doc) --------
+    lc_codigo_autorizacion = fields.Char(string='LC Código de Autorización', index=True)
+    lc_numero_factura = fields.Char(string='LC Número de Factura', index=True)
+    lc_numero_dui_dim = fields.Char(string='LC Número DUI/DIM')
+    lc_fecha_factura = fields.Date(string='LC Fecha de Factura', index=True)
+
+    lc_tipo_compra = fields.Selection([
+        ('1', 'Actividad gravada'),
+        ('2', 'Actividad no gravada'),
+        ('3', 'Sujetas a proporcionalidad'),
+        ('4', 'Exportaciones'),
+        ('5', 'Interno/Exportaciones'),
+    ], string='LC Tipo de Compra', default='1')
+    lc_codigo_control = fields.Char(string='LC Código de Control')
+
+    lc_importe_total_compra = fields.Float(string='LC Importe total compra', digits=(16, 2), default=0.0)
+    lc_importe_ice = fields.Float(string='LC ICE', digits=(16, 2), default=0.0)
+    lc_importe_iehd = fields.Float(string='LC IEHD', digits=(16, 2), default=0.0)
+    lc_importe_ipj = fields.Float(string='LC IPJ', digits=(16, 2), default=0.0)
+    lc_tasas = fields.Float(string='LC Tasas', digits=(16, 2), default=0.0)
+    lc_otros_no_sujeto_cf = fields.Float(string='LC Otros no sujeto a CF', digits=(16, 2), default=0.0)
+    lc_importes_exentos = fields.Float(string='LC Importes exentos', digits=(16, 2), default=0.0)
+    lc_compras_gravadas_tasa_cero = fields.Float(string='LC Compras gravadas a 0%', digits=(16, 2), default=0.0)
+    lc_descuentos_bonificaciones = fields.Float(string='LC Descuentos/Bonificaciones', digits=(16, 2), default=0.0)
+    lc_importe_gift_card = fields.Float(string='LC Gift Card', digits=(16, 2), default=0.0)
 
     # -------- Campos calculados --------
-    lc_subtotal = fields.Float(string='LC Subtotal', compute='_compute_lc_totals', store=True)
-    lc_importe_base_cf = fields.Float(string='LC Importe base CF', compute='_compute_lc_totals', store=True)
-    lc_credito_fiscal = fields.Float(string='LC Crédito fiscal', compute='_compute_lc_totals', store=True)
+    lc_subtotal = fields.Float(string='LC Subtotal', compute='_compute_lc_totals', store=True, digits=(16, 2))
+    lc_importe_base_cf = fields.Float(string='LC Importe base CF', compute='_compute_lc_totals', store=True, digits=(16, 2))
+    lc_credito_fiscal = fields.Float(string='LC Crédito fiscal', compute='_compute_lc_totals', store=True, digits=(16, 2))
 
     @api.depends(
         'lc_importe_total_compra',
