@@ -1,8 +1,9 @@
 # l10n_bo_purchase_book_line/models/report_libro_compras.py
-from odoo import models, fields, api, _
+from odoo import models, fields, _
 import io
 import base64
 import xlsxwriter
+
 
 class ReportLibroCompras(models.TransientModel):
     _name = 'report.libro.compras'
@@ -13,12 +14,18 @@ class ReportLibroCompras(models.TransientModel):
 
     def generar_reporte(self):
         self.ensure_one()
-        # Buscar por lc_fecha_factura si está, si no, por move.date
+        # Rango: si hay lc_fecha_factura, usarla; si no, usar move.date.
+        # AND entre los dos límites + filtros de factura de proveedor y líneas reales.
         domain = [
-            '|', ('lc_fecha_factura', '>=', self.fecha_inicio), '&', ('lc_fecha_factura', '=', False), ('date', '>=', self.fecha_inicio),
-            '|', ('lc_fecha_factura', '<=', self.fecha_fin),   '&', ('lc_fecha_factura', '=', False), ('date', '<=', self.fecha_fin),
+            '&',
+                '|', ('lc_fecha_factura', '>=', self.fecha_inicio),
+                     '&', ('lc_fecha_factura', '=', False), ('date', '>=', self.fecha_inicio),
+                '|', ('lc_fecha_factura', '<=', self.fecha_fin),
+                     '&', ('lc_fecha_factura', '=', False), ('date', '<=', self.fecha_fin),
+            ('move_id.move_type', 'in', ('in_invoice', 'in_refund')),
+            ('display_type', '=', False),
         ]
-        lines = self.env['account.move.line'].search(domain, limit=50000)  # límite defensivo
+        lines = self.env['account.move.line'].search(domain, limit=50000)
 
         output = io.BytesIO()
         wb = xlsxwriter.Workbook(output, {'in_memory': True})
