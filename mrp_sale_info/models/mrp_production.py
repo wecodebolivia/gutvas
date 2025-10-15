@@ -46,33 +46,40 @@ class MrpProduction(models.Model):
         readonly=True,
     )
 
-    # === Nuevo campo para el reporte ===
+    # === NUEVO: Vendedor (para evitar KeyError en QWeb) ===
+    custom_sale_user_id = fields.Many2one(
+        comodel_name="res.users",
+        string="Salesperson",
+        related="sale_id.user_id",
+        store=True,
+        readonly=True,
+        help="Vendedor del pedido de venta de origen.",
+    )
+
+    # === Opcional/NUEVO: Texto para impresión tomado del SO ===
     sale_line_description = fields.Text(
         string="Sale Line Description",
         compute="_compute_sale_line_description",
         store=False,
-        help="Descripción consolidada de las líneas de venta relacionadas "
-             "con este producto en el pedido de venta de origen."
+        help="Descripción consolidada de las líneas del pedido de venta "
+             "que corresponden al producto fabricado.",
     )
 
-    @api.depends("sale_id", "product_id",
-                 "sale_id.order_line.product_id", "sale_id.order_line.name")
+    @api.depends(
+        "sale_id",
+        "product_id",
+        "sale_id.order_line.product_id",
+        "sale_id.order_line.name",
+    )
     def _compute_sale_line_description(self):
-        """
-        Construye una descripción a partir de las líneas del SO que
-        coinciden con el producto de la MO. Si no hay coincidencias,
-        deja vacío (esto evita KeyError en QWeb).
-        """
+        """Concatena las 'name' de las líneas del SO cuyo product_id coincide con el de la MO."""
         for mo in self:
             desc = ""
             if mo.sale_id and mo.product_id:
-                # Filtra líneas del pedido vinculadas al producto fabricado
                 lines = mo.sale_id.order_line.filtered(
                     lambda l: l.product_id == mo.product_id
                 )
-                # Si hay varias líneas (mismo producto con distintas descripciones),
-                # concatenamos cada 'name' en líneas separadas.
-                names = [ln.name.strip() for ln in lines if (ln.name or "").strip()]
+                names = [ (l.name or "").strip() for l in lines if (l.name or "").strip() ]
                 if names:
                     desc = "\n".join(names)
             mo.sale_line_description = desc
