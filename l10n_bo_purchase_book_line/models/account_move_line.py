@@ -30,42 +30,64 @@ class AccountMoveLine(models.Model):
     lc_codigo_control = fields.Char(string='Código de Control')
 
     # Campos calculados
-    lc_subtotal = fields.Float(string='Subtotal', compute='_compute_subtotal', store=True, digits=(16, 2))
-    lc_importe_base_cf = fields.Float(string='Importe Base CF', compute='_compute_importe_base_cf', store=True, digits=(16, 2))
-    lc_credito_fiscal = fields.Float(string='Crédito Fiscal', compute='_compute_credito_fiscal', store=True, digits=(16, 2))
+    # OJO: sin store=True para no recalcular masivamente en instalación
+    lc_subtotal = fields.Float(
+        string='Subtotal',
+        compute='_compute_subtotal',
+        digits=(16, 2),
+    )
+    lc_importe_base_cf = fields.Float(
+        string='Importe Base CF',
+        compute='_compute_importe_base_cf',
+        digits=(16, 2),
+    )
+    lc_credito_fiscal = fields.Float(
+        string='Crédito Fiscal',
+        compute='_compute_credito_fiscal',
+        digits=(16, 2),
+    )
 
     # Métodos para cálculos automáticos
     @api.depends(
-        'lc_importe_total_compra', 'lc_importe_ice', 'lc_importe_iehd', 
-        'lc_importe_ipj', 'lc_tasas', 'lc_otros_no_sujeto_cf', 
-        'lc_importes_exentos', 'lc_compras_gravadas_tasa_cero'
+        'lc_importe_total_compra',
+        'lc_importe_ice',
+        'lc_importe_iehd',
+        'lc_importe_ipj',
+        'lc_tasas',
+        'lc_otros_no_sujeto_cf',
+        'lc_importes_exentos',
+        'lc_compras_gravadas_tasa_cero',
     )
     def _compute_subtotal(self):
         for line in self:
             line.lc_subtotal = (
-                line.lc_importe_total_compra
-                - line.lc_importe_ice
-                - line.lc_importe_iehd
-                - line.lc_importe_ipj
-                - line.lc_tasas
-                - line.lc_otros_no_sujeto_cf
-                - line.lc_importes_exentos
-                - line.lc_compras_gravadas_tasa_cero
+                (line.lc_importe_total_compra or 0.0)
+                - (line.lc_importe_ice or 0.0)
+                - (line.lc_importe_iehd or 0.0)
+                - (line.lc_importe_ipj or 0.0)
+                - (line.lc_tasas or 0.0)
+                - (line.lc_otros_no_sujeto_cf or 0.0)
+                - (line.lc_importes_exentos or 0.0)
+                - (line.lc_compras_gravadas_tasa_cero or 0.0)
             )
 
-    @api.depends('lc_subtotal', 'lc_descuentos_bonificaciones', 'lc_importe_gift_card')
+    @api.depends(
+        'lc_subtotal',
+        'lc_descuentos_bonificaciones',
+        'lc_importe_gift_card',
+    )
     def _compute_importe_base_cf(self):
         for line in self:
             line.lc_importe_base_cf = (
-                line.lc_subtotal
-                - line.lc_descuentos_bonificaciones
-                - line.lc_importe_gift_card
+                (line.lc_subtotal or 0.0)
+                - (line.lc_descuentos_bonificaciones or 0.0)
+                - (line.lc_importe_gift_card or 0.0)
             )
 
     @api.depends('lc_importe_base_cf')
     def _compute_credito_fiscal(self):
         for line in self:
-            line.lc_credito_fiscal = line.lc_importe_base_cf * 0.13
+            line.lc_credito_fiscal = (line.lc_importe_base_cf or 0.0) * 0.13
 
     def action_open_libro_compras_wizard(self):
         self.ensure_one()
