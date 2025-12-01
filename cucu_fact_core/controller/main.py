@@ -23,7 +23,6 @@ class ExcelReport(ExcelExport):
         return config.filestore(request._cr.dbname)
 
     def _full_folder_path(self, path):
-        # sanitize path
         return os.path.join(self._filestore(), path)
 
     @http.route("/cucu/report/sales", type="http", auth="public")
@@ -31,18 +30,19 @@ class ExcelReport(ExcelExport):
         config_obj = request.env["invoice.report"].browse(int(id))
         date_from = fields.Datetime.to_string(config_obj.start_date)
         date_to = fields.Datetime.to_string(config_obj.end_date)
+
         path = self._full_folder_path("WK_export_update")
         if not os.path.isdir(path):
             os.mkdir(path)
+
         workbook = xlsxwriter.Workbook(path + "/invoice_report.xlsx")
         worksheet = workbook.add_worksheet()
-        header_format = workbook.add_format(
-            {
-                "align": "center",
-                "valign": "vcenter",
-                "text_wrap": True,
-            }
-        )
+
+        header_format = workbook.add_format({
+            "align": "center",
+            "valign": "vcenter",
+            "text_wrap": True,
+        })
 
         worksheet.merge_range(4, 0, 5, 11, "REPORTE FACTURAS", header_format)
 
@@ -59,18 +59,18 @@ class ExcelReport(ExcelExport):
         worksheet.write(6, 10, "Id Sucursal")
         worksheet.write(6, 11, "Id Pos")
 
-        worksheet.set_column(0, 0, eval('len("Nro")*1.25'))
-        worksheet.set_column(1, 1, eval('len("Nro. Factura")*1.25'))
+        worksheet.set_column(0, 0, len("Nro")*1.25)
+        worksheet.set_column(1, 1, len("Nro. Factura")*1.25)
         worksheet.set_column(2, 2, 66)
-        worksheet.set_column(3, 3, eval('len("Tipo Documento")*1.25'))
-        worksheet.set_column(4, 4, eval('len("NIT/CI/CEX")*1.25'))
+        worksheet.set_column(3, 3, len("Tipo Documento")*1.25)
+        worksheet.set_column(4, 4, len("NIT/CI/CEX")*1.25)
         worksheet.set_column(5, 5, 30)
         worksheet.set_column(6, 6, 21)
-        worksheet.set_column(7, 7, eval('len("Monto Total")*1.25'))
+        worksheet.set_column(7, 7, len("Monto Total")*1.25)
         worksheet.set_column(8, 8, 27)
-        worksheet.set_column(9, 9, eval('len("Nombre Sucursal")*1.25'))
-        worksheet.set_column(10, 10, eval('len("Id Sucursal")*1.25'))
-        worksheet.set_column(11, 11, eval('len("Id Pos")*1.25'))
+        worksheet.set_column(9, 9, len("Nombre Sucursal")*1.25)
+        worksheet.set_column(10, 10, len("Id Sucursal")*1.25)
+        worksheet.set_column(11, 11, len("Id Pos")*1.25)
 
         pos = config_obj.pos
         branch_office = config_obj.branch_office
@@ -79,100 +79,93 @@ class ExcelReport(ExcelExport):
         contingency = config_obj.contingency
         doc_id = config_obj.doc_id
         canceled_invoices = config_obj.canceled_invoices
-        is_valid = False
+
         status = []
         if contingency:
-            status.append(695)
+            status = [695]
         elif canceled_invoices:
-            status.append(905)
+            status = [905]
         else:
-            # status.append(908)
             status = [908, 695, 905]
-        pos_domain = []
+
+        invoice_domain = [
+            ("sin_code_state", "in", status),
+            ("date_emission", ">=", date_from),
+            ("date_emission", "<=", date_to),
+        ]
+
         if pos:
-            pos_domain = [
-                ("date", ">=", date_from),
-                ("siat_code_state", "in", status),
-                ("date", "<=", date_to),
-                (
-                    "api_pos_id",
-                    "in",
-                    [config["cucu_pos_id"]["pos_id"] for config in pos_configs],
-                ),
-                (
-                    "api_branch_id",
-                    "in",
-                    [
-                        config["cucu_pos_id"]["branch_id"]["branch_id"]
-                        for config in pos_configs
-                    ],
-                ),
+            invoice_domain += [
+                ("pos_id", "in",
+                 [config["cucu_pos_id"]["pos_id"] for config in pos_configs]),
+                ("branch_id", "in",
+                 [config["cucu_pos_id"]["branch_id"]["branch_id"] for config in pos_configs]),
             ]
-            is_valid = True
 
         if branch_office:
-            pos_domain = [
-                ("date", ">=", date_from),
-                ("siat_code_state", "in", status),
-                ("date", "<=", date_to),
-                (
-                    "api_branch_id",
-                    "in",
-                    [config["branch_id"] for config in branch_configs],
-                ),
+            invoice_domain += [
+                ("branch_id", "in",
+                 [config["branch_id"] for config in branch_configs]),
             ]
-            is_valid = True
 
         if len(doc_id) > 0:
-            pos_domain.append(
-                ("client_doc_id", "in", [int(doc["code_type"]) for doc in doc_id])
+            invoice_domain.append(
+                ("partner_id.doc_id", "in",
+                 [int(doc["code_type"]) for doc in doc_id])
             )
 
-        if is_valid:
-            account = request.env["account.move"].search(
-                pos_domain, order="api_invoice_number desc"
-            )
-            row = 7
-            count = 1
-            basic_style = workbook.add_format(
-                {"align": "center", "valign": "center", "text_wrap": False}
-            )
-            for rec in account:
-                worksheet.write(row, 0, count, basic_style)
-                worksheet.write(row, 1, rec["api_invoice_number"], basic_style)
-                worksheet.write(row, 2, rec["api_cuf"], basic_style)
-                worksheet.write(
-                    row,
-                    3,
-                    DOC_NAMES[int(rec["client_doc_id"]["code_type"]) or 1],
-                    basic_style,
-                )
-                worksheet.write(row, 4, rec["client_nro_document"], basic_style)
-                worksheet.write(row, 5, rec["client_reason_social"], basic_style)
-                worksheet.write(
-                    row, 6, convert_date(rec["api_date_emission"]), basic_style
-                )
-                worksheet.write(row, 7, rec["amount_subject_iva"], basic_style)
-                worksheet.write(row, 8, rec["siat_description_status"], basic_style)
-                worksheet.write(row, 9, rec["api_municipality"], basic_style)
-                worksheet.write(row, 10, rec["api_branch_id"], basic_style)
-                worksheet.write(row, 11, rec["api_pos_id"], basic_style)
-                row += 1
-                count += 1
+        invoices = request.env["cucu.invoice"].search(
+            invoice_domain,
+            order="invoice_number desc"
+        )
+
+        account_moves = invoices.mapped("account_move_id")
+ 
+        row = 7
+        count = 1
+        basic_style = workbook.add_format({
+            "align": "center",
+            "valign": "center",
+            "text_wrap": False
+        })
+
+        for inv in invoices:
+            mov = inv.account_move_id
+
+            worksheet.write(row, 0, count, basic_style)
+            worksheet.write(row, 1, inv.invoice_number or "", basic_style)
+            worksheet.write(row, 2, inv.cuf or "", basic_style)
+
+            doc_type = inv.partner_id.doc_id.code_type if inv.partner_id.doc_id else 1
+            worksheet.write(row, 3, DOC_NAMES[int(doc_type)], basic_style)
+
+            worksheet.write(row, 4, inv.partner_id.nit_client or "", basic_style)
+            worksheet.write(row, 5, inv.partner_id.reason_social or "", basic_style)
+            worksheet.write(row, 6, convert_date(inv.date_emission), basic_style)
+            worksheet.write(row, 7, inv.amount_subject_iva, basic_style)
+            worksheet.write(row, 8, inv.sin_description_status, basic_style)
+            worksheet.write(row, 9, inv.municipality or "", basic_style)
+            worksheet.write(row, 10, inv.branch_id, basic_style)
+            worksheet.write(row, 11, inv.pos_id, basic_style)
+
+            row += 1
+            count += 1
+
         workbook.close()
+
         fp = open(path + "/invoice_report.xlsx", "rb")
         data = fp.read()
         fp.close()
-        if len(account) > 0:
+
+        if invoices:
             return request.make_response(
                 data,
                 headers=[
                     ("Content-Type", "application/vnd.ms-excel"),
-                    ("Content-Disposition", "attachment; filename=invoice_report.xls"),
+                    ("Content-Disposition",
+                     "attachment; filename=invoice_report.xls"),
                 ],
             )
-
         else:
             _logger.info("NO SE ENCONTRARON REGISTROS")
-            error = _("NO SE ENCOTRARON REGISTROS EN EL RANGO DE FECHAS")
-            return error
+            return _("NO SE ENCOTRARON REGISTROS EN EL RANGO DE FECHAS")

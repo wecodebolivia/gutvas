@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #################################################################################
-# Author      : cucu (https://cucu.bo)
+# Author      : cucu (https://cucuapi.com)
 # Copyright(c): 2021-Present cucu | soluciones digitales
 # All Rights Reserved.
 #
@@ -11,11 +11,11 @@
     "name": "cucu | Fact Core",
     "summary": """Facturacion en Linea - Bolivia -CUCU""",
     "description": """Modulo de facturacion en linea para Bolivia - CUCU""",
-    "author": "cucu",
-    "website": "https://cucu.bo",
+    "author": "CUCU API LLC",
+    "website": "https://cucuapi.com/shop/modulo-facturacion-electronica-siat-bolivia-13#attr=15",
     "category": "Uncategorized",
-    "version": "1.0",
-    "license": "LGPL-3",
+    "license": "AGPL-3",
+    "version": "18.0.1.0.0",
     "depends": [
         "base",
         "point_of_sale",
@@ -48,6 +48,7 @@
             # 'cucu_fact_core/static/src/xml/kanban_branch_button.xml',
         ]
     },
+    "application": False,
     "external_dependencies": {
         "python": ["xmltodict", "XlsxWriter"],
     },

@@ -3,10 +3,11 @@
     "name": "cucu | Report PDF",
     "summary": """REPORT PDF CUCU""",
     "description": """Long description of module's purpose""",
-    "author": "Daniel",
-    "website": "https://cucu.bo",
+    "author": "CUCU API LLC",
+    "website": "https://cucuapi.com/shop/modulo-facturacion-electronica-siat-bolivia-13#attr=15",
     "category": "Uncategorized",
-    "version": "1.0",
+    "version": "18.0.1.0.0",
+    "license": "AGPL-3",
     "depends": ["base", "cucu_fact_core"],
     "data": [
         "reports/report_a4_action.xml",
@@ -23,4 +24,5 @@
             "cucu_fact_report/static/src/css/tail.css",
         ],
     },
+    "application": False,
 }

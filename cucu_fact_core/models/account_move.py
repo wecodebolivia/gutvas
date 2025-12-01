@@ -45,9 +45,12 @@ class AccountMove(models.Model):
 
     invoice_id = fields.One2many("cucu.invoice", "account_move_id", string="Invoice")
 
-    payment_method_id = fields.Many2one("cucu.catalogs.payment.method")
+    payment_method_id = fields.Many2one(
+        "cucu.catalogs.payment.method", string="Cucu Catalog Payment Method Id"
+    )
     payment_method_code = fields.Char(
-        string="Payment Method", related="payment_method_id.code_type"
+        string="Cucu Catalog Payment Method Code Type",
+        related="payment_method_id.code_type",
     )
     additional_discount = fields.Float("Additional Discount")
     amount_gift_card = fields.Float("Amount Gift Card")
@@ -91,12 +94,12 @@ class AccountMove(models.Model):
     @api.onchange("is_sin")
     def _get_is_sin_onchange(self):
         if self.is_sin and not any(
-                [
-                    self.client_doc_id,
-                    self.client_nro_document,
-                    self.client_reason_social,
-                    self.client_email,
-                ]
+            [
+                self.client_doc_id,
+                self.client_nro_document,
+                self.client_reason_social,
+                self.client_email,
+            ]
         ):
             self.is_sin = False
             raise ValidationError("CONFIG CLIENT")
@@ -110,17 +113,17 @@ class AccountMove(models.Model):
             raise ValidationError("Client not select config")
         partner = self.partner_id
         if not any(
-                [
-                    partner.doc_id,
-                    partner.nit_client,
-                    partner.reason_social,
-                    partner.cucu_email,
-                ]
+            [
+                partner.doc_id,
+                partner.nit_client,
+                partner.reason_social,
+                partner.cucu_email,
+            ]
         ):
             raise ValidationError("Select client not found to invoice")
 
         number_card = None
-        #if self._get_payment_method("TARJETA"):
+        # if self._get_payment_method("TARJETA"):
         #    number_card = self.number_card
         pos_id = self.pos_id.cucu_pos_id
         if not pos_id:
@@ -160,19 +163,18 @@ class AccountMove(models.Model):
 
     def _get_params_header_order(self):
         order = self.pos_order_ids
+        _logger.info("Pos Order Id: %s", order.id or "No order found")
+        _logger.info(
+            "Pos Order Cucu Catalog Payment Method Id: %s",
+            order.catalog_id or "No catalog ID",
+        )
+        _logger.info(
+            "Pos Order Cucu Catalog Payment Method Code Type: %s",
+            order.catalog_code or "No catalog code",
+        )
         if order:
-            # payment_method = self.env["pos.payment"].search(
-            #     [("pos_order_id", "=", order.id)], limit=1
-            # )
-            # if not payment_method:
-            #     raise ValidationError("PAYMENT METHOD NOT FOUND")
-            # pos_payment_method = self.env["pos.payment.method"].search(
-            #     [("id", "=", payment_method.payment_method_id.id)], limit=1
-            # )
-            # if not pos_payment_method.journal_id.payment_method.code_type:
-            #     raise ValidationError("PAYMENT METHOD NOT FOUND")
             params = {
-                "paramPaymentMethod": "1",
+                "paramPaymentMethod": order.catalog_code or "1",
                 "userPos": self.invoice_user_id.partner_id.name,
                 "numberCard": order.card_number or None,
                 "giftCard": order.gift_card or 0,
@@ -181,8 +183,7 @@ class AccountMove(models.Model):
                 "observations": order.observations or None,
                 "typeInvoice": 1,
                 "paramCurrency": 1,
-                "paymentMethodId": "1"
-                                   or None,
+                "paymentMethodId": order.catalog_id or "1",
             }
             return params
 
@@ -223,7 +224,7 @@ class AccountMove(models.Model):
             refund_data["invoiceCode"] = move_refund.invoice_code or self.invoice_code
 
             refund_data["invoiceNumber"] = (
-                    move_refund.invoice_number or self.invoice_number
+                move_refund.invoice_number or self.invoice_number
             )
             refund_data["exceptionCode"] = 1
         else:
@@ -242,7 +243,7 @@ class AccountMove(models.Model):
                 self.additional_discount,
                 self.amount_gift_card,
             )
-                         or None,
+            or None,
             **self._pos_refund_params(type_sector),
         }
         res = self.pos_id.manager_id.send_invoice(**body)
@@ -269,13 +270,13 @@ class AccountMove(models.Model):
         doc_sector = self.pos_id.doc_sector
         if doc_sector == "1":
             is_refund = (
-                    account_move.sin_description_status == "Not invoice"
-                    and account_move.is_sin
+                account_move.sin_description_status == "Not invoice"
+                and account_move.is_sin
             )
             if is_refund and account_move.move_type in (
-                    "out_invoice",
-                    "out_refund",
-                    "in_invoice",
+                "out_invoice",
+                "out_refund",
+                "in_invoice",
             ):
                 return account_move.create_invoice_sale(1)
             if self.is_sin and self.sin_description_status in ["VALIDADA", "VALIDA"]:
@@ -356,7 +357,7 @@ class AccountMove(models.Model):
     def _post(self, soft=True):
         res = super(AccountMove, self)._post(soft)
         first_sin_move = self.filtered(lambda m: m.is_sin)[:1]
-        if first_sin_move and self.state != 'invoiced':
+        if first_sin_move and self.state != "invoiced":
             first_sin_move.create_invoice_account()
         return res
 

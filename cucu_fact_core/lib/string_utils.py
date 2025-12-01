@@ -1,21 +1,48 @@
 # from jwt import JWT
-from datetime import datetime
+from datetime import datetime, timezone
 import xmltodict
 import json
 import re
 from .date_utils import convert_date
 import jwt
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
-def valid_token(token):
-    if token:
+def valid_token(token: str) -> bool:
+    """
+    Returns True if the token is expired or invalid.
+    Also logs how much time is left until expiration.
+    """
+    if not token:
+        _logger.warning("Token no existe.")
+        return True
+
+    try:
+        # jwt = JWT()
+        decode = jwt.decode(token, options={"verify_signature": False})
+        exp = decode.get("exp")
+        if not exp:
+            _logger.warning("Token sin 'exp', considerado inválido.")
+            return True
+
+        # Current UTC time
+        now_ts = datetime.now(tz=timezone.utc).timestamp()
+        remaining_seconds = exp - now_ts
+
+        if remaining_seconds < 0:
+            _logger.info(f"Token expirado hace {-remaining_seconds:.0f} segundos.")
+            return True
+
+        _logger.info(
+            f"Token válido. Tiempo restante: {remaining_seconds:.0f} segundos."
+        )
         return False
-    # jwt = JWT()
-    decode = jwt.decode(token, do_verify=False)
-    exp = decode["exp"]
-    now = datetime.now()
-    timestamp = datetime.timestamp(now)
-    return exp - timestamp < 0  # true token expire
+
+    except Exception as e:
+        _logger.warning(f"Error al validar token: {e}")
+        return True
 
 
 def string_to_json(string_json: str):

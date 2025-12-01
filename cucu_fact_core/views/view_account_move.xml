@@ -40,8 +40,8 @@
                     </group>
                     <group string="Datos factura">
                         <field name="sin_code_reception" invisible="1"/>
-                        <field name="payment_method_id" string="Payment method" widget="many2one" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}" domain="[('is_visible', '=', True),('company_id','=',allowed_company_ids[0])]" invisible="is_sin == False" required="is_sin == True" readonly="sin_code_reception != '0000'"/>
-                        <field name="payment_method_code" invisible="1"/>
+                        <field name="payment_method_id" widget="many2one" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}" domain="[('is_visible', '=', True),('company_id','=',allowed_company_ids[0])]" invisible="is_sin == False" required="is_sin == True" readonly="sin_code_reception != '0000'"/>
+                        <field name="payment_method_code" invisible="0" readonly="1"/>
                         <field name="additional_discount" invisible="is_sin == False" readonly="sin_code_reception != '0000'"/>
                         <field name="amount_gift_card" readonly="sin_code_reception != '0000'" invisible="payment_method_code not in ['27','40']"/>
                         <field name="number_card" widget="card" required="payment_method_code  in ['2','40']" invisible="payment_method_code not in ['2','40']"/>

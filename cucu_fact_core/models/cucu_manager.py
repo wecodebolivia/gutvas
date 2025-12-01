@@ -63,22 +63,27 @@ class ApiManagerUser(models.Model):
                 "host": self.host,
                 "username": self.username,
                 "password": self.password,
-                "token": self.sync_token() if self.token else "",
                 "isElectronic": self.is_electronic,
                 "docSector": self.doc_sector_id,
                 "isSendEmail": self.is_send_email,
             }
         raise ValidationError("CONFIG LOGIN")
 
+    def sync_token(self):
+        token_value = self.token
+        if not token_value or valid_token(token_value):
+            # Solo crear nuevo token si no existe o ha expirado
+            token_value = get_token(**self.to_json())
+            self.write({"token": token_value})
+        return token_value
+
     def create_token_user(self):
         return get_token(**self.to_json())
 
-    def sync_token(self):
-        token_value = self.token
-        if not token_value:
-            return self.create_token_user()
-        is_expire = valid_token(token_value)
-        return self.create_token_user() if is_expire else token_value
+    def get_params_with_token(self):
+        params = self.to_json()
+        params["token"] = self.sync_token()
+        return params
 
     @api.model
     def create(self, vals):
@@ -113,12 +118,14 @@ class ApiManagerUser(models.Model):
         self.write({"token": token_value})
 
     def sync_branch_office(self):
-        params = self.to_json()
+        # params = self.to_json()
+        params = self.get_params_with_token()
         res = get_service_branchs(**params)
         return res["data"]
 
     def sync_pos(self, branch_id):
-        params = self.to_json()
+        # params = self.to_json()
+        params = self.get_params_with_token()
         params["branchId"] = branch_id
         res = get_service_pos_regenerate(**params)
         return res["data"]
@@ -143,7 +150,8 @@ class ApiManagerUser(models.Model):
         }
 
     def sync_catalogs(self):
-        params = self.to_json()
+        # params = self.to_json()
+        params = self.get_params_with_token()
         params["posId"] = 1
         params["branchId"] = 1
         res = get_service_catalogs(**params)
@@ -164,7 +172,8 @@ class ApiManagerUser(models.Model):
         }
 
     def send_email(self, **data):
-        params = self.to_json()
+        # params = self.to_json()
+        params = self.get_params_with_token()
         body = {
             **params,
             **data,
@@ -174,7 +183,8 @@ class ApiManagerUser(models.Model):
         return res["data"]
 
     def send_invoice(self, **data):
-        params = self.to_json()
+        # params = self.to_json()
+        params = self.get_params_with_token()
         body = {**params, **data}
         res = send_invoice(**body)
         if self.is_send_email:
@@ -186,13 +196,15 @@ class ApiManagerUser(models.Model):
         return res["data"]
 
     def send_status_invoice(self, data, doc_sector):
-        params = self.to_json()
+        # params = self.to_json()
+        params = self.get_params_with_token()
         body = {**params, **data, "docSector": str(doc_sector)}
         res = send_status_invoice(**body)
         return res["data"]
 
     def service_cancel_invoice(self, params):
-        body = {**params, **self.to_json()}
+        # body = {**params, **self.to_json()}
+        body = {**params, **self.get_params_with_token()}
         if not params.get("is_revert", False):
             res = send_cancel_invoice(**body)
         else:
