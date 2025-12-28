@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
+    <!-- Template propio (NO heredado) para evitar errores de "no puede ser localizado en la vista padre" -->
     <template id="cucu_report_account">
       <t t-call="web.external_layout">
         <t t-foreach="docs" t-as="o">
@@ -11,7 +12,7 @@
             <t t-else="">
               <h2 style="margin:0 0 8px 0;">Factura / Proforma</h2>
               <div style="font-size:12px; margin-bottom:10px;">
-                <strong>Nota:</strong> Esta factura aún no tiene datos de facturación electrónica (CUCU/SIN).
+                <strong>Nota:</strong> Esta factura aún no tiene datos CUCU/SIN.
               </div>
               <table class="table table-sm o_main_table" style="width:100%; font-size:12px;">
                 <tbody>
