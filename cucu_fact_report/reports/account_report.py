@@ -3,16 +3,8 @@ from odoo import api, models
 
 
 class ReportCucuAccountInvoice(models.AbstractModel):
-    """
-    Report model used by QWeb template `cucu_fact_report.cucu_report_account`.
-
-    IMPORTANT:
-    Some invoices may NOT yet have CUCU/SIN data (self.invoice_id empty).
-    In that case render_invoice() returns None and we must fallback gracefully
-    so printing never crashes.
-    """
     _name = "report.cucu_fact_report.cucu_report_account"
-    _description = "CUCU - Account Invoice Report (fallback-safe)"
+    _description = "CUCU - Account Invoice Report (safe render)"
     _inherit = "report.account.report_invoice_with_payments"
 
     @api.model
@@ -21,19 +13,19 @@ class ReportCucuAccountInvoice(models.AbstractModel):
 
         docs = res.get("docs")
         invoice_payload = None
+
         if docs:
-            # render_invoice() returns dict {"header": {...}, "detail": [...]}
-            # or None when CUCU data does not exist yet.
+            # render_invoice() devuelve dict o None
             invoice_payload = docs.render_invoice()
 
-        # Fallback when CUCU/SIN data is not available
-        if not invoice_payload:
+        if invoice_payload:
+            res["header"] = invoice_payload.get("header", {}) or {}
+            res["detail"] = invoice_payload.get("detail", []) or []
+            res["is_valid"] = bool(getattr(docs, "sin_code_state", False))
+        else:
+            # Fallback: dejamos estructuras válidas (no reventar QWeb)
             res["header"] = {}
             res["detail"] = []
             res["is_valid"] = False
-            return res
 
-        res["header"] = invoice_payload.get("header", {})
-        res["detail"] = invoice_payload.get("detail", [])
-        res["is_valid"] = bool(getattr(docs, "sin_code_state", False))
         return res
