@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-  <!-- =========================================================
-       TEMPLATE PRINCIPAL – FACTURA / PROFORMA (Odoo 18 safe)
-       - Con header/footer (external_layout)
-       - Con <main> garantizado (html_container)
-       - Sin formatLang / format_amount (para legal docs)
-       ========================================================= -->
   <template id="cucu_report_account">
 
-    <!-- html_container aporta la estructura base del PDF -->
+    <!-- Contenedor PDF estándar -->
     <t t-call="web.html_container">
-      <!-- external_layout aporta header/footer (logo + datos empresa) -->
-      <t t-call="web.external_layout">
 
-        <t t-foreach="docs" t-as="o">
+      <t t-foreach="docs" t-as="o">
 
-          <!-- Odoo 18: el cuerpo debe ir dentro de <main> -->
-          <main class="page">
+        <!-- Asegura compatibilidad con layouts que esperan 'doc' -->
+        <t t-set="doc" t-value="o"/>
+        <t t-set="company" t-value="o.company_id or env.company"/>
+
+        <!-- Header/Footer estándar (logo + datos compañía) -->
+        <t t-call="web.external_layout">
+
+          <!-- Ojo: external_layout ya contiene <main>. Aquí NO usamos <main> -->
+          <div class="page" style="padding-top: 14mm;">
 
             <!-- ================= TÍTULO ================= -->
             <h2 style="margin: 0 0 10px 0;">
@@ -25,42 +24,47 @@
             </h2>
 
             <!-- ================= DATOS BÁSICOS ================= -->
-            <table class="table table-sm" style="margin-bottom: 12px;">
-              <tr>
-                <td style="width: 25%;"><strong>Cliente:</strong></td>
-                <td><span t-esc="o.partner_id.name or ''"/></td>
-              </tr>
-              <tr>
-                <td><strong>Fecha:</strong></td>
-                <td><span t-esc="o.invoice_date or ''"/></td>
-              </tr>
-              <tr>
-                <td><strong>Número:</strong></td>
-                <td><span t-esc="o.name or ''"/></td>
-              </tr>
-            </table>
+            <div style="border: 1px solid #000; padding: 8px; margin-bottom: 12px;">
+              <table class="table table-sm" style="margin:0;">
+                <tr>
+                  <td style="width: 18%;"><strong>Cliente:</strong></td>
+                  <td><span t-esc="o.partner_id.name or ''"/></td>
+                </tr>
+                <tr>
+                  <td><strong>Fecha:</strong></td>
+                  <td><span t-esc="o.invoice_date or ''"/></td>
+                </tr>
+                <tr>
+                  <td><strong>Número:</strong></td>
+                  <td><span t-esc="o.name or ''"/></td>
+                </tr>
+              </table>
+            </div>
 
             <!-- ================= DETALLE ================= -->
-            <table class="table table-sm table-bordered" style="margin-top: 10px;">
+            <table class="table table-sm table-bordered" style="margin-top: 6px;">
               <thead>
                 <tr>
-                  <th>Producto</th>
-                  <th class="text-right">Cantidad</th>
-                  <th class="text-right">Precio</th>
-                  <th class="text-right">Subtotal</th>
+                  <th>PRODUCTO</th>
+                  <th class="text-right">CANTIDAD</th>
+                  <th class="text-right">PRECIO</th>
+                  <th class="text-right">SUBTOTAL</th>
                 </tr>
               </thead>
               <tbody>
                 <t t-set="cur" t-value="o.currency_id"/>
+
                 <t t-foreach="o.invoice_line_ids" t-as="l">
                   <tr>
-                    <td>
+                    <td style="white-space: normal;">
                       <span t-esc="l.name or ''"/>
                     </td>
-                    <td class="text-right">
+
+                    <td class="text-right" style="white-space: nowrap;">
                       <span t-esc="l.quantity or 0.0"/>
                     </td>
-                    <td class="text-right">
+
+                    <td class="text-right" style="white-space: nowrap;">
                       <t t-set="price" t-value="round(l.price_unit or 0.0, 2)"/>
                       <t t-if="cur and cur.position == 'after'">
                         <span t-esc="('%0.2f' % price)"/> <span t-esc="cur.symbol or ''"/>
@@ -69,7 +73,8 @@
                         <span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % price)"/>
                       </t>
                     </td>
-                    <td class="text-right">
+
+                    <td class="text-right" style="white-space: nowrap;">
                       <t t-set="subtotal" t-value="round(l.price_subtotal or 0.0, 2)"/>
                       <t t-if="cur and cur.position == 'after'">
                         <span t-esc="('%0.2f' % subtotal)"/> <span t-esc="cur.symbol or ''"/>
@@ -80,32 +85,34 @@
                     </td>
                   </tr>
                 </t>
+
               </tbody>
             </table>
 
             <!-- ================= TOTALES ================= -->
-            <table class="table table-sm" style="margin-top: 12px; width: 40%; float: right;">
-              <tr>
-                <td><strong>Total:</strong></td>
-                <td class="text-right">
-                  <t t-set="amt" t-value="round(o.amount_total or 0.0, 2)"/>
-                  <t t-if="cur and cur.position == 'after'">
-                    <span t-esc="('%0.2f' % amt)"/> <span t-esc="cur.symbol or ''"/>
-                  </t>
-                  <t t-else="">
-                    <span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % amt)"/>
-                  </t>
-                </td>
-              </tr>
-            </table>
+            <div style="margin-top: 12px;">
+              <table class="table table-sm" style="width: 40%; float: right; border: 1px solid #000;">
+                <tr>
+                  <td style="border-right: 1px solid #000;"><strong>Total:</strong></td>
+                  <td class="text-right">
+                    <t t-set="amt" t-value="round(o.amount_total or 0.0, 2)"/>
+                    <t t-if="cur and cur.position == 'after'">
+                      <span t-esc="('%0.2f' % amt)"/> <span t-esc="cur.symbol or ''"/>
+                    </t>
+                    <t t-else="">
+                      <span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % amt)"/>
+                    </t>
+                  </td>
+                </tr>
+              </table>
+              <div style="clear: both;"></div>
+            </div>
 
-            <div style="clear: both;"></div>
-
-          </main>
+          </div>
 
         </t>
-
       </t>
+
     </t>
 
   </template>
