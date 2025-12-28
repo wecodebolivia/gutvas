@@ -1,124 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-  <template id="cucu_report_account">
+  <!--
+    Este template ES el que busca el ir.actions.report:
+      report_name = cucu_fact_report.cucu_report_account
 
-    <!-- Contenedor PDF estándar -->
+    La idea: renderizar EXACTAMENTE el reporte estándar de Odoo
+    (account.report_invoice_document), que ya trae:
+      - external_layout (header/footer)
+      - márgenes correctos
+      - tablas y estilos robustos para wkhtmltopdf
+  -->
+  <template id="cucu_report_account" name="CUCU - Reporte Factura (Wrapper estándar)">
     <t t-call="web.html_container">
-
       <t t-foreach="docs" t-as="o">
-        <!-- Compatibilidad con layouts que esperan 'doc' -->
-        <t t-set="doc" t-value="o"/>
-        <t t-set="company" t-value="o.company_id or env.company"/>
+        <!-- asegura idioma como el estándar -->
+        <t t-set="lang" t-value="o.partner_id.lang or o.env.user.lang"/>
+        <t t-set="o" t-value="o.with_context(lang=lang)"/>
 
-        <!-- Header/Footer estándar (logo + datos compañía) -->
-        <t t-call="web.external_layout">
+        <!-- si tu acción lo llama como PROFORMA, esto viene en data.
+             si no viene, lo dejamos en False sin romper -->
+        <t t-set="proforma" t-value="data.get('proforma') if data else False"/>
 
-          <!-- IMPORTANTE:
-               El header de external_layout ocupa espacio arriba.
-               Este padding-top baja el contenido para que "Factura" NO quede pegado al logo.
-          -->
-          <div class="page" style="padding-top:30mm;">
+        <!-- Odoo usa esto para mostrar pagos en el template estándar.
+             si no viene, queda False -->
+        <t t-set="print_with_payments" t-value="data.get('print_with_payments') if data else False"/>
 
-            <!-- ================= TÍTULO (con aire) ================= -->
-            <div style="margin-bottom:12px;">
-              <h1 style="margin:0; font-size:26px; font-weight:700;">
-                Factura
-              </h1>
-            </div>
-
-            <!-- ================= DATOS BÁSICOS ================= -->
-            <div style="border:1px solid #000; padding:10px; margin-bottom:14px;">
-              <table style="width:100%; font-size:12px;">
-                <tr>
-                  <td style="width:18%;"><strong>Cliente:</strong></td>
-                  <td><span t-esc="o.partner_id.name or ''"/></td>
-                </tr>
-                <tr>
-                  <td><strong>Fecha:</strong></td>
-                  <td><span t-esc="o.invoice_date or ''"/></td>
-                </tr>
-                <tr>
-                  <td><strong>Número:</strong></td>
-                  <td><span t-esc="o.name or ''"/></td>
-                </tr>
-              </table>
-            </div>
-
-            <!-- ================= DETALLE ================= -->
-            <table style="width:100%; border-collapse:collapse; font-size:11px; border:1px solid #000;">
-              <thead>
-                <tr style="border-bottom:1px solid #000;">
-                  <th style="text-align:left; padding:7px;">PRODUCTO</th>
-                  <th style="text-align:right; padding:7px; white-space:nowrap;">CANTIDAD</th>
-                  <th style="text-align:right; padding:7px; white-space:nowrap;">PRECIO</th>
-                  <th style="text-align:right; padding:7px; white-space:nowrap;">SUBTOTAL</th>
-                </tr>
-              </thead>
-              <tbody>
-                <t t-set="cur" t-value="o.currency_id"/>
-
-                <t t-foreach="o.invoice_line_ids" t-as="l">
-                  <tr style="border-top:1px solid #ddd;">
-                    <td style="padding:7px; vertical-align:top;">
-                      <span t-esc="l.name or ''"/>
-                    </td>
-
-                    <td style="padding:7px; text-align:right; vertical-align:top; white-space:nowrap;">
-                      <span t-esc="l.quantity or 0.0"/>
-                    </td>
-
-                    <td style="padding:7px; text-align:right; vertical-align:top; white-space:nowrap;">
-                      <t t-set="price" t-value="round(l.price_unit or 0.0, 2)"/>
-                      <t t-if="cur and cur.position == 'after'">
-                        <span t-esc="('%0.2f' % price)"/> <span t-esc="cur.symbol or ''"/>
-                      </t>
-                      <t t-else="">
-                        <span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % price)"/>
-                      </t>
-                    </td>
-
-                    <td style="padding:7px; text-align:right; vertical-align:top; white-space:nowrap;">
-                      <t t-set="subtotal" t-value="round(l.price_subtotal or 0.0, 2)"/>
-                      <t t-if="cur and cur.position == 'after'">
-                        <span t-esc="('%0.2f' % subtotal)"/> <span t-esc="cur.symbol or ''"/>
-                      </t>
-                      <t t-else="">
-                        <span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % subtotal)"/>
-                      </t>
-                    </td>
-                  </tr>
-                </t>
-
-              </tbody>
-            </table>
-
-            <!-- ================= TOTALES ================= -->
-            <div style="margin-top:18px;">
-              <table style="width:40%; float:right; border-collapse:collapse; font-size:12px; border:1px solid #000;">
-                <tr>
-                  <td style="padding:8px; border-right:1px solid #000;"><strong>Total:</strong></td>
-                  <td style="padding:8px; text-align:right; white-space:nowrap;">
-                    <t t-set="amt" t-value="round(o.amount_total or 0.0, 2)"/>
-                    <t t-if="cur and cur.position == 'after'">
-                      <strong><span t-esc="('%0.2f' % amt)"/> <span t-esc="cur.symbol or ''"/></strong>
-                    </t>
-                    <t t-else="">
-                      <strong><span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % amt)"/></strong>
-                    </t>
-                  </td>
-                </tr>
-              </table>
-              <div style="clear:both;"></div>
-            </div>
-
-          </div>
-
-        </t>
+        <!-- Render EXACTO del template original -->
+        <t t-call="account.report_invoice_document"/>
       </t>
-
     </t>
-
   </template>
 
 </odoo>
