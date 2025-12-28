@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
-    <!-- Template propio (NO heredado) para evitar errores de "no puede ser localizado en la vista padre" -->
+    <!-- Template propio: sin inherit_id, sin xpath, sin t-name -->
     <template id="cucu_report_account">
       <t t-call="web.external_layout">
         <t t-foreach="docs" t-as="o">
