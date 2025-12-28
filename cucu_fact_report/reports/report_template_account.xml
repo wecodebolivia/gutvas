@@ -1,57 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Template QWeb PROPIO (sin heredar) para evitar errores de "no puede ser localizado en la vista padre" -->
+  <data>
     <template id="cucu_report_account">
-        <t t-call="web.external_layout">
-            <t t-foreach="docs" t-as="o">
-                <div class="page">
-
-                    <!-- Si existe info CUCU/SIN, imprimimos el A4 custom -->
-                    <t t-if="o.invoice_id">
-                        <t t-call="cucu_fact_report.cucu_report_a4"/>
-                    </t>
-
-                    <!-- Fallback seguro cuando NO hay CUCU/SIN -->
-                    <t t-else="">
-                        <h2 style="margin:0 0 8px 0;">Factura / Proforma</h2>
-
-                        <div style="font-size:12px; margin-bottom:10px;">
-                            <strong>Nota:</strong>
-                            Esta factura todavía no tiene datos de facturación electrónica (CUCU/SIN),
-                            por lo que se imprime una versión básica de respaldo.
-                        </div>
-
-                        <table class="table table-sm o_main_table" style="width:100%; font-size:12px;">
-                            <tbody>
-                                <tr>
-                                    <td style="width:35%;"><strong>Número:</strong></td>
-                                    <td><span t-esc="o.name or '-'"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Cliente:</strong></td>
-                                    <td><span t-esc="o.partner_id.display_name or '-'"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Fecha:</strong></td>
-                                    <td><span t-esc="o.invoice_date or '-'"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Total:</strong></td>
-                                    <td>
-                                        <span t-esc="formatLang(o.amount_total, monetary=True, currency_obj=o.currency_id)"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Estado:</strong></td>
-                                    <td><span t-esc="o.state or '-'"/></td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </t>
-
-                </div>
+      <t t-call="web.external_layout">
+        <t t-foreach="docs" t-as="o">
+          <div class="page">
+            <t t-if="o.invoice_id">
+              <t t-call="cucu_fact_report.cucu_report_a4"/>
             </t>
+            <t t-else="">
+              <h2 style="margin:0 0 8px 0;">Factura / Proforma</h2>
+              <div style="font-size:12px; margin-bottom:10px;">
+                <strong>Nota:</strong> Esta factura aún no tiene datos de facturación electrónica (CUCU/SIN).
+              </div>
+              <table class="table table-sm o_main_table" style="width:100%; font-size:12px;">
+                <tbody>
+                  <tr><td style="width:35%;"><strong>Número:</strong></td><td><span t-esc="o.name or '-'"/></td></tr>
+                  <tr><td><strong>Cliente:</strong></td><td><span t-esc="o.partner_id.display_name or '-'"/></td></tr>
+                  <tr><td><strong>Fecha:</strong></td><td><span t-esc="o.invoice_date or '-'"/></td></tr>
+                  <tr><td><strong>Total:</strong></td>
+                    <td><span t-esc="formatLang(o.amount_total, monetary=True, currency_obj=o.currency_id)"/></td>
+                  </tr>
+                </tbody>
+              </table>
+            </t>
+          </div>
         </t>
+      </t>
     </template>
+  </data>
 </odoo>
