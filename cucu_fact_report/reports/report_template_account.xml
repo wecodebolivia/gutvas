@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-  <!--
-    Este template ES el que busca el ir.actions.report:
-      report_name = cucu_fact_report.cucu_report_account
-
-    La idea: renderizar EXACTAMENTE el reporte estándar de Odoo
-    (account.report_invoice_document), que ya trae:
-      - external_layout (header/footer)
-      - márgenes correctos
-      - tablas y estilos robustos para wkhtmltopdf
-  -->
-  <template id="cucu_report_account" name="CUCU - Reporte Factura (Wrapper estándar)">
+  <!-- 1️⃣ WRAPPER: este es el que usa ir.actions.report -->
+  <template id="cucu_report_account" name="CUCU - Factura">
     <t t-call="web.html_container">
       <t t-foreach="docs" t-as="o">
-        <!-- asegura idioma como el estándar -->
         <t t-set="lang" t-value="o.partner_id.lang or o.env.user.lang"/>
         <t t-set="o" t-value="o.with_context(lang=lang)"/>
-
-        <!-- si tu acción lo llama como PROFORMA, esto viene en data.
-             si no viene, lo dejamos en False sin romper -->
         <t t-set="proforma" t-value="data.get('proforma') if data else False"/>
-
-        <!-- Odoo usa esto para mostrar pagos en el template estándar.
-             si no viene, queda False -->
         <t t-set="print_with_payments" t-value="data.get('print_with_payments') if data else False"/>
 
-        <!-- Render EXACTO del template original -->
+        <!-- llamada limpia al template estándar -->
         <t t-call="account.report_invoice_document"/>
       </t>
     </t>
+  </template>
+
+  <!-- 2️⃣ HERENCIA: aquí tocamos SOLO el título -->
+  <template id="cucu_invoice_title_fix"
+            inherit_id="account.report_invoice_document">
+
+    <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+      <t t-set="layout_document_title">
+        <span>Factura</span>
+        <t t-if="o.name and o.name != '/'">
+          <span style="margin-left:6px;" t-field="o.name"/>
+        </t>
+      </t>
+    </xpath>
+
   </template>
 
 </odoo>
