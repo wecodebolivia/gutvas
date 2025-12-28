@@ -20,7 +20,7 @@
                   <tr><td><strong>Cliente:</strong></td><td><span t-esc="o.partner_id.display_name or '-'"/></td></tr>
                   <tr><td><strong>Fecha:</strong></td><td><span t-esc="o.invoice_date or '-'"/></td></tr>
                   <tr><td><strong>Total:</strong></td>
-                    <td><span t-esc="formatLang(o.amount_total, monetary=True, currency_obj=o.currency_id)"/></td>
+                    <td><span t-esc="format_amount(o.amount_total, o.currency_id)"/></td>
                   </tr>
                 </tbody>
               </table>
