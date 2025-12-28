@@ -1,72 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) 2021-Present cucu | soluciones digitales -->
-<!-- See LICENSE file for full copyright and licensing details. -->
 <odoo>
-    <data>
+    <!-- Template QWeb PROPIO (sin heredar) para evitar errores de "no puede ser localizado en la vista padre" -->
+    <template id="cucu_report_account">
+        <t t-call="web.external_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page">
 
-        <!--
-            Template principal usado por el action report (account.account_invoices)
-            report_name: cucu_fact_report.cucu_report_account
-            Debe SIEMPRE producir HTML (aunque sea fallback), para evitar:
-            lxml.etree.ParserError: Document is empty
-        -->
-        <template id="cucu_report_account">
-            <t t-call="web.external_layout">
-                <t t-foreach="docs" t-as="o">
-                    <div class="page">
+                    <!-- Si existe info CUCU/SIN, imprimimos el A4 custom -->
+                    <t t-if="o.invoice_id">
+                        <t t-call="cucu_fact_report.cucu_report_a4"/>
+                    </t>
 
-                        <!-- Si existe factura electrónica (CUCU/SIN), imprimimos el A4 custom -->
-                        <t t-if="o.invoice_id">
-                            <t t-call="cucu_fact_report.cucu_report_a4"/>
-                        </t>
+                    <!-- Fallback seguro cuando NO hay CUCU/SIN -->
+                    <t t-else="">
+                        <h2 style="margin:0 0 8px 0;">Factura / Proforma</h2>
 
-                        <!-- Fallback seguro cuando aún no hay invoice_id (no emitido / no corresponde) -->
-                        <t t-else="">
-                            <h2 style="margin:0 0 8px 0;">Factura / Proforma</h2>
+                        <div style="font-size:12px; margin-bottom:10px;">
+                            <strong>Nota:</strong>
+                            Esta factura todavía no tiene datos de facturación electrónica (CUCU/SIN),
+                            por lo que se imprime una versión básica de respaldo.
+                        </div>
 
-                            <div style="font-size:12px; margin-bottom:10px;">
-                                <strong>Nota:</strong>
-                                Esta factura todavía no tiene datos de facturación electrónica (CUCU/SIN),
-                                por lo que se imprime una versión básica de respaldo.
-                            </div>
+                        <table class="table table-sm o_main_table" style="width:100%; font-size:12px;">
+                            <tbody>
+                                <tr>
+                                    <td style="width:35%;"><strong>Número:</strong></td>
+                                    <td><span t-esc="o.name or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cliente:</strong></td>
+                                    <td><span t-esc="o.partner_id.display_name or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha:</strong></td>
+                                    <td><span t-esc="o.invoice_date or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total:</strong></td>
+                                    <td>
+                                        <span t-esc="formatLang(o.amount_total, monetary=True, currency_obj=o.currency_id)"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estado:</strong></td>
+                                    <td><span t-esc="o.state or '-'"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-                            <table class="table table-sm o_main_table" style="width:100%; font-size:12px;">
-                                <tbody>
-                                    <tr>
-                                        <td style="width:35%;"><strong>Número:</strong></td>
-                                        <td><span t-esc="o.name or '-'"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Cliente:</strong></td>
-                                        <td><span t-esc="o.partner_id.display_name or '-'"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Fecha:</strong></td>
-                                        <td><span t-esc="o.invoice_date or '-'"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Total:</strong></td>
-                                        <td>
-                                            <span t-esc="formatLang(o.amount_total, monetary=True, currency_obj=o.currency_id)"/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Estado:</strong></td>
-                                        <td><span t-esc="o.state or '-'"/></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    </t>
 
-                            <div style="margin-top:14px; font-size:11px; color:#666;">
-                                Si necesitas que el fallback sea el PDF estándar completo de Odoo (con líneas, impuestos, etc.),
-                                lo hacemos en un segundo paso sin romper la acción estándar.
-                            </div>
-                        </t>
-
-                    </div>
-                </t>
+                </div>
             </t>
-        </template>
-
-    </data>
+        </t>
+    </template>
 </odoo>
