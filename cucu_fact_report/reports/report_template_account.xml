@@ -5,7 +5,12 @@
     <data>
         <template id="cucu_report_account" inherit_id="account.report_invoice_with_payments">
             <xpath expr='//t' position="replace">
-                <t t-call="cucu_fact_report.cucu_report_a4"/>
+                <t t-if="docs and docs.invoice_id">
+                    <t t-call="cucu_fact_report.cucu_report_a4"/>
+                </t>
+                <t t-else="">
+                    <t t-call="account.report_invoice_with_payments"/>
+                </t>
             </xpath>
         </template>
     </data>
