@@ -7,27 +7,31 @@
     <t t-call="web.html_container">
 
       <t t-foreach="docs" t-as="o">
-
-        <!-- Asegura compatibilidad con layouts que esperan 'doc' -->
+        <!-- Compatibilidad con layouts que esperan 'doc' -->
         <t t-set="doc" t-value="o"/>
         <t t-set="company" t-value="o.company_id or env.company"/>
 
         <!-- Header/Footer estándar (logo + datos compañía) -->
         <t t-call="web.external_layout">
 
-          <!-- Ojo: external_layout ya contiene <main>. Aquí NO usamos <main> -->
-          <div class="page" style="padding-top: 14mm;">
+          <!-- IMPORTANTE:
+               El header de external_layout ocupa espacio arriba.
+               Este padding-top baja el contenido para que "Factura" NO quede pegado al logo.
+          -->
+          <div class="page" style="padding-top:30mm;">
 
-            <!-- ================= TÍTULO ================= -->
-            <h2 style="margin: 0 0 10px 0;">
-              Factura
-            </h2>
+            <!-- ================= TÍTULO (con aire) ================= -->
+            <div style="margin-bottom:12px;">
+              <h1 style="margin:0; font-size:26px; font-weight:700;">
+                Factura
+              </h1>
+            </div>
 
             <!-- ================= DATOS BÁSICOS ================= -->
-            <div style="border: 1px solid #000; padding: 8px; margin-bottom: 12px;">
-              <table class="table table-sm" style="margin:0;">
+            <div style="border:1px solid #000; padding:10px; margin-bottom:14px;">
+              <table style="width:100%; font-size:12px;">
                 <tr>
-                  <td style="width: 18%;"><strong>Cliente:</strong></td>
+                  <td style="width:18%;"><strong>Cliente:</strong></td>
                   <td><span t-esc="o.partner_id.name or ''"/></td>
                 </tr>
                 <tr>
@@ -42,29 +46,29 @@
             </div>
 
             <!-- ================= DETALLE ================= -->
-            <table class="table table-sm table-bordered" style="margin-top: 6px;">
+            <table style="width:100%; border-collapse:collapse; font-size:11px; border:1px solid #000;">
               <thead>
-                <tr>
-                  <th>PRODUCTO</th>
-                  <th class="text-right">CANTIDAD</th>
-                  <th class="text-right">PRECIO</th>
-                  <th class="text-right">SUBTOTAL</th>
+                <tr style="border-bottom:1px solid #000;">
+                  <th style="text-align:left; padding:7px;">PRODUCTO</th>
+                  <th style="text-align:right; padding:7px; white-space:nowrap;">CANTIDAD</th>
+                  <th style="text-align:right; padding:7px; white-space:nowrap;">PRECIO</th>
+                  <th style="text-align:right; padding:7px; white-space:nowrap;">SUBTOTAL</th>
                 </tr>
               </thead>
               <tbody>
                 <t t-set="cur" t-value="o.currency_id"/>
 
                 <t t-foreach="o.invoice_line_ids" t-as="l">
-                  <tr>
-                    <td style="white-space: normal;">
+                  <tr style="border-top:1px solid #ddd;">
+                    <td style="padding:7px; vertical-align:top;">
                       <span t-esc="l.name or ''"/>
                     </td>
 
-                    <td class="text-right" style="white-space: nowrap;">
+                    <td style="padding:7px; text-align:right; vertical-align:top; white-space:nowrap;">
                       <span t-esc="l.quantity or 0.0"/>
                     </td>
 
-                    <td class="text-right" style="white-space: nowrap;">
+                    <td style="padding:7px; text-align:right; vertical-align:top; white-space:nowrap;">
                       <t t-set="price" t-value="round(l.price_unit or 0.0, 2)"/>
                       <t t-if="cur and cur.position == 'after'">
                         <span t-esc="('%0.2f' % price)"/> <span t-esc="cur.symbol or ''"/>
@@ -74,7 +78,7 @@
                       </t>
                     </td>
 
-                    <td class="text-right" style="white-space: nowrap;">
+                    <td style="padding:7px; text-align:right; vertical-align:top; white-space:nowrap;">
                       <t t-set="subtotal" t-value="round(l.price_subtotal or 0.0, 2)"/>
                       <t t-if="cur and cur.position == 'after'">
                         <span t-esc="('%0.2f' % subtotal)"/> <span t-esc="cur.symbol or ''"/>
@@ -90,22 +94,22 @@
             </table>
 
             <!-- ================= TOTALES ================= -->
-            <div style="margin-top: 12px;">
-              <table class="table table-sm" style="width: 40%; float: right; border: 1px solid #000;">
+            <div style="margin-top:18px;">
+              <table style="width:40%; float:right; border-collapse:collapse; font-size:12px; border:1px solid #000;">
                 <tr>
-                  <td style="border-right: 1px solid #000;"><strong>Total:</strong></td>
-                  <td class="text-right">
+                  <td style="padding:8px; border-right:1px solid #000;"><strong>Total:</strong></td>
+                  <td style="padding:8px; text-align:right; white-space:nowrap;">
                     <t t-set="amt" t-value="round(o.amount_total or 0.0, 2)"/>
                     <t t-if="cur and cur.position == 'after'">
-                      <span t-esc="('%0.2f' % amt)"/> <span t-esc="cur.symbol or ''"/>
+                      <strong><span t-esc="('%0.2f' % amt)"/> <span t-esc="cur.symbol or ''"/></strong>
                     </t>
                     <t t-else="">
-                      <span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % amt)"/>
+                      <strong><span t-esc="(cur and cur.symbol) or ''"/> <span t-esc="('%0.2f' % amt)"/></strong>
                     </t>
                   </td>
                 </tr>
               </table>
-              <div style="clear: both;"></div>
+              <div style="clear:both;"></div>
             </div>
 
           </div>
