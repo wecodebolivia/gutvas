@@ -6,7 +6,7 @@
                 <t t-set="o" t-value="o.with_context({'lang':o.partner_id.lang})"/>
                 <div class="page">
                     <div class="text-center mb-4">
-                        <h2><strong>COMPROBANTE CONTABLE</strong></h2>
+                        <h2><strong>COMPROBANTE CONTABLE</strong></h2>    <h3 t-field="o.name"/>
                     </div>
                     
                     <table class="table table-bordered">
