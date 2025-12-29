@@ -1,4 +1,5 @@
 import json
+import re
 import logging
 
 from ..lib.qr_image import generate_qr
@@ -34,6 +35,30 @@ class AccountMove(models.Model):
             for key in ["cantidad", "precioUnitario", "montoDescuento", "subTotal"]:
                 if isinstance(line[key], (int, float)):
                     line[key] = f"{float(line[key]):.2f}"
+
+            # ------------------------------------------------------------
+            # Limpieza de descripción:
+            # En muchos casos SIN/Factura trae la descripción como "[REF] Nombre"
+            # o "REF - Nombre". Aquí dejamos solo el nombre del producto.
+            # (El código de producto ya se muestra en su propia columna)
+            # ------------------------------------------------------------
+            desc = (line.get("descripcion") or "").strip()
+            code = str(line.get("codigoProducto") or "").strip()
+            if desc:
+                cleaned = desc
+
+                if code:
+                    # Casos: "[CODE] Nombre", "(CODE) Nombre", "CODE - Nombre", "CODE Nombre"
+                    cleaned = re.sub(r"^\[\s*%s\s*\]\s*" % re.escape(code), "", cleaned)
+                    cleaned = re.sub(r"^\(\s*%s\s*\)\s*" % re.escape(code), "", cleaned)
+                    cleaned = re.sub(r"^%s\s*[-–—]\s*" % re.escape(code), "", cleaned)
+                    cleaned = re.sub(r"^%s\s+" % re.escape(code), "", cleaned)
+
+                # Caso genérico: "[ALGO] Nombre"
+                cleaned = re.sub(r"^\[[A-Za-z0-9._\-]+\]\s*", "", cleaned)
+
+                line["descripcion"] = cleaned.strip()
+
             detail.append({**line, "unit_description": unit_measure.description})
         return detail
 
@@ -53,12 +78,7 @@ class AccountMove(models.Model):
         invoice_json = json.loads(invoice.invoice_json)
         doc_sector = int(invoice_json["cabecera"]["codigoDocumentoSector"])
         if doc_sector == 1:
-            header = {
-                **invoice_json["cabecera"],
-                **params_invoice,
-                "subtotal": "%.2f"
-                % (invoice.amount_subject_iva + invoice.amount_total_discount),
-            }
+            header = {**invoice_json["cabecera"], **params_invoice}
         if doc_sector == 24:
             header = {**invoice_json["cabecera"], **params_invoice}
             header["fechaEmisionFactura"] = number_to_date(
