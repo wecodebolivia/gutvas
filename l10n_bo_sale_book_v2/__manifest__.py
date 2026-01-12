@@ -14,7 +14,7 @@
     'depends': ['account', 'base'],
     'data': [
         'security/ir.model.access.csv',
-        'wizard/sale_book_v2_wizard_views.xml',
+        'wizards/sale_book_v2_wizard_views.xml',
     ],
     'installable': True,
     'application': False,
