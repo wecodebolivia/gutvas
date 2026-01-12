@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario del wizard -->
+    <record id="view_sale_book_v2_wizard_form" model="ir.ui.view">
+        <field name="name">sale.book.v2.wizard.form</field>
+        <field name="model">sale.book.v2.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Ventas V2 - Formato Estándar SIN">
+                <field name="state" invisible="1"/>
+                
+                <!-- Vista en estado borrador -->
+                <group attrs="{'invisible': [('state', '=', 'done')]}">
+                    <group>
+                        <field name="date_from" required="1"/>
+                        <field name="date_to" required="1"/>
+                    </group>
+                    <group>
+                        <field name="company_id" required="1" options="{'no_create': True}"/>
+                    </group>
+                </group>
+                
+                <footer attrs="{'invisible': [('state', '=', 'done')]}">
+                    <button name="action_generate_excel" 
+                            string="Generar Reporte" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+                
+                <!-- Vista cuando el reporte está generado -->
+                <group attrs="{'invisible': [('state', '!=', 'done')]}">
+                    <group>
+                        <field name="date_from" readonly="1"/>
+                        <field name="date_to" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="company_id" readonly="1"/>
+                    </group>
+                    <group colspan="2">
+                        <label for="excel_file" string="Archivo Generado:"/>
+                        <div>
+                            <field name="excel_file" filename="file_name" widget="binary"/>
+                            <field name="file_name" invisible="1"/>
+                        </div>
+                    </group>
+                </group>
+                
+                <footer attrs="{'invisible': [('state', '!=', 'done')]}">
+                    <button name="action_back_to_draft" 
+                            string="Generar Nuevo Reporte" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cerrar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del wizard -->
+    <record id="action_sale_book_v2_wizard" model="ir.actions.act_window">
+        <field name="name">Libro de Ventas V2</field>
+        <field name="res_model">sale.book.v2.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="menu_sale_book_v2"
+              name="Libro de Ventas V2"
+              parent="account.menu_finance_reports"
+              action="action_sale_book_v2_wizard"
+              sequence="101"/>
+</odoo>
