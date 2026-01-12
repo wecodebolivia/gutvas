@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_sale_book_v2_wizard_user,sale.book.v2.wizard.user,model_sale_book_v2_wizard,account.group_account_user,1,1,1,1
-access_sale_book_v2_wizard_manager,sale.book.v2.wizard.manager,model_sale_book_v2_wizard,account.group_account_manager,1,1,1,1
+access_sale_book_wizard,sale.book.wizard,model_sale_book_wizard,account.group_account_user,1,1,1,1
