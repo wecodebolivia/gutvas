@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Libro de Ventas Bolivia V2',
-    'version': '18.0.1.0.1',
+    'version': '18.0.1.0.2',
     'category': 'Accounting/Localizations',
     'summary': 'Reporte de Libro de Ventas formato estándar Impuestos Bolivia V2',
     'description': '''
