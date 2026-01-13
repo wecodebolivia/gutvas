@@ -2,18 +2,18 @@
 <odoo>
     <data>
         
-        <!-- Heredar la plantilla del documento de venta estándar para agregar peso total -->
+        <!-- Heredar el template del documento de venta para agregar peso total -->
         <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             
-            <!-- Agregar el peso total después del widget de totales de impuestos -->
-            <xpath expr="//div[@id='total']" position="after">
-                <div class="row" style="margin-top: 10px;">
+            <!-- Buscar la tabla de totales y agregar el peso después -->
+            <xpath expr="//div[hasclass('clearfix')]" position="inside">
+                <div class="row" style="margin-top: 5px;">
                     <div class="col-8 text-end">
                         <strong>Total Weight:</strong>
                     </div>
                     <div class="col-4 text-end">
                         <strong>
-                            <span t-field="doc.total_weight" t-options="{'widget': 'float', 'precision': 2}"/> kg
+                            <span t-esc="'%.2f' % doc.total_weight"/> kg
                         </strong>
                     </div>
                 </div>
