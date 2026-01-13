@@ -2,162 +2,23 @@
 <odoo>
     <data>
         
-        <!-- Acciones de reporte para cotizaciones con peso total -->
-        <record id="action_report_quotation_with_weight" model="ir.actions.report">
-            <field name="name">Quotation with Total Weight</field>
-            <field name="model">sale.order</field>
-            <field name="report_type">qweb-pdf</field>
-            <field name="report_name">sale_order_total_weight.report_quotation_with_weight</field>
-            <field name="report_file">sale_order_total_weight.report_quotation_with_weight</field>
-            <field name="binding_model_id" ref="model_sale_order"/>
-            <field name="binding_type">report</field>
-        </record>
-
-        <!-- Template del reporte con peso total -->
-        <template id="report_quotation_with_weight">
-            <t t-call="web.html_container">
-                <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.external_layout">
-                        <div class="page">
-                            <!-- Encabezado del documento -->
-                            <div class="row mb-4">
-                                <div class="col-8">
-                                    <h2>
-                                        <span t-if="doc.state in ['draft', 'sent']">Quotation</span>
-                                        <span t-else="">Sales Order</span>
-                                        <span t-field="doc.name"/>
-                                    </h2>
-                                </div>
-                                <div class="col-4 text-end">
-                                    <p t-if="doc.client_order_ref">
-                                        <strong>Your Reference:</strong>
-                                        <span t-field="doc.client_order_ref"/>
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Información del cliente -->
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <strong>Invoice Address:</strong>
-                                    <div t-field="doc.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': True}"/>
-                                </div>
-                                <div class="col-6" t-if="doc.partner_shipping_id != doc.partner_id">
-                                    <strong>Shipping Address:</strong>
-                                    <div t-field="doc.partner_shipping_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': True}"/>
-                                </div>
-                            </div>
-
-                            <!-- Detalles de la cotización -->
-                            <div class="row mb-3">
-                                <div class="col-3">
-                                    <strong>Order Date:</strong>
-                                    <p t-field="doc.date_order"/>
-                                </div>
-                                <div class="col-3" t-if="doc.validity_date and doc.state in ['draft', 'sent']">
-                                    <strong>Expiration Date:</strong>
-                                    <p t-field="doc.validity_date"/>
-                                </div>
-                                <div class="col-3">
-                                    <strong>Payment Terms:</strong>
-                                    <p t-field="doc.payment_term_id.name" t-if="doc.payment_term_id"/>
-                                </div>
-                                <div class="col-3">
-                                    <strong>Salesperson:</strong>
-                                    <p t-field="doc.user_id.name"/>
-                                </div>
-                            </div>
-
-                            <!-- Tabla de líneas de productos -->
-                            <table class="table table-sm o_main_table mt-4 mb-4">
-                                <thead>
-                                    <tr>
-                                        <th class="text-start">Description</th>
-                                        <th class="text-end" style="width: 100px;">Quantity</th>
-                                        <th class="text-end" style="width: 100px;">Unit Price</th>
-                                        <th class="text-end" style="width: 100px;">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="doc.order_line" t-as="line">
-                                        <tr t-if="not line.display_type">
-                                            <td class="text-start">
-                                                <span t-field="line.name"/>
-                                            </td>
-                                            <td class="text-end">
-                                                <span t-field="line.product_uom_qty"/>
-                                                <span t-field="line.product_uom" groups="uom.group_uom"/>
-                                            </td>
-                                            <td class="text-end">
-                                                <span t-field="line.price_unit"/>
-                                            </td>
-                                            <td class="text-end">
-                                                <span t-field="line.price_subtotal"/>
-                                            </td>
-                                        </tr>
-                                        <tr t-if="line.display_type == 'line_section'" class="table-secondary">
-                                            <td colspan="4">
-                                                <span t-field="line.name" class="fw-bold"/>
-                                            </td>
-                                        </tr>
-                                        <tr t-if="line.display_type == 'line_note'">
-                                            <td colspan="4">
-                                                <span t-field="line.name"/>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-
-                            <!-- Totales y Peso Total -->
-                            <div class="row justify-content-end mb-2">
-                                <div class="col-4">
-                                    <table class="table table-sm">
-                                        <tr>
-                                            <th class="text-end" style="width: 50%;">Subtotal</th>
-                                            <td class="text-end" style="width: 50%;">
-                                                <span t-field="doc.amount_untaxed"/>
-                                            </td>
-                                        </tr>
-                                        <t t-foreach="doc.tax_totals.get('groups_by_subtotal', {}).values()" t-as="groups">
-                                            <t t-foreach="groups" t-as="group">
-                                                <tr>
-                                                    <th class="text-end">
-                                                        <span t-field="group['tax_group_name']"/>
-                                                    </th>
-                                                    <td class="text-end">
-                                                        <span t-field="group['tax_group_amount']"/>
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                        </t>
-                                        <tr class="border-top-2 fw-bold">
-                                            <th class="text-end">Total</th>
-                                            <td class="text-end">
-                                                <span t-field="doc.amount_total"/>
-                                            </td>
-                                        </tr>
-                                        <!-- PESO TOTAL -->
-                                        <tr class="border-top-2">
-                                            <th class="text-end">Total Weight</th>
-                                            <td class="text-end">
-                                                <span t-field="doc.total_weight" t-options="{'widget': 'float', 'digits': [16, 2]}"/> kg
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Notas adicionales -->
-                            <div t-if="doc.note" class="mt-4">
-                                <h4>Terms and Conditions:</h4>
-                                <p t-field="doc.note"/>
-                            </div>
-
-                        </div>
-                    </t>
-                </t>
-            </t>
+        <!-- Heredar la plantilla del documento de venta estándar para agregar peso total -->
+        <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
+            
+            <!-- Agregar el peso total después del widget de totales de impuestos -->
+            <xpath expr="//div[@id='total']" position="after">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-8 text-end">
+                        <strong>Total Weight:</strong>
+                    </div>
+                    <div class="col-4 text-end">
+                        <strong>
+                            <span t-field="doc.total_weight" t-options="{'widget': 'float', 'precision': 2}"/> kg
+                        </strong>
+                    </div>
+                </div>
+            </xpath>
+            
         </template>
 
     </data>
