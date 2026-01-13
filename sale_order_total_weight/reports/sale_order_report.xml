@@ -5,16 +5,22 @@
         <!-- Heredar el template del documento de venta para agregar peso total -->
         <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             
-            <!-- Agregar peso total después de la tabla de totales -->
-            <xpath expr="//t[@t-set='display_discount']" position="after">
-                <div class="row mt-3">
-                    <div class="col-8 text-end">
-                        <strong>Total Weight:</strong>
-                    </div>
-                    <div class="col-4 text-end">
-                        <strong>
-                            <span t-esc="'%.2f' % doc.total_weight"/> kg
-                        </strong>
+            <!-- Agregar peso total al final de la página usando replace en el div principal -->
+            <xpath expr="//div[@class='page']" position="inside">
+                <div class="row mt-4" style="page-break-inside: avoid;">
+                    <div class="col-12">
+                        <table class="table table-sm" style="width: 40%; margin-left: auto;">
+                            <tr style="border-top: 2px solid black;">
+                                <td class="text-end" style="padding: 8px;">
+                                    <strong>Total Weight:</strong>
+                                </td>
+                                <td class="text-end" style="padding: 8px;">
+                                    <strong>
+                                        <span t-esc="'%.2f' % doc.total_weight"/> kg
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </xpath>
