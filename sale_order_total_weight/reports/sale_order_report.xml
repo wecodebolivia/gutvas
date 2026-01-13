@@ -5,9 +5,9 @@
         <!-- Heredar el template del documento de venta para agregar peso total -->
         <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             
-            <!-- Buscar la tabla de totales y agregar el peso después -->
-            <xpath expr="//div[hasclass('clearfix')]" position="inside">
-                <div class="row" style="margin-top: 5px;">
+            <!-- Agregar peso total después de la tabla de totales -->
+            <xpath expr="//t[@t-set='display_discount']" position="after">
+                <div class="row mt-3">
                     <div class="col-8 text-end">
                         <strong>Total Weight:</strong>
                     </div>
