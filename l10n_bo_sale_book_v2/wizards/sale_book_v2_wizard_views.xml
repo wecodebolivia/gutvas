@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista del Wizard -->
+    <record id="view_sale_book_v2_wizard_form" model="ir.ui.view">
+        <field name="name">sale.book.v2.wizard.form</field>
+        <field name="model">sale.book.v2.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generar Libro de Ventas V2">
+                <group>
+                    <group>
+                        <field name="fecha_inicio" string="Fecha Inicio"/>
+                        <field name="fecha_fin" string="Fecha Fin"/>
+                    </group>
+                    <group>
+                        <field name="company_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="generar_reporte_excel" 
+                            string="Generar Reporte Excel" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancelar" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del Wizard -->
+    <record id="action_sale_book_v2_wizard" model="ir.actions.act_window">
+        <field name="name">Libro de Ventas V2</field>
+        <field name="res_model">sale.book.v2.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="menu_sale_book_v2_root"
+              name="Libro de Ventas V2"
+              parent="account.menu_finance_reports"
+              action="action_sale_book_v2_wizard"
+              sequence="150"/>
+
+    <!-- Vista de formulario para account.move con campos adicionales -->
+    <record id="view_move_form_inherit_sale_book_v2" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.sale.book.v2</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Libro de Ventas V2" 
+                      invisible="move_type not in ['out_invoice', 'out_refund']">
+                    <group>
+                        <group string="Información de Facturación">
+                            <field name="lv_codigo_autorizacion"/>
+                            <field name="lv_codigo_control"/>
+                            <field name="lv_estado"/>
+                            <field name="lv_tipo_venta"/>
+                        </group>
+                        <group string="Impuestos Especiales">
+                            <field name="lv_importe_ice"/>
+                            <field name="lv_importe_iehd"/>
+                            <field name="lv_importe_ipj"/>
+                            <field name="lv_tasas"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Conceptos Especiales">
+                            <field name="lv_otros_no_iva"/>
+                            <field name="lv_exportaciones_exentas"/>
+                            <field name="lv_ventas_tasa_cero"/>
+                        </group>
+                        <group string="Descuentos y Gift Card">
+                            <field name="lv_descuentos"/>
+                            <field name="lv_importe_gift_card"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
