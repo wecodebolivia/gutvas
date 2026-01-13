@@ -2,19 +2,24 @@
 <odoo>
     <data>
         
-        <!-- Vista heredada para agregar el campo de peso total -->
+        <!-- Vista heredada para agregar el campo de peso total en cotizaciones -->
         <record id="view_order_form_total_weight" model="ir.ui.view">
             <field name="name">sale.order.form.total.weight</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="priority">99</field>
             <field name="arch" type="xml">
                 
-                <!-- Agregar el campo de peso total después del widget de totales de impuestos -->
-                <xpath expr="//field[@name='tax_totals']" position="after">
+                <!-- Agregar campo de peso total dentro del grupo de totales -->
+                <xpath expr="//group[@name='sale_total']" position="inside">
+                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                        <label for="total_weight"/>
+                    </div>
                     <field name="total_weight" 
-                           string="Peso Total" 
-                           widget="float" 
-                           readonly="1"/>
+                           nolabel="1"
+                           class="oe_subtotal_footer_separator"
+                           widget="float"
+                           options="{'digits': [16, 2]}"/>
                 </xpath>
                 
             </field>
