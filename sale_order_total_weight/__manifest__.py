@@ -7,21 +7,22 @@
     'description': '''
         Sale Order Total Weight
         =======================
-        Este módulo agrega un campo calculado que muestra el peso total 
-        de todos los productos en una cotización u orden de venta.
+        Este modulo agrega un campo calculado que muestra el peso total 
+        de todos los productos en una cotizacion u orden de venta.
         
         El peso se obtiene del campo 'weight' (Peso) configurado en la 
-        pestaña Inventario de cada producto.
+        pestana Inventario de cada producto.
         
-        Características:
+        Caracteristicas:
         ----------------
-        * Cálculo automático del peso total basado en cantidad * peso del producto
+        * Calculo automatico del peso total basado en cantidad * peso del producto
         * Visible en la vista de formulario de cotizaciones/pedidos
-        * Actualización en tiempo real al agregar/modificar líneas
+        * Actualizacion en tiempo real al agregar/modificar lineas
+        * Reporte PDF con peso total incluido
     ''',
-    'author': 'Juan Luis Garvía - Largotek SRL',
+    'author': 'Juan Luis Garvia - Largotek SRL',
     'website': 'https://www.largotek.com',
-    'maintainer': 'Juan Luis Garvía',
+    'maintainer': 'Juan Luis Garvia',
     'support': 'info@largotek.com',
     'license': 'LGPL-3',
     'depends': [
@@ -30,6 +31,7 @@
     ],
     'data': [
         'views/sale_order_view.xml',
+        'reports/sale_order_report.xml',
     ],
     'installable': True,
     'auto_install': False,
