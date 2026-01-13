@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- Vista heredada para agregar el campo de peso total en cotizaciones -->
+        <record id="view_order_form_total_weight" model="ir.ui.view">
+            <field name="name">sale.order.form.total.weight</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                
+                <!-- Agregar campo de peso total después del widget tax_totals -->
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <div class="row">
+                        <div class="col-8 text-end fw-bold">Peso Total:</div>
+                        <div class="col-4 text-end">
+                            <field name="total_weight" 
+                                   nolabel="1"
+                                   widget="float"
+                                   readonly="1"/> kg
+                        </div>
+                    </div>
+                </xpath>
+                
+            </field>
+        </record>
+
+    </data>
+</odoo>
