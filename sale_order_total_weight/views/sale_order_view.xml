@@ -9,11 +9,11 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 
-                <!-- Agregar el campo de peso total después del campo de monto total -->
-                <xpath expr="//field[@name='amount_total']" position="after">
+                <!-- Agregar el campo de peso total después del widget de totales de impuestos -->
+                <xpath expr="//field[@name='tax_totals']" position="after">
                     <field name="total_weight" 
+                           string="Peso Total" 
                            widget="float" 
-                           options="{'digits': [16, 2]}" 
                            readonly="1"/>
                 </xpath>
                 
