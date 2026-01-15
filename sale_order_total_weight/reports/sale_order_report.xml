@@ -5,9 +5,9 @@
         <!-- Heredar el template del documento de venta para agregar peso total -->
         <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             
-            <!-- Agregar peso total antes de términos y condiciones (note) en el lado izquierdo -->
-            <xpath expr="//p[@t-field='doc.note']" position="before">
-                <div class="row" style="page-break-inside: avoid;">
+            <!-- Agregar peso total después del div de informaciones adicionales -->
+            <xpath expr="//div[@id='informations']" position="after">
+                <div class="row mt-3" style="page-break-inside: avoid;">
                     <div class="col-6">
                         <p>
                             <strong>Peso Total:</strong>
