@@ -5,8 +5,8 @@
         <!-- Heredar el template del documento de venta para agregar peso total -->
         <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             
-            <!-- Agregar peso total después del div de informaciones adicionales -->
-            <xpath expr="//div[@id='informations']" position="after">
+            <!-- Agregar peso total dentro del div page al final -->
+            <xpath expr="//div[hasclass('page')]" position="inside">
                 <div class="row mt-3" style="page-break-inside: avoid;">
                     <div class="col-6">
                         <p>
