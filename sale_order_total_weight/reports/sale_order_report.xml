@@ -10,14 +10,16 @@
                 <tfoot>
                     <tr>
                         <td style="text-align: left; padding: 8px; border-top: 1px solid #dee2e6;">
-                            <strong>Peso Total:</strong>
+                            <strong>Peso Total: <span t-esc="'%.2f' % doc.total_weight"/> kg</strong>
                         </td>
-                        <td style="text-align: left; padding: 8px; border-top: 1px solid #dee2e6;">
-                            <strong><span t-esc="'%.2f' % doc.total_weight"/> kg</strong>
-                        </td>
-                        <td colspan="2" style="border-top: 1px solid #dee2e6;"></td>
+                        <td colspan="3" style="border-top: 1px solid #dee2e6;"></td>
                     </tr>
                 </tfoot>
+            </xpath>
+            
+            <!-- Quitar bordes de la tabla de subtotales y totales -->
+            <xpath expr="//table[@style='width: 100%; margin-top: 10px;']" position="attributes">
+                <attribute name="class">table table-borderless</attribute>
             </xpath>
             
         </template>
