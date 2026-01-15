@@ -5,14 +5,21 @@
         <!-- Heredar el template del documento de venta para agregar peso total -->
         <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             
-            <!-- Agregar peso total después de la tabla de líneas de venta -->
-            <xpath expr="//table[@name='invoice_line_table']" position="after">
-                <div class="row mt-2" style="page-break-inside: avoid;">
+            <!-- Agregar peso total con mejor presentación -->
+            <xpath expr="//div[hasclass('page')]" position="inside">
+                <div class="clearfix"/>
+                <div class="row" style="page-break-inside: avoid; margin-top: 10px; margin-bottom: 10px;">
                     <div class="col-6">
-                        <p class="mb-0">
-                            <strong>Peso Total:</strong>
-                            <span t-esc="'%.2f' % doc.total_weight"/> kg
-                        </p>
+                        <table class="table table-sm" style="width: 100%;">
+                            <tr>
+                                <td style="border: none; padding: 5px;">
+                                    <strong>Peso Total:</strong>
+                                </td>
+                                <td style="border: none; padding: 5px; text-align: left;">
+                                    <strong><span t-esc="'%.2f' % doc.total_weight"/> kg</strong>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </xpath>
