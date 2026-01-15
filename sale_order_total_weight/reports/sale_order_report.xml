@@ -5,21 +5,15 @@
         <!-- Heredar el template del documento de venta para agregar peso total -->
         <template id="report_saleorder_document_inherit" inherit_id="sale.report_saleorder_document">
             
-            <!-- Agregar peso total como fila adicional al final de la tabla principal -->
-            <xpath expr="//tbody[hasclass('sale_tbody')]" position="after">
-                <tfoot>
-                    <tr>
-                        <td style="text-align: left; padding: 8px; border-top: 1px solid #dee2e6;">
-                            <strong>Peso Total: <span t-esc="'%.2f' % doc.total_weight"/> kg</strong>
-                        </td>
-                        <td colspan="3" style="border-top: 1px solid #dee2e6;"></td>
-                    </tr>
-                </tfoot>
-            </xpath>
-            
-            <!-- Quitar bordes de la tabla de subtotales y totales -->
-            <xpath expr="//table[@style='width: 100%; margin-top: 10px;']" position="attributes">
-                <attribute name="class">table table-borderless</attribute>
+            <!-- Agregar peso total en la tabla de totales, antes del subtotal -->
+            <xpath expr="//table[@style='width: 100%; margin-top: 10px;']//tr[1]" position="before">
+                <tr>
+                    <td style="width: 75%; text-align: left; padding-left: 10px;">
+                        <strong>Peso Total:</strong> <span t-esc="'%.2f' % doc.total_weight"/> kg
+                    </td>
+                    <td style="text-align: right;">
+                    </td>
+                </tr>
             </xpath>
             
         </template>
