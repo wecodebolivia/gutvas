@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Placeholder view file.
+         This file exists because __manifest__.py references it.
+         Actual UI changes for invoice lines are currently implemented in views/account_move_views.xml.
+    -->
+</odoo>
