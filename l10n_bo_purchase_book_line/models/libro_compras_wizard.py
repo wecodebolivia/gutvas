@@ -75,26 +75,38 @@ class LibroComprasWizard(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        """Cargar datos existentes desde account.move.line para reabrir el wizard con valores."""
+        """Cargar datos existentes si la línea ya tiene información guardada"""
         res = super().default_get(fields_list)
         move_line_id = self._context.get('default_move_line_id')
 
         if move_line_id:
             line = self.env['account.move.line'].browse(move_line_id)
 
-            # Asegura el vínculo del wizard con la línea contable
-            # (necesario para relateds y para el guardado)
-            res['move_line_id'] = line.id
-
-            # Precarga todos los campos lc_* desde la línea contable.
-            # Esto hace que al reabrir el wizard se vean los valores ya guardados.
-            for fname in fields_list:
-                if fname.startswith('lc_') and fname in line._fields:
-                    res[fname] = line[fname]
-
-            # Primera vez (o si no se guardó explícitamente): inicializar con el monto base
-            if 'lc_importe_total_compra' in fields_list and not res.get('lc_importe_total_compra'):
-                res['lc_importe_total_compra'] = line.debit or line.credit or 0.0
+            # Si ya existen datos guardados, cargarlos
+            if line.lc_codigo_autorizacion or line.lc_numero_factura or line.lc_fecha_factura:
+                res.update({
+                    'lc_codigo_autorizacion': line.lc_codigo_autorizacion,
+                    'lc_numero_factura': line.lc_numero_factura,
+                    'lc_numero_dui_dim': line.lc_numero_dui_dim,
+                    'lc_fecha_factura': line.lc_fecha_factura,
+                    'lc_importe_total_compra': line.lc_importe_total_compra,
+                    'lc_importe_ice': line.lc_importe_ice,
+                    'lc_importe_iehd': line.lc_importe_iehd,
+                    'lc_importe_ipj': line.lc_importe_ipj,
+                    'lc_tasas': line.lc_tasas,
+                    'lc_otros_no_sujeto_cf': line.lc_otros_no_sujeto_cf,
+                    'lc_importes_exentos': line.lc_importes_exentos,
+                    'lc_compras_gravadas_tasa_cero': line.lc_compras_gravadas_tasa_cero,
+                    'lc_descuentos_bonificaciones': line.lc_descuentos_bonificaciones,
+                    'lc_importe_gift_card': line.lc_importe_gift_card,
+                    'lc_tipo_compra': line.lc_tipo_compra,
+                    'lc_codigo_control': line.lc_codigo_control,
+                })
+            else:
+                # Primera vez: inicializar con datos básicos
+                res.update({
+                    'lc_importe_total_compra': line.debit or line.credit or 0.0,
+                })
 
         return res
 
