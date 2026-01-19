@@ -73,18 +73,28 @@ class LibroComprasWizard(models.TransientModel):
         digits=(16, 2)
     )
 
-    # Default inicial
     @api.model
     def default_get(self, fields_list):
+        """Cargar datos existentes si la línea ya tiene información guardada."""
         res = super().default_get(fields_list)
         move_line_id = self._context.get('default_move_line_id')
 
         if move_line_id:
             line = self.env['account.move.line'].browse(move_line_id)
 
-            res['lc_importe_total_compra'] = line.debit or line.credit or 0.0
-            res['lc_nit'] = line.partner_id.lc_nit
-            res['lc_razon_social'] = line.partner_id.lc_razon_social
+            # Asegura el vínculo del wizard con la línea contable
+            # (necesario para relateds y para el guardado)
+            res['move_line_id'] = line.id
+
+            # Precarga todos los campos lc_* desde la línea contable.
+            # Esto hace que al reabrir el wizard se vean los valores ya guardados.
+            for fname in fields_list:
+                if fname.startswith('lc_') and fname in line._fields:
+                    res[fname] = line[fname]
+
+            # Primera vez (o si no se guardó explícitamente): inicializar con el monto base
+            if 'lc_importe_total_compra' in fields_list and not res.get('lc_importe_total_compra'):
+                res['lc_importe_total_compra'] = line.debit or line.credit or 0.0
 
         return res
 
