@@ -1,5 +1,3 @@
-# l10n_bo_purchase_book_line/__manifest__.py
-
 {
     'name': 'Libro de Compras Línea por Línea',
     'version': '18.0.1.0.0',
@@ -16,6 +14,7 @@
         'views/account_move_views.xml',
         'views/res_partner_views.xml',
         'views/report_libro_compras_views.xml',
+        'views/libro_compras_wizard_views.xml',
     ],
     'installable': True,
     'application': True,
