@@ -22,6 +22,11 @@ class StockWarehouse(models.Model):
         return f'warehouse_auto_routes.route_wh_{wh_from_id}_to_wh_{wh_to_id}'
     
     @api.model
+    def _get_transit_location_xmlid(self, wh_from_id, wh_to_id):
+        """Generate a unique external ID for transit location."""
+        return f'warehouse_auto_routes.transit_loc_wh_{wh_from_id}_to_wh_{wh_to_id}'
+    
+    @api.model
     def _route_exists(self, wh_from_id, wh_to_id):
         """Check if route already exists using external_id."""
         xmlid = self._get_inter_warehouse_route_xmlid(wh_from_id, wh_to_id)
@@ -32,8 +37,48 @@ class StockWarehouse(models.Model):
         ], limit=1)
     
     @api.model
+    def _get_or_create_transit_location(self, wh_from, wh_to):
+        """Get or create a transit location for the route."""
+        xmlid = self._get_transit_location_xmlid(wh_from.id, wh_to.id)
+        
+        # Check if transit location already exists
+        existing_data = self.env['ir.model.data'].search([
+            ('name', '=', xmlid.split('.')[-1]),
+            ('module', '=', 'warehouse_auto_routes'),
+            ('model', '=', 'stock.location')
+        ], limit=1)
+        
+        if existing_data:
+            return self.env['stock.location'].browse(existing_data.res_id)
+        
+        # Create transit location
+        transit_location = self.env['stock.location'].create({
+            'name': f'Tránsito: {wh_from.code} → {wh_to.code}',
+            'usage': 'transit',
+            'location_id': self.env.ref('stock.stock_location_locations').id,
+            'company_id': wh_from.company_id.id,
+        })
+        
+        # Create external_id for the location
+        self.env['ir.model.data'].create({
+            'name': xmlid.split('.')[-1],
+            'module': 'warehouse_auto_routes',
+            'model': 'stock.location',
+            'res_id': transit_location.id,
+            'noupdate': True,
+        })
+        
+        _logger.info(f'Created transit location: {transit_location.name}')
+        return transit_location
+    
+    @api.model
     def _create_inter_warehouse_route(self, wh_from, wh_to):
-        """Create a route from wh_from to wh_to if it doesn't exist."""
+        """Create a 2-step route from wh_from to wh_to using transit location.
+        
+        Flow:
+        1. Internal Transfer: Stock A → Transit Location (responsible validates)
+        2. Internal Transfer: Transit Location → Stock B (responsible receives and validates)
+        """
         # Safeguard: Check if route already exists
         if self._route_exists(wh_from.id, wh_to.id):
             _logger.info(f'Route from {wh_from.name} to {wh_to.name} already exists, skipping.')
@@ -43,6 +88,9 @@ class StockWarehouse(models.Model):
         xmlid = self._get_inter_warehouse_route_xmlid(wh_from.id, wh_to.id)
         
         _logger.info(f'Creating route: {route_name}')
+        
+        # Get or create transit location
+        transit_location = self._get_or_create_transit_location(wh_from, wh_to)
         
         # Create the route
         route = self.env['stock.route'].create({
@@ -62,46 +110,39 @@ class StockWarehouse(models.Model):
             'noupdate': True,
         })
         
-        # Step 1: Pick from wh_from stock location
-        pick_rule = self.env['stock.rule'].create({
-            'name': f'{wh_from.code} → Transit: Pick',
+        # Step 1: Internal Transfer from wh_from stock to transit location
+        # This creates the first internal transfer that needs validation
+        send_rule = self.env['stock.rule'].create({
+            'name': f'{wh_from.code} → Tránsito',
             'route_id': route.id,
             'location_src_id': wh_from.lot_stock_id.id,
-            'location_dest_id': wh_from.wh_output_stock_loc_id.id or wh_from.lot_stock_id.id,
+            'location_dest_id': transit_location.id,
             'action': 'pull',
-            'picking_type_id': wh_from.out_type_id.id,
+            'picking_type_id': wh_from.int_type_id.id,  # Internal transfer type
             'procure_method': 'make_to_stock',
             'sequence': 10,
             'company_id': wh_from.company_id.id,
         })
         
-        # Step 2: Transfer from wh_from to wh_to (transit location)
-        transfer_rule = self.env['stock.rule'].create({
-            'name': f'{wh_from.code} → {wh_to.code}: Transfer',
-            'route_id': route.id,
-            'location_src_id': wh_from.wh_output_stock_loc_id.id or wh_from.lot_stock_id.id,
-            'location_dest_id': wh_to.wh_input_stock_loc_id.id or wh_to.lot_stock_id.id,
-            'action': 'pull',
-            'picking_type_id': wh_from.int_type_id.id,
-            'procure_method': 'make_to_order',
-            'sequence': 20,
-            'company_id': wh_from.company_id.id,
-        })
-        
-        # Step 3: Receive in wh_to
+        # Step 2: Internal Transfer from transit location to wh_to stock
+        # The responsible in wh_to receives and validates this
         receive_rule = self.env['stock.rule'].create({
-            'name': f'Transit → {wh_to.code}: Receive',
+            'name': f'Tránsito → {wh_to.code}',
             'route_id': route.id,
-            'location_src_id': wh_to.wh_input_stock_loc_id.id or wh_to.lot_stock_id.id,
+            'location_src_id': transit_location.id,
             'location_dest_id': wh_to.lot_stock_id.id,
             'action': 'pull',
-            'picking_type_id': wh_to.in_type_id.id,
+            'picking_type_id': wh_to.int_type_id.id,  # Internal transfer type
             'procure_method': 'make_to_order',
-            'sequence': 30,
+            'sequence': 20,
             'company_id': wh_to.company_id.id,
         })
         
-        _logger.info(f'Route {route_name} created successfully with {len([pick_rule, transfer_rule, receive_rule])} rules')
+        _logger.info(
+            f'Route {route_name} created successfully:\n'
+            f'  - Step 1: {wh_from.code} → Transit (Internal Transfer)\n'
+            f'  - Step 2: Transit → {wh_to.code} (Internal Transfer)'
+        )
         
         return route
     
