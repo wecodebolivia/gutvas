@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Warehouse Route Generator Wizard Form -->
+    <record id="view_warehouse_route_generator_form" model="ir.ui.view">
+        <field name="name">warehouse.route.generator.form</field>
+        <field name="model">warehouse.route.generator</field>
+        <field name="arch" type="xml">
+            <form string="Generate Warehouse Routes">
+                <group>
+                    <group>
+                        <field name="mode" widget="radio"/>
+                        <field name="warehouse_ids" 
+                               widget="many2many_tags" 
+                               invisible="mode == 'all'"
+                               options="{'color_field': 'color'}"/>
+                    </group>
+                    <group>
+                        <field name="regenerate_existing"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Generate Routes" 
+                            name="action_generate_routes" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard -->
+    <record id="action_warehouse_route_generator" model="ir.actions.act_window">
+        <field name="name">Generate Warehouse Routes</field>
+        <field name="res_model">warehouse.route.generator</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu item -->
+    <menuitem id="menu_warehouse_route_generator"
+              name="Generate Routes"
+              parent="stock.menu_stock_config_settings"
+              action="action_warehouse_route_generator"
+              sequence="100"/>
+
+</odoo>
