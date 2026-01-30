@@ -6,13 +6,13 @@
         <!-- Extensión del reporte A4 para ocultar descripción -->
         <template id="report_a4_hide_description" inherit_id="cucu_fact_report.cucu_report_a4">
             
-            <!-- Ocultar la columna de Descripción en el encabezado de la tabla -->
-            <xpath expr="//table[@id='invoice_sale']//thead//th[contains(text(), 'Descripcion')]" position="attributes">
+            <!-- Ocultar la columna de Descripción en el encabezado (4ta columna) -->
+            <xpath expr="//div[@id='invoice_sale']//table//thead//tr//th[4]" position="attributes">
                 <attribute name="style">display: none;</attribute>
             </xpath>
             
-            <!-- Ocultar el contenido de descripción en las líneas de detalle -->
-            <xpath expr="//table[@id='invoice_sale']//tbody//td[4]" position="attributes">
+            <!-- Ocultar el contenido de descripción en las líneas de detalle (4ta celda) -->
+            <xpath expr="//div[@id='invoice_sale']//table//tbody//tr//td[4]" position="attributes">
                 <attribute name="style">display: none;</attribute>
             </xpath>
             
