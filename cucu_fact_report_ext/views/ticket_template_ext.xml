@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 Largotek SRL -->
+<!-- Extension module for cucu_fact_report -->
+<odoo>
+    <data>
+        <!-- Extensión del reporte ticket para ocultar descripción -->
+        <template id="ticket_hide_description" inherit_id="cucu_fact_report.cucu_report_ticket">
+            
+            <!-- Ocultar la línea de descripción del producto en el ticket -->
+            <xpath expr="//div[@id='invoice_sale']//div[@class='font-semibold']" position="attributes">
+                <attribute name="style">display: none;</attribute>
+            </xpath>
+            
+        </template>
+    </data>
+</odoo>
