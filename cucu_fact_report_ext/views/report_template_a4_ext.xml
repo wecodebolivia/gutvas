@@ -3,17 +3,15 @@
 <!-- Extension module for cucu_fact_report -->
 <odoo>
     <data>
-        <!-- Extensión del reporte A4 para ocultar descripción -->
-        <template id="report_a4_hide_description" inherit_id="cucu_fact_report.cucu_report_a4">
+        <!-- Extensión del reporte A4 para mostrar solo nombre del producto -->
+        <template id="report_a4_product_name_only" inherit_id="cucu_fact_report.cucu_report_a4">
             
-            <!-- Ocultar la columna de Descripción en el encabezado (4ta columna) -->
-            <xpath expr="//div[@id='invoice_sale']//table//thead//tr//th[4]" position="attributes">
-                <attribute name="style">display: none;</attribute>
-            </xpath>
-            
-            <!-- Ocultar el contenido de descripción en las líneas de detalle (4ta celda) -->
-            <xpath expr="//div[@id='invoice_sale']//table//tbody//tr//td[4]" position="attributes">
-                <attribute name="style">display: none;</attribute>
+            <!-- Reemplazar el contenido de descripción para mostrar solo el nombre del producto -->
+            <xpath expr="//div[@id='invoice_sale']//table//tbody//tr//td[4]//div" position="replace">
+                <!-- Buscar la línea original de la factura para obtener solo el nombre del producto -->
+                <t t-set="invoice_line" t-value="o.invoice_line_ids.filtered(lambda l: l.product_id.default_code == line['codigoProducto'])[:1]"/>
+                <div t-if="invoice_line" t-esc="invoice_line.product_id.name"/>
+                <div t-else="" t-esc="line['descripcion']"/>
             </xpath>
             
         </template>
