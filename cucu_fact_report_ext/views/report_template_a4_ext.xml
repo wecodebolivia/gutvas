@@ -3,14 +3,14 @@
 <!-- Extension module for cucu_fact_report -->
 <odoo>
     <data>
-        <!-- Extensión del reporte A4 para mostrar solo nombre del producto -->
+        <!-- Extensión del reporte A4 para mostrar solo nombre del producto con variantes -->
         <template id="report_a4_product_name_only" inherit_id="cucu_fact_report.cucu_report_a4">
             
-            <!-- Reemplazar el contenido de descripción para mostrar solo el nombre del producto -->
+            <!-- Reemplazar el contenido de descripción para mostrar el nombre completo del producto con variantes -->
             <xpath expr="//div[@id='invoice_sale']//table//tbody//tr//td[4]//div" position="replace">
-                <!-- Buscar la línea original de la factura para obtener solo el nombre del producto -->
+                <!-- Buscar la línea original de la factura para obtener el nombre completo con variantes -->
                 <t t-set="invoice_line" t-value="o.invoice_line_ids.filtered(lambda l: l.product_id.default_code == line['codigoProducto'])[:1]"/>
-                <div t-if="invoice_line" t-esc="invoice_line.product_id.name"/>
+                <div t-if="invoice_line" t-esc="invoice_line.product_id.display_name"/>
                 <div t-else="" t-esc="line['descripcion']"/>
             </xpath>
             
