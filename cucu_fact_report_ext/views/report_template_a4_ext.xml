@@ -3,10 +3,10 @@
 <!-- Extension module for cucu_fact_report -->
 <odoo>
     <data>
-        <!-- Extensión del reporte A4 para mostrar solo nombre del producto con variantes -->
+        <!-- Extensión del reporte A4 para mostrar nombre del producto con variantes (sin código) -->
         <template id="report_a4_product_name_only" inherit_id="cucu_fact_report.cucu_report_a4">
             
-            <!-- Reemplazar el contenido de descripción para mostrar el nombre completo del producto con variantes -->
+            <!-- Reemplazar el contenido de descripción para mostrar nombre + variantes sin código -->
             <xpath expr="//div[@id='invoice_sale']//table//tbody//tr//td[4]//div" position="replace">
                 <div>
                     <t t-set="product_code" t-value="line.get('codigoProducto', '')"/>
@@ -25,9 +25,22 @@
                         </t>
                     </t>
                     
-                    <!-- Mostrar display_name si se encontró la línea, sino la descripción original -->
+                    <!-- Mostrar nombre sin código si se encontró la línea -->
                     <t t-if="invoice_line and invoice_line.product_id">
-                        <t t-esc="invoice_line.product_id.display_name"/>
+                        <!-- Obtener nombre del template del producto + atributos de variante -->
+                        <t t-set="product" t-value="invoice_line.product_id"/>
+                        <t t-set="product_template" t-value="product.product_tmpl_id"/>
+                        
+                        <!-- Nombre base del producto -->
+                        <t t-esc="product_template.name"/>
+                        
+                        <!-- Agregar atributos de variante si existen -->
+                        <t t-if="product.product_template_variant_value_ids">
+                            <t t-set="variant_values" t-value="', '.join(product.product_template_variant_value_ids.mapped('name'))"/>
+                            <t t-if="variant_values">
+                                (<t t-esc="variant_values"/>)
+                            </t>
+                        </t>
                     </t>
                     <t t-else="">
                         <t t-esc="line.get('descripcion', '')"/>
