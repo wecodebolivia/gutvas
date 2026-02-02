@@ -3,15 +3,36 @@
 <!-- Extension module for cucu_fact_report -->
 <odoo>
     <data>
-        <!-- Extensión del reporte A4 para mostrar solo nombre del producto -->
+        <!-- Extensión del reporte A4 para mostrar solo nombre del producto con variantes -->
         <template id="report_a4_product_name_only" inherit_id="cucu_fact_report.cucu_report_a4">
             
-            <!-- Reemplazar el contenido de descripción para mostrar solo el nombre del producto -->
+            <!-- Reemplazar el contenido de descripción para mostrar el nombre completo del producto con variantes -->
             <xpath expr="//div[@id='invoice_sale']//table//tbody//tr//td[4]//div" position="replace">
-                <!-- Buscar la línea original de la factura para obtener solo el nombre del producto -->
-                <t t-set="invoice_line" t-value="o.invoice_line_ids.filtered(lambda l: l.product_id.default_code == line['codigoProducto'])[:1]"/>
-                <div t-if="invoice_line" t-esc="invoice_line.product_id.name"/>
-                <div t-else="" t-esc="line['descripcion']"/>
+                <div>
+                    <t t-set="product_code" t-value="line.get('codigoProducto', '')"/>
+                    <t t-set="invoice_line" t-value="False"/>
+                    
+                    <!-- Intentar encontrar por código de producto -->
+                    <t t-if="product_code and o.invoice_line_ids">
+                        <t t-set="invoice_line" t-value="o.invoice_line_ids.filtered(lambda l: l.product_id and l.product_id.default_code == product_code)[:1]"/>
+                    </t>
+                    
+                    <!-- Si no se encuentra por código, intentar por descripción parcial -->
+                    <t t-if="not invoice_line and o.invoice_line_ids">
+                        <t t-set="desc_search" t-value="line.get('descripcion', '').strip()"/>
+                        <t t-if="desc_search">
+                            <t t-set="invoice_line" t-value="o.invoice_line_ids.filtered(lambda l: l.product_id and desc_search in l.name)[:1]"/>
+                        </t>
+                    </t>
+                    
+                    <!-- Mostrar display_name si se encontró la línea, sino la descripción original -->
+                    <t t-if="invoice_line and invoice_line.product_id">
+                        <t t-esc="invoice_line.product_id.display_name"/>
+                    </t>
+                    <t t-else="">
+                        <t t-esc="line.get('descripcion', '')"/>
+                    </t>
+                </div>
             </xpath>
             
         </template>
