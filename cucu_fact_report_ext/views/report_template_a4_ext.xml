@@ -54,32 +54,32 @@
         <template id="report_a4_format_totals" inherit_id="cucu_fact_report.cucu_report_a4">
             
             <!-- SUB TOTAL Bs -->
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[1]//td[3]//div" position="replace">
+            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[1]//td[last()]//div" position="replace">
                 <div t-esc="'%.2f' % float(header.get('montoTotal', 0))"/>
             </xpath>
             
             <!-- DESCUENTO Bs -->
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[2]//td[2]//div" position="replace">
+            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[2]//td[last()]//div" position="replace">
                 <div t-esc="'%.2f' % float(header.get('descuentoAdicional', 0))"/>
             </xpath>
             
             <!-- TOTAL Bs -->
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[3]//td[3]//div" position="replace">
+            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[3]//td[last()]//div" position="replace">
                 <div t-esc="'%.2f' % float(header.get('montoTotalMoneda', 0))"/>
             </xpath>
             
             <!-- MONTO GIFT CARD Bs -->
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[4]//td[2]//div" position="replace">
+            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[4]//td[last()]//div" position="replace">
                 <div t-esc="'%.2f' % float(header.get('montoGiftCard', 0))"/>
             </xpath>
             
             <!-- MONTO A PAGAR Bs -->
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[5]//td[3]//div" position="replace">
+            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[5]//td[last()]//div" position="replace">
                 <div t-esc="'%.2f' % float(header.get('montoTotalSujetoIva', 0))"/>
             </xpath>
             
             <!-- IMPORTE BASE CRÉDITO FISCAL -->
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[6]//td[3]//div" position="replace">
+            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[6]//td[last()]//div" position="replace">
                 <div t-esc="'%.2f' % float(header.get('montoTotalSujetoIva', 0))"/>
             </xpath>
             
