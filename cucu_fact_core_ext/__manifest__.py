@@ -15,6 +15,7 @@ Funcionalidades:
 - Mantiene compatibilidad con futuras actualizaciones de CUCU
 - Usa herencia de métodos para extender funcionalidad
 - Validación numérica para campo Number Document (nit_client)
+- Permite editar el campo Address en Branch Office
 
 Problema resuelto:
 ------------------
@@ -27,13 +28,18 @@ los 150 caracteres antes de enviarla al webservice.
 
 Además valida que el campo Number Document solo contenga números.
 
+Permite editar el campo Address en sucursales mientras mantiene
+los demás campos protegidos contra edición.
+
 Desarrollado por: Largotek SRL
 Autor: Juan Luis Garvía
     """,
     'author': 'Largotek SRL',
     'website': 'https://largotek.com',
     'depends': ['cucu_fact_core', 'cucu_fact_partner'],
-    'data': [],
+    'data': [
+        'views/view_branch_office_ext.xml',
+    ],
     'installable': True,
     'application': False,
     'auto_install': False,
