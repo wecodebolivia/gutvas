@@ -7,9 +7,12 @@
             <field name="model">cucu.branch.office</field>
             <field name="inherit_id" ref="cucu_fact_core.view_branch_office_form"/>
             <field name="arch" type="xml">
-                <!-- Cambiar el atributo edit del form a 1 para permitir edición -->
+                <!-- Remover todos los atributos restrictivos del form -->
                 <xpath expr="//form" position="attributes">
-                    <attribute name="edit">1</attribute>
+                    <attribute name="create"/>
+                    <attribute name="delete"/>
+                    <attribute name="duplicate"/>
+                    <attribute name="edit"/>
                 </xpath>
                 
                 <!-- Hacer readonly los campos que no deben editarse -->
@@ -30,6 +33,11 @@
                 </xpath>
                 
                 <xpath expr="//field[@name='description']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+                
+                <!-- Asegurar que pos_id en el notebook sigue siendo readonly -->
+                <xpath expr="//field[@name='pos_id']" position="attributes">
                     <attribute name="readonly">1</attribute>
                 </xpath>
             </field>
