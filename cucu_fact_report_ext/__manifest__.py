@@ -11,6 +11,7 @@ Extensión para módulo cucu_fact_report
 Funcionalidades:
 - Oculta el campo de descripción en facturas formato A4
 - Oculta el campo de descripción en facturas formato ticket
+- Prioriza teléfono de sucursal (Branch) en reportes
 - No modifica el código original de CUCU
 - Mantiene compatibilidad con futuras actualizaciones de CUCU
 

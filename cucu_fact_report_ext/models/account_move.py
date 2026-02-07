@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    display_phone = fields.Char(
-        string="Teléfono para Reporte",
-        compute='_compute_display_phone',
-        store=False
-    )
-
-    @api.depends('pos_config_id.phone', 'company_id.phone')
-    def _compute_display_phone(self):
-        for move in self:
-            if move.pos_config_id and move.pos_config_id.phone:
-                move.display_phone = move.pos_config_id.phone
-            else:
-                move.display_phone = move.company_id.phone or ''
+    def _prepare_cucu_header_data(self):
+        """Override para modificar teléfono en header de CUCU"""
+        res = super()._prepare_cucu_header_data()
+        
+        # Reemplazar teléfono con el del Branch/POS Config
+        if self.pos_config_id and self.pos_config_id.phone:
+            res['telefono'] = self.pos_config_id.phone
+        
+        return res
