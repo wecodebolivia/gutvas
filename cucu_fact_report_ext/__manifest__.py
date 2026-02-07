@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CUCU Facturación - Reportes Extendidos',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Accounting/Localizations/Reporting',
     'summary': 'Extensión de reportes CUCU para ocultar descripciones en impresiones',
     'description': """
