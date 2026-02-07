@@ -19,12 +19,10 @@ Autor: Juan Luis Garvía
     """,
     'author': 'Largotek SRL',
     'website': 'https://largotek.com',
-    'depends': ['cucu_fact_report', 'point_of_sale'],  # ← AGREGADO
+    'depends': ['cucu_fact_report'],
     'data': [
         'views/report_template_a4_ext.xml',
         'views/ticket_template_ext.xml',
-        'models/account_move.py',  # ← AGREGADO (0 bytes si vacío)
-        'views/factura_sucursal_inherit.xml',  # ← AGREGADO
     ],
     'installable': True,
     'application': False,
