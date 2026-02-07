@@ -85,10 +85,10 @@
             
         </template>
 
-        <!-- FIX: Teléfono sucursal desde pos.config (prioridad sobre company) -->
+        <!-- FIX: Teléfono sucursal - XPath genérico (resuelve ParseError) -->
         <template id="report_a4_sucursal_phone" inherit_id="cucu_fact_report.cucu_report_a4">
-            <xpath expr="//span[@t-field='o.company_id.phone']" position="attributes">
-                <attribute name="t-field">o.pos_config_id.phone or o.company_id.phone</attribute>
+            <xpath expr="//span[contains(@t-field, 'phone')]" position="attributes">
+                <attribute name="t-field">o.pos_config_id.phone or o.company_id.phone or ''</attribute>
             </xpath>
         </template>
 
