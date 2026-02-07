@@ -85,20 +85,5 @@
             
         </template>
 
-        <!-- FIX: Reemplaza línea completa del teléfono concatenado -->
-        <template id="report_a4_sucursal_phone_block" inherit_id="cucu_fact_report.cucu_report_a4" priority="99">
-            <!-- Busca la línea que contiene los 3 teléfonos concatenados y reemplázala completa -->
-            <xpath expr="//div[contains(., '2792374-77220081-74262462') or contains(., '2851566-77220081-74262462') or contains(., '2841803-74262462-76750713')]" position="replace">
-                <div>
-                    <t t-if="o.pos_config_id and o.pos_config_id.phone">
-                        <t t-esc="o.pos_config_id.phone"/>
-                    </t>
-                    <t t-else="">
-                        <t t-esc="o.company_id.phone or ''"/>
-                    </t>
-                </div>
-            </xpath>
-        </template>
-
     </data>
 </odoo>
