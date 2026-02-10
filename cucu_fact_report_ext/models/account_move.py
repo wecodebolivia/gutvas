@@ -18,3 +18,25 @@ class AccountMove(models.Model):
             res['telefono'] = self.pos_id.phone
             
         return res
+    
+    def copy(self, default=None):
+        """
+        Sobrescribe el método copy para evitar duplicar campos 
+        de facturación electrónica al duplicar facturas.
+        """
+        if default is None:
+            default = {}
+        
+        # Excluir campos de facturación electrónica de la duplicación
+        default.update({
+            'invoice_id': False,  # Relación One2many con cucu.invoice
+            'sin_code_state': 0,  # Código de estado SIAT
+            'sin_code_reception': '0000',  # Código de recepción SIAT
+            'sin_description_status': 'Not invoice',  # Estado de facturación
+            'invoice_code': False,  # Código de factura electrónica
+            'invoice_number': False,  # Número de factura electrónica
+            'is_sin': False,  # Bandera de facturación electrónica
+            'pos_session_id': False,  # Sesión de punto de venta
+        })
+        
+        return super(AccountMove, self).copy(default=default)
