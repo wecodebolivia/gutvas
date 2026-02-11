@@ -24,12 +24,16 @@
                                         </div>
                                     </t>
                                     <div class="flex flex-row justify-between items-start mt-6">
-                                        <div class="w-6/12 flex justify-start" style="padding-right: 2rem;">
+                                        <!-- Sección izquierda: Logo centrado arriba e información debajo -->
+                                        <div class="w-6/12 flex flex-col items-center" style="padding-right: 2rem;">
+                                            <!-- Logo centrado arriba -->
                                             <t t-if="o.company_id.logo">
-                                                <img t-att-src="image_data_uri(o.company_id.logo)" alt="" width="100" class="object-contain text-center"
-                                                     style="padding-right: 1rem;"/>
+                                                <div class="mb-3 flex justify-center">
+                                                    <img t-att-src="image_data_uri(o.company_id.logo)" alt="" width="120" class="object-contain"/>
+                                                </div>
                                             </t>
-                                            <div class="flex flex-col w-full" style="text-align: left;">
+                                            <!-- Información de la empresa centrada debajo del logo -->
+                                            <div class="flex flex-col w-full" style="text-align: center;">
                                                 <div class="text-base font-bold" t-attf-style="color: #{o.company_id.color_primary};" t-esc="header['razonSocialEmisor']"/>
                                                 <div class="text-base font-[500] uppercase" t-esc="header['branch_name']"/>
                                                 <div class="text-sm" t-esc="header['codigoPuntoVenta']"/>
@@ -38,6 +42,7 @@
                                                 <div class="text-sm" t-esc="header['municipio']"/>
                                             </div>
                                         </div>
+                                        <!-- Sección derecha: Datos fiscales -->
                                         <div class="w-5/12 text-sm">
                                             <table class="w-full">
                                                 <tr>
