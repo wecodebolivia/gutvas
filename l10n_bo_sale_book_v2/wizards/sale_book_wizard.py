@@ -3,6 +3,7 @@
 from odoo import models, fields
 import io
 import base64
+import json
 
 try:
     import xlsxwriter
@@ -19,6 +20,53 @@ class SaleBookWizard(models.TransientModel):
     company_id = fields.Many2one('res.company', string='Compañía', 
                                   required=True, default=lambda self: self.env.company)
 
+    def _get_invoice_nit(self, invoice):
+        """
+        Obtiene el NIT desde la facturación electrónica.
+        Si no existe, usa el campo vat del partner.
+        """
+        if invoice.invoice_id:
+            # Obtener el NIT del JSON de la factura electrónica
+            last_invoice = invoice.invoice_id[-1]
+            if last_invoice.invoice_json:
+                try:
+                    invoice_json = json.loads(last_invoice.invoice_json)
+                    nit = invoice_json.get('cabecera', {}).get('numeroDocumento', '')
+                    if nit:
+                        return nit
+                except:
+                    pass
+        
+        # Fallback al campo vat del partner
+        return invoice.partner_id.vat or '0'
+    
+    def _get_invoice_razon_social(self, invoice):
+        """
+        Obtiene la razón social desde la facturación electrónica.
+        Si no existe, usa el nombre del partner sin el NIT concatenado.
+        """
+        if invoice.invoice_id:
+            # Obtener la razón social del JSON de la factura electrónica
+            last_invoice = invoice.invoice_id[-1]
+            if last_invoice.invoice_json:
+                try:
+                    invoice_json = json.loads(last_invoice.invoice_json)
+                    razon_social = invoice_json.get('cabecera', {}).get('nombreRazonSocial', '')
+                    if razon_social:
+                        return razon_social
+                except:
+                    pass
+        
+        # Fallback al nombre del partner, limpiando posible NIT concatenado
+        partner_name = invoice.partner_id.name or ''
+        # Si el nombre tiene formato "Nombre - NIT" o "Nombre (NIT)", extraer solo el nombre
+        if ' - ' in partner_name:
+            partner_name = partner_name.split(' - ')[0].strip()
+        elif ' (' in partner_name:
+            partner_name = partner_name.split(' (')[0].strip()
+        
+        return partner_name
+
     def generar_excel(self):
         self.ensure_one()
         
@@ -26,11 +74,13 @@ class SaleBookWizard(models.TransientModel):
             from odoo.exceptions import UserError
             raise UserError('xlsxwriter no está instalado')
         
+        # Incluir facturas tanto validadas (posted) como canceladas (cancel)
+        # Removemos el filtro de estado para obtener todas las facturas
         invoices = self.env['account.move'].search([
             ('move_type', 'in', ['out_invoice', 'out_refund']),
             ('invoice_date', '>=', self.fecha_inicio),
             ('invoice_date', '<=', self.fecha_fin),
-            ('state', '=', 'posted'),
+            ('state', 'in', ['posted', 'cancel']),  # Incluir facturas validadas y canceladas
             ('company_id', '=', self.company_id.id),
         ], order='invoice_date, name')
         
@@ -68,14 +118,18 @@ class SaleBookWizard(models.TransientModel):
             base_df = subtotal - desc - gift
             df = base_df * 0.13
             
+            # Obtener NIT y Razón Social desde facturación electrónica
+            nit = self._get_invoice_nit(inv)
+            razon_social = self._get_invoice_razon_social(inv)
+            
             sheet.write(row, 0, idx)
             sheet.write(row, 1, '2')
             sheet.write(row, 2, inv.invoice_date.strftime('%d/%m/%Y') if inv.invoice_date else '')
             sheet.write(row, 3, inv.name or '')
             sheet.write(row, 4, getattr(inv, 'lv_codigo_autorizacion', '0') or '0')
-            sheet.write(row, 5, inv.partner_id.vat or '0')
+            sheet.write(row, 5, nit)  # NIT desde facturación electrónica
             sheet.write(row, 6, getattr(inv.partner_id, 'l10n_bo_id_extension', '') or '')
-            sheet.write(row, 7, inv.partner_id.name or '')
+            sheet.write(row, 7, razon_social)  # Razón social limpia
             sheet.write(row, 8, total, num_fmt)
             sheet.write(row, 9, ice, num_fmt)
             sheet.write(row, 10, iehd, num_fmt)
