@@ -62,6 +62,30 @@ class AccountMove(models.Model):
             detail.append({**line, "unit_description": unit_measure.description})
         return detail
 
+    def _format_header_amounts(self, header):
+        """
+        Formatea todos los valores monetarios del header con 2 decimales.
+        Esto asegura que todos los montos se muestren consistentemente
+        con 2 posiciones decimales en los reportes.
+        """
+        # Lista de campos monetarios que deben formatearse
+        monetary_fields = [
+            'montoTotal',
+            'montoTotalSujetoIva',
+            'descuentoAdicional',
+            'montoTotalMoneda',
+            'montoGiftCard',
+            'montoTotalArrendamientoFinanciero',
+            'montoTotal2',
+            'importeBaseCredFiscalComputable',
+        ]
+        
+        for field in monetary_fields:
+            if field in header and isinstance(header[field], (int, float)):
+                header[field] = f"{float(header[field]):.2f}"
+        
+        return header
+
     def render_invoice(self):
         header = {}
         if not self.invoice_id:
@@ -91,4 +115,8 @@ class AccountMove(models.Model):
         header["montoLiteral"] = invoice.amount_literal
         header["codigoPuntoVenta"] = f'No. Punto de Venta {header["codigoPuntoVenta"]}'
         header["doc_sector"] = invoice.doc_sector
+        
+        # Formatear todos los valores monetarios del header con 2 decimales
+        header = self._format_header_amounts(header)
+        
         return {"header": header, "detail": detail}
