@@ -2,24 +2,48 @@
 from odoo import models, api
 from odoo.exceptions import UserError
 
+
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
+    def _format_2_decimals(self, value):
+        """Helper para formatear valores numéricos a 2 decimales como string."""
+        try:
+            return f"{float(value or 0.0):.2f}"
+        except Exception:
+            return "0.00"
+
     def _prepare_cucu_header_data(self):
         """ 
-        Intercepta el diccionario que usa el reporte A4 
-        y reemplaza el teléfono antiguo por el de la sucursal activa.
+        Intercepta el diccionario que usa el reporte A4
+        y aplica ajustes desde la extensión:
+        - Reemplaza el teléfono por el de la sucursal activa.
+        - Fuerza formato de 2 decimales en montos del header.
         """
         res = super(AccountMove, self)._prepare_cucu_header_data()
-        
-        # Obtenemos el teléfono del Branch vinculado al Punto de Venta (pos_id)
+
+        # Teléfono desde Branch vinculado al Punto de Venta
         if self.pos_id and self.pos_id.branch_id and self.pos_id.branch_id.phone:
             res['telefono'] = self.pos_id.branch_id.phone
         elif self.pos_id and self.pos_id.phone:
             res['telefono'] = self.pos_id.phone
-            
+
+        # Forzar 2 decimales para campos monetarios usados por los reportes
+        for key in [
+            'montoTotal',
+            'descuentoAdicional',
+            'montoTotalMoneda',
+            'montoGiftCard',
+            'montoTotalSujetoIva',
+            # Campos alternos que pueden aparecer según doc sector/config
+            'importeBaseCredFiscalComputable',
+            'montoTotal2',
+        ]:
+            if key in res:
+                res[key] = self._format_2_decimals(res.get(key))
+
         return res
-    
+
     def copy(self, default=None):
         """
         Sobrescribe el método copy para evitar duplicar campos 
@@ -27,21 +51,20 @@ class AccountMove(models.Model):
         """
         if default is None:
             default = {}
-        
-        # Excluir campos de facturación electrónica de la duplicación
+
         default.update({
-            'invoice_id': False,  # Relación One2many con cucu.invoice
-            'sin_code_state': 0,  # Código de estado SIAT
-            'sin_code_reception': '0000',  # Código de recepción SIAT
-            'sin_description_status': 'Not invoice',  # Estado de facturación
-            'invoice_code': False,  # Código de factura electrónica
-            'invoice_number': False,  # Número de factura electrónica
-            'is_sin': False,  # Bandera de facturación electrónica
-            'pos_session_id': False,  # Sesión de punto de venta
+            'invoice_id': False,
+            'sin_code_state': 0,
+            'sin_code_reception': '0000',
+            'sin_description_status': 'Not invoice',
+            'invoice_code': False,
+            'invoice_number': False,
+            'is_sin': False,
+            'pos_session_id': False,
         })
-        
+
         return super(AccountMove, self).copy(default=default)
-    
+
     def _check_electronic_invoice_already_issued(self):
         """
         Valida que una factura no tenga facturación electrónica ya emitida.
@@ -49,14 +72,11 @@ class AccountMove(models.Model):
         y se intenta validar nuevamente.
         """
         for move in self:
-            # Solo verificar si está marcada para emitir factura electrónica
             if not move.is_sin:
                 continue
-                
-            # Estados que indican que ya existe una factura electrónica válida
+
             valid_statuses = ['VALIDADA', 'VALIDA', 'OBSERVADA']
-            
-            # Verificar por estado de descripción SIAT
+
             if move.sin_description_status in valid_statuses:
                 raise UserError(
                     f"No se puede emitir la factura electrónica.\n\n"
@@ -67,11 +87,8 @@ class AccountMove(models.Model):
                     f"Si necesita anular esta factura, use la opción de anulación "
                     f"en lugar de volver a borrador."
                 )
-            
-            # Verificación adicional: si tiene código de factura o número
-            # (puede haber casos donde el estado no se actualizó correctamente)
+
             if move.invoice_code or move.invoice_number:
-                # Verificar que no sea el estado inicial por defecto
                 if move.sin_description_status != 'Not invoice':
                     raise UserError(
                         f"No se puede emitir la factura electrónica.\n\n"
@@ -81,14 +98,11 @@ class AccountMove(models.Model):
                         f"- Estado actual: {move.sin_description_status}\n\n"
                         f"Verifique el estado de la factura antes de continuar."
                     )
-    
+
     def _post(self, soft=True):
         """
         Sobrescribe _post para agregar validación de doble emisión
         antes de procesar la factura electrónica.
         """
-        # Validar que no se esté intentando emitir dos veces
         self._check_electronic_invoice_already_issued()
-        
-        # Continuar con el proceso normal
         return super(AccountMove, self)._post(soft=soft)
