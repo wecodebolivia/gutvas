@@ -8,7 +8,6 @@
             <!-- FIX: REEMPLAZO DE TELÉFONO (Ignora header['telefono'] y usa Branch Office) -->
             <xpath expr="//div[@class='flex flex-col w-full']//div[5]" position="replace">
                 <div class="text-sm">
-                    <!-- Buscamos el teléfono en el Branch vinculado al Punto de Venta de la factura -->
                     <t t-if="o.pos_id and o.pos_id.branch_id and o.pos_id.branch_id.phone">
                         <t t-esc="o.pos_id.branch_id.phone"/>
                     </t>
@@ -46,17 +45,27 @@
             </xpath>
         </template>
 
-        <!-- Formatear totales con 2 decimales -->
-        <template id="report_a4_format_totals" inherit_id="cucu_fact_report.cucu_report_a4">
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[1]//td[last()]//div" position="replace">
-                <div t-esc="'%.2f' % float(header.get('montoTotal', 0))"/>
-            </xpath>
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[3]//td[last()]//div" position="replace">
-                <div t-esc="'%.2f' % float(header.get('montoTotalMoneda', 0))"/>
-            </xpath>
-            <xpath expr="//div[@id='invoice_sale']//tfoot//tr[5]//td[last()]//div" position="replace">
-                <div t-esc="'%.2f' % float(header.get('montoTotalSujetoIva', 0))"/>
+        <!-- Header A4: logo centrado arriba, textos debajo (sin tocar módulo base) -->
+        <template id="report_a4_logo_top" inherit_id="cucu_fact_report.cucu_report_a4">
+            <xpath expr="//div[@class='w-6/12 flex justify-start']" position="replace">
+                <div class="w-6/12 flex flex-col items-center" style="padding-right: 2rem;">
+                    <t t-if="o.company_id.logo">
+                        <div class="mb-3 flex justify-center">
+                            <img t-att-src="image_data_uri(o.company_id.logo)" alt="" width="120" class="object-contain"/>
+                        </div>
+                    </t>
+                    <div class="flex flex-col w-full" style="text-align: center;">
+                        <div class="text-base font-bold" t-attf-style="color: #{o.company_id.color_primary};" t-esc="header['razonSocialEmisor']"/>
+                        <div class="text-base font-[500] uppercase" t-esc="header['branch_name']"/>
+                        <div class="text-sm" t-esc="header['codigoPuntoVenta']"/>
+                        <div class="text-sm" t-esc="header['direccion']"/>
+                        <div class="text-sm" t-esc="header['telefono']"/>
+                        <div class="text-sm" t-esc="header['municipio']"/>
+                    </div>
+                </div>
             </xpath>
         </template>
+
+        <!-- Nota: el formateo 2 decimales se hace en Python (_prepare_cucu_header_data) -->
     </data>
 </odoo>
