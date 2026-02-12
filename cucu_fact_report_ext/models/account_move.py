@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, api
+from odoo import models
 from odoo.exceptions import UserError
 
 
@@ -13,14 +13,35 @@ class AccountMove(models.Model):
         except Exception:
             return "0.00"
 
+    def _normalize_amount_keys_2d(self, data):
+        """Formatea a 2 decimales un conjunto amplio de keys monetarias del header."""
+        # keys más comunes en SIAT / CUCU
+        keys = {
+            'montoTotal',
+            'descuentoAdicional',
+            'montoTotalMoneda',
+            'montoGiftCard',
+            'montoTotalSujetoIva',
+            'importeBaseCredFiscalComputable',
+            'montoTotal2',
+            # posibles alternos
+            'montoTotalArrendamientoFinanciero',
+            'montoTotalMoneda2',
+            'montoTotalSujetoIva2',
+        }
+        # además, por seguridad, cualquier key que parezca monto/importe/descuento
+        for k, v in list((data or {}).items()):
+            if k in keys or any(token in k.lower() for token in ['monto', 'importe', 'descuento', 'total']):
+                # solo si es número o string numérico
+                try:
+                    float(v)
+                except Exception:
+                    continue
+                data[k] = self._format_2_decimals(v)
+        return data
+
     def _prepare_cucu_header_data(self):
-        """ 
-        Intercepta el diccionario que usa el reporte A4
-        y aplica ajustes desde la extensión:
-        - Reemplaza el teléfono por el de la sucursal activa.
-        - Fuerza formato de 2 decimales en montos del header.
-        """
-        res = super(AccountMove, self)._prepare_cucu_header_data()
+        res = super()._prepare_cucu_header_data()
 
         # Teléfono desde Branch vinculado al Punto de Venta
         if self.pos_id and self.pos_id.branch_id and self.pos_id.branch_id.phone:
@@ -28,27 +49,20 @@ class AccountMove(models.Model):
         elif self.pos_id and self.pos_id.phone:
             res['telefono'] = self.pos_id.phone
 
-        # Forzar 2 decimales para campos monetarios usados por los reportes
-        for key in [
-            'montoTotal',
-            'descuentoAdicional',
-            'montoTotalMoneda',
-            'montoGiftCard',
-            'montoTotalSujetoIva',
-            # Campos alternos que pueden aparecer según doc sector/config
-            'importeBaseCredFiscalComputable',
-            'montoTotal2',
-        ]:
-            if key in res:
-                res[key] = self._format_2_decimals(res.get(key))
+        # Forzar 2 decimales en montos del header
+        res = self._normalize_amount_keys_2d(res)
+        return res
 
+    def render_invoice(self):
+        """Asegura 2 decimales también cuando el reporte usa render_invoice() (ticket y/o A4 según CUCU)."""
+        res = super().render_invoice()
+        if not res:
+            return res
+        header = res.get('header') or {}
+        res['header'] = self._normalize_amount_keys_2d(header)
         return res
 
     def copy(self, default=None):
-        """
-        Sobrescribe el método copy para evitar duplicar campos 
-        de facturación electrónica al duplicar facturas.
-        """
         if default is None:
             default = {}
 
@@ -63,14 +77,9 @@ class AccountMove(models.Model):
             'pos_session_id': False,
         })
 
-        return super(AccountMove, self).copy(default=default)
+        return super().copy(default=default)
 
     def _check_electronic_invoice_already_issued(self):
-        """
-        Valida que una factura no tenga facturación electrónica ya emitida.
-        Previene la doble emisión de facturas cuando se vuelve a borrador
-        y se intenta validar nuevamente.
-        """
         for move in self:
             if not move.is_sin:
                 continue
@@ -100,9 +109,5 @@ class AccountMove(models.Model):
                     )
 
     def _post(self, soft=True):
-        """
-        Sobrescribe _post para agregar validación de doble emisión
-        antes de procesar la factura electrónica.
-        """
         self._check_electronic_invoice_already_issued()
-        return super(AccountMove, self)._post(soft=soft)
+        return super()._post(soft=soft)
