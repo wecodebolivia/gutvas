@@ -4,9 +4,9 @@
     <data>
         <!-- Heredamos el reporte A4 de CUCU -->
         <template id="report_a4_product_name_only" inherit_id="cucu_fact_report.cucu_report_a4">
-            
+
             <!-- FIX: REEMPLAZO DE TELÉFONO (Ignora header['telefono'] y usa Branch Office) -->
-            <xpath expr="//div[@class='flex flex-col w-full']//div[5]" position="replace">
+            <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' flex ') and contains(concat(' ', normalize-space(@class), ' '), ' flex-col ') and contains(concat(' ', normalize-space(@class), ' '), ' w-full ')]//div[5]" position="replace">
                 <div class="text-sm">
                     <t t-if="o.pos_id and o.pos_id.branch_id and o.pos_id.branch_id.phone">
                         <t t-esc="o.pos_id.branch_id.phone"/>
@@ -45,9 +45,11 @@
             </xpath>
         </template>
 
-        <!-- Header A4: logo centrado arriba, textos debajo (sin tocar módulo base) -->
+        <!-- Header A4: logo centrado arriba, textos debajo (sin tocar módulo base)
+             Nota: en QWeb, @class puede cambiar por orden/espacios; usamos contains() en lugar de igualdad exacta.
+        -->
         <template id="report_a4_logo_top" inherit_id="cucu_fact_report.cucu_report_a4">
-            <xpath expr="//div[@class='w-6/12 flex justify-start']" position="replace">
+            <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' w-6/12 ') and contains(concat(' ', normalize-space(@class), ' '), ' flex ') and contains(concat(' ', normalize-space(@class), ' '), ' justify-start ')]" position="replace">
                 <div class="w-6/12 flex flex-col items-center" style="padding-right: 2rem;">
                     <t t-if="o.company_id.logo">
                         <div class="mb-3 flex justify-center">
