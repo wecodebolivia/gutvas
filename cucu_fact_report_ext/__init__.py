@@ -1,2 +1,4 @@
 # -*- coding: utf-8 -*-
-# Módulo de extensión - no requiere código Python
+# Módulo de extensión
+
+from . import models
