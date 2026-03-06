@@ -19,11 +19,11 @@
             <!-- Campos específicos de alquileres -->
             <xpath expr="//field[@name='invoice_date']" position="after">
                 <field name="rent_billed_period" 
-                       attrs="{'invisible': [('is_rent_invoice', '=', False)], 
-                               'required': [('is_rent_invoice', '=', True)]}"
+                       invisible="not is_rent_invoice"
+                       required="is_rent_invoice"
                        placeholder="Ej: Mayo 2026"/>
                 <field name="rent_type_operation" 
-                       attrs="{'invisible': [('is_rent_invoice', '=', False)]}"/>
+                       invisible="not is_rent_invoice"/>
             </xpath>
             
             <!-- Botón: Enviar a CUCU -->
@@ -32,10 +32,7 @@
                         string="📤 Enviar a CUCU (Alquileres)"
                         type="object"
                         class="oe_highlight"
-                        attrs="{'invisible': ['|', '|', 
-                                              ('is_rent_invoice', '=', False), 
-                                              ('state', '!=', 'posted'), 
-                                              ('cucu_rent_cuf', '!=', False)]}"
+                        invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
                         icon="fa-paper-plane"
                         help="Enviar factura a CUCU API para obtener CUF"/>
             </xpath>
@@ -44,7 +41,7 @@
             <xpath expr="//notebook" position="inside">
                 <page string="🏠 Datos Alquileres" 
                       name="rent_data" 
-                      attrs="{'invisible': [('is_rent_invoice', '=', False)]}">
+                      invisible="not is_rent_invoice">
                     
                     <group>
                         <group string="Información del Inmueble">
@@ -70,7 +67,7 @@
                            readonly="1" 
                            widget="ace" 
                            options="{'mode': 'json'}"
-                           attrs="{'invisible': [('cucu_rent_response', '=', False)]}"/>
+                           invisible="not cucu_rent_response"/>
                     
                 </page>
             </xpath>
