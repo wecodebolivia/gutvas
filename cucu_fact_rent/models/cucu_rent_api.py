@@ -12,8 +12,19 @@ class CucuRentAPI(models.AbstractModel):
     _name = 'cucu.rent.api'
     _description = 'Servicio API CUCU para Sector Alquileres'
     
+    def _create_header(self, token=''):
+        """Crea headers EXACTAMENTE como cucu_fact_core"""
+        if token:
+            return {
+                'content-type': 'application/json',
+                'cucukey': f'Token {token}'
+            }
+        return {
+            'content-type': 'application/json'
+        }
+    
     def _get_auth_token(self, company):
-        """Obtiene o renueva el token JWT para sector alquileres"""
+        """Obtiene o renueva el token JWT - METODO IDENTICO A cucu_fact_core"""
         if company.cucu_rent_token and company.cucu_rent_token_expiry:
             if datetime.now() < company.cucu_rent_token_expiry:
                 _logger.info('Token JWT existente valido hasta %s', company.cucu_rent_token_expiry)
@@ -25,94 +36,57 @@ class CucuRentAPI(models.AbstractModel):
                 'Configuracion > Companias > Facturacion Alquileres'
             )
         
-        # URL completa sin modificar (igual que en JS funcional)
-        auth_url = company.cucu_rent_auth_endpoint or 'https://sandbox.cucu.ai/auth/login'
-        auth_url = auth_url.strip()
+        # URL base (sin /api/v1, se agrega abajo)
+        host = company.cucu_rent_auth_endpoint or 'https://sandbox.cucu.ai'
+        host = host.strip().rstrip('/')
         
-        # Payload exacto como en JS
-        payload = {
+        # Si ya incluye /auth/login, usarlo directo. Si no, construir URL
+        if '/auth/login' in host:
+            url = host
+        else:
+            url = f'{host}/api/v1/auth/login'
+        
+        params_json = {
             'username': company.cucu_rent_username.strip(),
             'password': company.cucu_rent_password.strip()
         }
         
         _logger.info('=== Autenticacion CUCU Alquileres ===')
-        _logger.info('URL: %s', auth_url)
-        _logger.info('Usuario: %s', payload['username'])
-        _logger.info('Payload: %s', json.dumps(payload))
+        _logger.info('URL: %s', url)
+        _logger.info('Usuario: %s', params_json['username'])
+        _logger.info('Params: %s', params_json)
         
         try:
-            # Headers identicos al JS funcional
-            headers = {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-            
-            _logger.info('Headers: %s', json.dumps(headers))
-            
-            # Request POST con timeout
+            # REQUEST EXACTO como service_single.py que funciona
+            headers = self._create_header()
             response = requests.post(
-                auth_url,
-                data=json.dumps(payload),  # Usar data en vez de json para control exacto
+                url=url,
+                json=params_json,  # IMPORTANTE: json= NO data=
                 headers=headers,
                 timeout=30
             )
             
             _logger.info('Response Status: %d', response.status_code)
-            _logger.info('Response Headers: %s', dict(response.headers))
             _logger.info('Response Body: %s', response.text[:500])
             
-            # Parsear respuesta
-            try:
-                data = response.json()
-            except:
-                data = {'error': 'Respuesta no es JSON', 'raw': response.text}
+            result = response.json()
             
-            # Manejar error 401
-            if response.status_code == 401:
-                raise UserError(
-                    f'Error de autenticacion CUCU:\n\n'
-                    f'HTTP 401: {json.dumps(data, indent=2)}\n\n'
-                    f'URL: {auth_url}\n'
-                    f'Usuario: {payload["username"]}\n\n'
-                    f'Credenciales sandbox:\n'
-                    f'Usuario: demo.largotek.alquiler\n'
-                    f'Password: bd3f2919c865452aaf48f3c596507e2c\n\n'
-                    f'NOTA: Si el error dice "Not unauthorized", puede ser un problema\n'
-                    f'de configuracion del servidor CUCU o firewall de Odoo.sh'
-                )
-            
-            # Verificar otros errores HTTP
-            if not response.ok:
-                raise UserError(
-                    f'Error HTTP {response.status_code}:\n\n'
-                    f'{json.dumps(data, indent=2)}'
-                )
-            
-            # Extraer token
-            token = None
-            if isinstance(data, dict):
-                if data.get('success') and data.get('data'):
-                    token = data['data'].get('token')
-                elif data.get('token'):
-                    token = data.get('token')
-                elif data.get('data') and isinstance(data['data'], dict):
-                    token = data['data'].get('token')
-            
-            if not token:
-                raise UserError(
-                    f'No se recibio token en la respuesta.\n\n'
-                    f'Respuesta completa:\n{json.dumps(data, indent=2)}'
-                )
-            
-            # Guardar token con expiracion
-            expiry_date = datetime.now() + timedelta(days=60)
-            company.sudo().write({
-                'cucu_rent_token': token,
-                'cucu_rent_token_expiry': expiry_date
-            })
-            
-            _logger.info('Token JWT generado exitosamente - Expira: %s', expiry_date)
-            return token
+            # Validar respuesta exitosa
+            if result.get('success') or result.get('message') == 'TOKEN CREADED':
+                token = result['data']['token']
+                
+                # Guardar token
+                expiry_date = datetime.now() + timedelta(days=60)
+                company.sudo().write({
+                    'cucu_rent_token': token,
+                    'cucu_rent_token_expiry': expiry_date
+                })
+                
+                _logger.info('Token JWT generado - Expira: %s', expiry_date)
+                return token
+            else:
+                error_msg = result.get('message', 'Error desconocido')
+                raise UserError(f'Error de autenticacion:\n\n{error_msg}\n\nRespuesta: {json.dumps(result, indent=2)}')
             
         except UserError:
             raise
@@ -121,12 +95,15 @@ class CucuRentAPI(models.AbstractModel):
                 'Timeout al conectar con CUCU API.\n\n'
                 'Posibles causas:\n'
                 '- Firewall de Odoo.sh bloqueando conexiones\n'
-                '- API CUCU no disponible\n'
-                '- Problemas de red'
+                '- API CUCU no disponible'
             )
-        except requests.exceptions.RequestException as e:
-            _logger.error('Error de conexion: %s', str(e))
-            raise UserError(f'Error de conexion con CUCU API:\n\n{str(e)}')
+        except requests.exceptions.ConnectionError:
+            raise UserError('API CUCU NOT CONNECT')
+        except requests.exceptions.HTTPError as e:
+            raise UserError(f'HTTP Error: {str(e)}')
+        except Exception as e:
+            _logger.error('Error inesperado: %s', str(e))
+            raise UserError(f'Error de conexion:\n\n{str(e)}')
     
     def send_rent_invoice(self, invoice):
         """Envia factura de alquileres a CUCU API"""
@@ -139,63 +116,52 @@ class CucuRentAPI(models.AbstractModel):
             )
         
         token = self._get_auth_token(company)
-        
-        # Headers identicos al JS funcional
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'cucukey': f'Token {token}'
-        }
+        headers = self._create_header(token)
         
         payload = invoice._prepare_cucu_rent_invoice_data()
+        
+        # URL del endpoint de emision
         endpoint = company.cucu_rent_endpoint or 'https://sandbox.cucu.ai/api/v1/invoice/electronic/rent'
-        endpoint = endpoint.strip()
+        endpoint = endpoint.strip().rstrip('/')
         
         _logger.info('=== Enviando factura %s a CUCU ===', invoice.name)
         _logger.info('Endpoint: %s', endpoint)
         _logger.info('Periodo: %s', invoice.rent_billed_period)
-        _logger.info('Headers: %s', {k: v[:50] + '...' if k == 'cucukey' and len(v) > 50 else v for k, v in headers.items()})
         
         try:
             response = requests.post(
-                endpoint,
-                data=json.dumps(payload),
+                url=endpoint,
+                json=payload,  # json= NO data=
                 headers=headers,
                 timeout=60
             )
             
             _logger.info('Response Status: %d', response.status_code)
-            _logger.info('Response Body: %s', response.text[:500])
             
             # Reintentar si token expiro
             if response.status_code == 401:
                 _logger.warning('Token expirado, renovando...')
                 company.sudo().write({'cucu_rent_token': False, 'cucu_rent_token_expiry': False})
                 token = self._get_auth_token(company)
-                headers['cucukey'] = f'Token {token}'
+                headers = self._create_header(token)
                 
                 response = requests.post(
-                    endpoint,
-                    data=json.dumps(payload),
+                    url=endpoint,
+                    json=payload,
                     headers=headers,
                     timeout=60
                 )
                 _logger.info('Retry Response Status: %d', response.status_code)
             
-            # Verificar respuesta
-            if not response.ok:
-                try:
-                    error_data = response.json()
-                    error_msg = json.dumps(error_data, indent=2)
-                except:
-                    error_msg = response.text
-                raise UserError(f'Error HTTP {response.status_code}:\n\n{error_msg}')
-            
             result = response.json()
             
+            # Validar respuesta
             if result.get('success'):
                 _logger.info('Factura enviada exitosamente')
-                return result.get('data', {})
+                data = result.get('data', {})
+                cuf = data.get('cuf', 'N/A')
+                _logger.info('CUF generado: %s', cuf)
+                return data
             else:
                 error_msg = result.get('message', 'Error desconocido')
                 errors = result.get('errors', '')
@@ -206,6 +172,7 @@ class CucuRentAPI(models.AbstractModel):
         except UserError:
             raise
         except requests.exceptions.RequestException as e:
+            _logger.error('Error de solicitud: %s', str(e))
             raise UserError(f'Error de conexion:\n\n{str(e)}')
     
     def anulate_rent_invoice(self, invoice, reason_code):
@@ -216,41 +183,31 @@ class CucuRentAPI(models.AbstractModel):
         if not invoice.cucu_rent_cuf:
             raise UserError('La factura no tiene CUF asignado')
         
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'cucukey': f'Token {token}'
-        }
-        
+        headers = self._create_header(token)
         payload = {'cuf': invoice.cucu_rent_cuf, 'reasonCode': reason_code}
+        
         endpoint = company.cucu_rent_anulation_endpoint or 'https://sandbox.cucu.ai/api/v1/invoice/electronic/rent/anulation'
-        endpoint = endpoint.strip()
+        endpoint = endpoint.strip().rstrip('/')
         
         _logger.info('=== Anulando factura CUF: %s ===', invoice.cucu_rent_cuf)
         
         try:
             response = requests.post(
-                endpoint,
-                data=json.dumps(payload),
+                url=endpoint,
+                json=payload,
                 headers=headers,
                 timeout=60
             )
-            
-            if not response.ok:
-                try:
-                    error_data = response.json()
-                    error_msg = json.dumps(error_data, indent=2)
-                except:
-                    error_msg = response.text
-                raise UserError(f'Error HTTP {response.status_code}:\n\n{error_msg}')
             
             result = response.json()
             
             if result.get('success'):
                 invoice.write({'cucu_rent_state': 'cancelled'})
+                _logger.info('Factura anulada exitosamente')
                 return result.get('data', {})
             else:
-                raise UserError(f'Error al anular:\n\n{result.get("message")}')
+                error_msg = result.get('message', 'Error desconocido')
+                raise UserError(f'Error al anular:\n\n{error_msg}')
                 
         except UserError:
             raise
