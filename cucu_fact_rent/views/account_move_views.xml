@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ========== FORMULARIO DE FACTURA ========== -->
+    <record id="view_move_form_rent_invoice" model="ir.ui.view">
+        <field name="name">account.move.form.rent.invoice</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Botón toggle en el header -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_rent_invoice" 
+                       widget="boolean_toggle"
+                       options="{'autosave': False}"/>
+                <label for="is_rent_invoice" string="Factura Alquileres"/>
+            </xpath>
+            
+            <!-- Campos específicos de alquileres -->
+            <xpath expr="//field[@name='invoice_date']" position="after">
+                <field name="rent_billed_period" 
+                       attrs="{'invisible': [('is_rent_invoice', '=', False)], 
+                               'required': [('is_rent_invoice', '=', True)]}"
+                       placeholder="Ej: Mayo 2026"/>
+                <field name="rent_type_operation" 
+                       attrs="{'invisible': [('is_rent_invoice', '=', False)]}"/>
+            </xpath>
+            
+            <!-- Botón: Enviar a CUCU -->
+            <xpath expr="//button[@name='action_post']" position="after">
+                <button name="action_send_rent_invoice_cucu"
+                        string="📤 Enviar a CUCU (Alquileres)"
+                        type="object"
+                        class="oe_highlight"
+                        attrs="{'invisible': ['|', '|', 
+                                              ('is_rent_invoice', '=', False), 
+                                              ('state', '!=', 'posted'), 
+                                              ('cucu_rent_cuf', '!=', False)]}"
+                        icon="fa-paper-plane"
+                        help="Enviar factura a CUCU API para obtener CUF"/>
+            </xpath>
+            
+            <!-- Página adicional: Datos Alquileres -->
+            <xpath expr="//notebook" position="inside">
+                <page string="🏠 Datos Alquileres" 
+                      name="rent_data" 
+                      attrs="{'invisible': [('is_rent_invoice', '=', False)]}">
+                    
+                    <group>
+                        <group string="Información del Inmueble">
+                            <field name="rent_property_address" 
+                                   placeholder="Dirección completa del inmueble en alquiler"/>
+                        </group>
+                        
+                        <group string="Estado CUCU">
+                            <field name="cucu_rent_state" 
+                                   widget="badge" 
+                                   decoration-success="cucu_rent_state == 'validated'"
+                                   decoration-danger="cucu_rent_state == 'rejected'"
+                                   decoration-warning="cucu_rent_state == 'sent'"
+                                   decoration-muted="cucu_rent_state == 'draft'"/>
+                            <field name="cucu_rent_cuf" 
+                                   readonly="1"
+                                   widget="CopyClipboardChar"/>
+                        </group>
+                    </group>
+                    
+                    <separator string="Respuesta CUCU API"/>
+                    <field name="cucu_rent_response" 
+                           readonly="1" 
+                           widget="ace" 
+                           options="{'mode': 'json'}"
+                           attrs="{'invisible': [('cucu_rent_response', '=', False)]}"/>
+                    
+                </page>
+            </xpath>
+            
+        </field>
+    </record>
+    
+    <!-- ========== VISTA DE LISTA ========== -->
+    <record id="view_invoice_tree_rent" model="ir.ui.view">
+        <field name="name">account.move.tree.rent</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_rent_invoice" 
+                       optional="show"
+                       widget="boolean_toggle"/>
+                <field name="cucu_rent_state" 
+                       optional="hide"
+                       widget="badge"
+                       decoration-success="cucu_rent_state == 'validated'"
+                       decoration-danger="cucu_rent_state == 'rejected'"/>
+                <field name="cucu_rent_cuf" 
+                       optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- ========== FILTROS DE BÚSQUEDA ========== -->
+    <record id="view_account_invoice_filter_rent" model="ir.ui.view">
+        <field name="name">account.move.filter.rent</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='draft']" position="after">
+                <separator/>
+                <filter string="🏠 Facturas Alquileres" 
+                        name="rent_invoices" 
+                        domain="[('is_rent_invoice', '=', True)]"/>
+                <filter string="✅ Con CUF (Alquileres)" 
+                        name="with_rent_cuf" 
+                        domain="[('cucu_rent_cuf', '!=', False)]"/>
+                <filter string="❌ Rechazadas (Alquileres)" 
+                        name="rent_rejected" 
+                        domain="[('cucu_rent_state', '=', 'rejected')]"/>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
