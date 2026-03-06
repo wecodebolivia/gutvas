@@ -11,7 +11,7 @@
         Características:
         =================
         * Integración con endpoints específicos CUCU para alquileres
-        * Credenciales y tokens independientes por sector
+        * Credenciales y tokens INDEPENDIENTES (no usa cucu_fact_core)
         * Campos obligatorios: período facturado (billedPeriod)
         * Anulación y reversión de facturas de alquileres
         * Gestión automática de tokens JWT con renovación
@@ -20,9 +20,15 @@
         
         Endpoints:
         ==========
+        * POST /auth/login (autenticación independiente)
         * POST /api/v1/invoice/electronic/rent
         * POST /api/v1/invoice/electronic/rent/anulation
         * POST /api/v1/invoice/electronic/rent/revert
+        
+        IMPORTANTE:
+        ===========
+        Este módulo es INDEPENDIENTE de cucu_fact_core.
+        Usa su propio sistema de autenticación y credenciales.
         
         Autor: LargoTek / WeCodeBolivia
         Versión: 1.0.0
@@ -32,7 +38,6 @@
     'depends': [
         'account',
         'l10n_bo',
-        'cucu_fact_core',
     ],
     'data': [
         'security/ir.model.access.csv',
