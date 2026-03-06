@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de configuración de compañía -->
+    <record id="view_company_form_rent_config" model="ir.ui.view">
+        <field name="name">res.company.form.rent.config</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="🏠 Facturación Alquileres" name="rent_invoicing">
+                    
+                    <!-- Sección: Credenciales -->
+                    <group string="Credenciales CUCU - Sector Alquileres">
+                        <group>
+                            <field name="cucu_rent_username" 
+                                   placeholder="demo.largotek.alquiler"
+                                   required="1"/>
+                            <field name="cucu_rent_password" 
+                                   password="True" 
+                                   placeholder="Contraseña API"
+                                   required="1"/>
+                        </group>
+                        <group>
+                            <field name="cucu_rent_token" 
+                                   readonly="1" 
+                                   groups="base.group_system"
+                                   widget="CopyClipboardChar"/>
+                            <field name="cucu_rent_token_expiry" 
+                                   readonly="1" 
+                                   groups="base.group_system"/>
+                            <button name="action_test_rent_connection" 
+                                    string="🔌 Probar Conexión" 
+                                    type="object" 
+                                    class="btn-primary"
+                                    icon="fa-plug"
+                                    help="Verificar credenciales y obtener token JWT"/>
+                        </group>
+                    </group>
+                    
+                    <separator/>
+                    
+                    <!-- Sección: CAFC -->
+                    <group string="Códigos de Autorización (CAFC)">
+                        <field name="cucu_rent_cafc_online" 
+                               placeholder="10228BFCF149E (sandbox)"
+                               required="1"/>
+                    </group>
+                    
+                    <separator/>
+                    
+                    <!-- Sección: Endpoints API -->
+                    <group string="Endpoints CUCU API - Sector Alquileres">
+                        <group>
+                            <field name="cucu_rent_auth_endpoint" required="1"/>
+                            <field name="cucu_rent_endpoint" required="1"/>
+                        </group>
+                        <group>
+                            <field name="cucu_rent_anulation_endpoint"/>
+                            <field name="cucu_rent_revert_endpoint"/>
+                        </group>
+                    </group>
+                    
+                    <separator/>
+                    
+                    <!-- Sección: Ayuda -->
+                    <group>
+                        <div class="alert alert-info" role="alert" style="margin: 10px;">
+                            <h4>📘 Guía de Configuración</h4>
+                            <p>Este módulo permite emitir facturas electrónicas para el <strong>sector alquileres</strong> según normativa SIN Bolivia.</p>
+                            <br/>
+                            <h5>Pasos para configurar:</h5>
+                            <ol>
+                                <li>Ingrese el <strong>usuario y contraseña</strong> proporcionados por CUCU</li>
+                                <li>Haga clic en <strong>"🔌 Probar Conexión"</strong> para validar las credenciales</li>
+                                <li>Configure el <strong>CAFC</strong> asignado por el SIN para su punto de venta</li>
+                                <li>El token JWT se renueva <strong>automáticamente</strong> cada 60 días</li>
+                            </ol>
+                            <br/>
+                            <h5>🧪 Ambiente Sandbox (Pruebas):</h5>
+                            <ul>
+                                <li><strong>Usuario:</strong> demo.largotek.alquiler</li>
+                                <li><strong>CAFC:</strong> 10228BFCF149E (rango 1-1000)</li>
+                                <li><strong>Base URL:</strong> https://sandbox.cucu.ai</li>
+                            </ul>
+                            <br/>
+                            <h5>🏗️ Ambiente Producción:</h5>
+                            <ul>
+                                <li>Cambiar endpoints a: <code>https://api.cucu.ai</code></li>
+                                <li>Usar credenciales y CAFC de producción del SIN</li>
+                            </ul>
+                        </div>
+                    </group>
+                    
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>
