@@ -77,14 +77,21 @@ class CucuRentAPI(models.AbstractModel):
                 'Configuracion > Companias > Facturacion Alquileres'
             )
         
-        # URL base
+        # URL base - limpiar y normalizar
         host = company.cucu_rent_auth_endpoint or 'https://sandbox.cucu.ai'
         host = host.strip().rstrip('/')
         
-        # Construir URL completa
-        if '/auth/login' in host:
+        # Construir URL completa - SIEMPRE agregar /api/v1/auth/login si no está completa
+        if host.endswith('/api/v1/auth/login'):
+            # Ya tiene la ruta completa
             url = host
+        elif '/api/v1/' in host:
+            # Tiene /api/v1/ pero falta auth/login
+            url = f'{host}/auth/login' if not host.endswith('/') else f'{host}auth/login'
         else:
+            # Solo tiene el host base o tiene /auth/login incorrecto
+            # Remover cualquier /auth/login existente y agregar la ruta completa correcta
+            host = host.replace('/auth/login', '')
             url = f'{host}/api/v1/auth/login'
         
         params_json = {
@@ -94,6 +101,7 @@ class CucuRentAPI(models.AbstractModel):
         
         _logger.info('[AUTH] Configuracion:')
         _logger.info('  - Host configurado: %s', company.cucu_rent_auth_endpoint or '(default)')
+        _logger.info('  - Host procesado: %s', host)
         _logger.info('  - URL final: %s', url)
         _logger.info('  - Usuario: %s', params_json['username'])
         _logger.info('  - Password: %s', '*' * len(params_json['password']))
