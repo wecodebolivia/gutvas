@@ -15,7 +15,6 @@ class AccountMove(models.Model):
 
     def _normalize_amount_keys_2d(self, data):
         """Formatea a 2 decimales un conjunto amplio de keys monetarias del header."""
-        # keys más comunes en SIAT / CUCU
         keys = {
             'montoTotal',
             'descuentoAdicional',
@@ -24,15 +23,12 @@ class AccountMove(models.Model):
             'montoTotalSujetoIva',
             'importeBaseCredFiscalComputable',
             'montoTotal2',
-            # posibles alternos
             'montoTotalArrendamientoFinanciero',
             'montoTotalMoneda2',
             'montoTotalSujetoIva2',
         }
-        # además, por seguridad, cualquier key que parezca monto/importe/descuento
         for k, v in list((data or {}).items()):
             if k in keys or any(token in k.lower() for token in ['monto', 'importe', 'descuento', 'total']):
-                # solo si es número o string numérico
                 try:
                     float(v)
                 except Exception:
@@ -43,11 +39,12 @@ class AccountMove(models.Model):
     def _prepare_cucu_header_data(self):
         res = super()._prepare_cucu_header_data()
 
-        # Teléfono desde Branch vinculado al Punto de Venta
+        # Teléfono SIEMPRE desde POS → Branch Office (nunca desde XML de la SIN)
         if self.pos_id and self.pos_id.branch_id and self.pos_id.branch_id.phone:
             res['telefono'] = self.pos_id.branch_id.phone
         elif self.pos_id and self.pos_id.phone:
             res['telefono'] = self.pos_id.phone
+        # Si ninguno tiene teléfono, se deja el valor que venga del super() sin modificar
 
         # Forzar 2 decimales en montos del header
         res = self._normalize_amount_keys_2d(res)

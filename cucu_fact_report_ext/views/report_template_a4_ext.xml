@@ -5,14 +5,11 @@
         <!-- Heredamos el reporte A4 de CUCU -->
         <template id="report_a4_product_name_only" inherit_id="cucu_fact_report.cucu_report_a4">
 
-            <!-- FIX: REEMPLAZO DE TELÉFONO (Ignora header['telefono'] y usa Branch Office) -->
+            <!-- FIX: REEMPLAZO DE TELÉFONO — siempre desde POS → Branch Office -->
             <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' flex ') and contains(concat(' ', normalize-space(@class), ' '), ' flex-col ') and contains(concat(' ', normalize-space(@class), ' '), ' w-full ')]//div[5]" position="replace">
                 <div class="text-sm">
                     <t t-if="o.pos_id and o.pos_id.branch_id and o.pos_id.branch_id.phone">
                         <t t-esc="o.pos_id.branch_id.phone"/>
-                    </t>
-                    <t t-elif="header.get('telefono')">
-                        <t t-esc="header['telefono']"/>
                     </t>
                 </div>
             </xpath>
@@ -61,7 +58,11 @@
                         <div class="text-base font-[500] uppercase" t-esc="header['branch_name']"/>
                         <div class="text-sm" t-esc="header['codigoPuntoVenta']"/>
                         <div class="text-sm" t-esc="header['direccion']"/>
-                        <div class="text-sm" t-esc="header['telefono']"/>
+                        <div class="text-sm">
+                            <t t-if="o.pos_id and o.pos_id.branch_id and o.pos_id.branch_id.phone">
+                                <t t-esc="o.pos_id.branch_id.phone"/>
+                            </t>
+                        </div>
                         <div class="text-sm" t-esc="header['municipio']"/>
                     </div>
                 </div>
