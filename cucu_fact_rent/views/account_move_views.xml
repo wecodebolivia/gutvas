@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ========== FORMULARIO: toggle + botón al final de header_left_group ========== -->
-    <!-- priority=20 garantiza que se ejecuta después de cucu_fact_core (priority=16)    -->
-    <!-- que es quien agrega is_sin al grupo. Así el toggle queda justo debajo de is_sin -->
+    <!-- ========== FORMULARIO: toggle + botón dentro de group_cucu_invoice ========== -->
+    <!-- group_cucu_invoice ya tiene invisible="is_sin == False" definido en cucu_fact_core -->
+    <!-- Al insertar aquí, heredamos esa visibilidad sin referenciar is_sin directamente  -->
     <record id="view_move_form_rent_is_sin" model="ir.ui.view">
         <field name="name">account.move.form.rent.is_sin</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
-        <field name="priority">20</field>
+        <field name="inherit_id" ref="cucu_fact_core.view_move_form_inherit"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//group[@id='header_left_group']" position="inside">
-                <field name="is_rent_invoice"
-                       widget="boolean_toggle"
-                       invisible="not is_sin"
-                       options="{'autosave': False}"/>
-                <label for="is_rent_invoice"
-                       string="Factura Alquileres"
-                       invisible="not is_sin"/>
-                <button name="action_send_rent_invoice_cucu"
-                        string="&#128228; Enviar a CUCU (Alquileres)"
-                        type="object"
-                        class="btn btn-primary mt-1"
-                        invisible="not is_sin or not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
-                        icon="fa-paper-plane"
-                        help="Enviar factura a CUCU API para obtener CUF"/>
+            <!-- Insertamos al inicio del group_cucu_invoice, antes de "Datos Cliente" -->
+            <xpath expr="//group[@id='group_cucu_invoice']" position="before">
+                <group id="group_rent_invoice" invisible="not is_rent_invoice and True">
+                    <field name="is_rent_invoice"
+                           widget="boolean_toggle"
+                           options="{'autosave': False}"/>
+                    <label for="is_rent_invoice" string="Factura Alquileres"/>
+                    <button name="action_send_rent_invoice_cucu"
+                            string="&#128228; Enviar a CUCU (Alquileres)"
+                            type="object"
+                            class="btn btn-primary"
+                            invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
+                            icon="fa-paper-plane"
+                            help="Enviar factura a CUCU API para obtener CUF"/>
+                </group>
             </xpath>
 
         </field>
