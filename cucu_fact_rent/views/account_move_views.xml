@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    
-    <!-- ========== FORMULARIO DE FACTURA ========== -->
-    <record id="view_move_form_rent_invoice" model="ir.ui.view">
-        <field name="name">account.move.form.rent.invoice</field>
+
+    <!-- ========== FORMULARIO: toggle + botón debajo de is_sin ========== -->
+    <!-- Hereda de cucu_fact_core porque is_sin vive en esa vista heredada -->
+    <record id="view_move_form_rent_is_sin" model="ir.ui.view">
+        <field name="name">account.move.form.rent.is_sin</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="inherit_id" ref="cucu_fact_core.view_move_form_inherit"/>
         <field name="arch" type="xml">
 
-            <!-- Toggle Factura Alquileres + Botón CUCU debajo de is_sin -->
-            <xpath expr="//field[@name='is_sin']" position="after">
+            <!-- Toggle + Botón CUCU justo después del campo is_sin -->
+            <xpath expr="//group[@id='header_left_group']//field[@name='is_sin']" position="after">
                 <field name="is_rent_invoice"
                        widget="boolean_toggle"
                        invisible="not is_sin"
@@ -18,7 +19,7 @@
                        string="Factura Alquileres"
                        invisible="not is_sin"/>
                 <button name="action_send_rent_invoice_cucu"
-                        string="📤 Enviar a CUCU (Alquileres)"
+                        string="&#128228; Enviar a CUCU (Alquileres)"
                         type="object"
                         class="btn btn-primary mt-1"
                         invisible="not is_sin or not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
@@ -26,7 +27,18 @@
                         help="Enviar factura a CUCU API para obtener CUF"/>
             </xpath>
 
-            <!-- Campos específicos de alquileres -->
+        </field>
+    </record>
+
+    <!-- ========== FORMULARIO: campos específicos + pestaña alquileres ========== -->
+    <!-- Hereda de account.view_move_form (vista base Odoo) -->
+    <record id="view_move_form_rent_invoice" model="ir.ui.view">
+        <field name="name">account.move.form.rent.invoice</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Período facturado y tipo operación junto a invoice_date -->
             <xpath expr="//field[@name='invoice_date']" position="after">
                 <field name="rent_billed_period"
                        invisible="not is_rent_invoice"
@@ -36,18 +48,18 @@
                        invisible="not is_rent_invoice"/>
             </xpath>
 
-            <!-- Página adicional: Datos Alquileres -->
+            <!-- Pestaña adicional: Datos Alquileres -->
             <xpath expr="//notebook" position="inside">
-                <page string="🏠 Datos Alquileres"
+                <page string="&#127968; Datos Alquileres"
                       name="rent_data"
                       invisible="not is_rent_invoice">
-                    
+
                     <group>
                         <group string="Información del Inmueble">
                             <field name="rent_property_address"
                                    placeholder="Dirección completa del inmueble en alquiler"/>
                         </group>
-                        
+
                         <group string="Estado CUCU">
                             <field name="cucu_rent_state"
                                    widget="badge"
@@ -60,14 +72,14 @@
                                    widget="CopyClipboardChar"/>
                         </group>
                     </group>
-                    
+
                     <separator string="Respuesta CUCU API"/>
                     <field name="cucu_rent_response"
                            readonly="1"
                            widget="ace"
                            options="{'mode': 'json'}"
                            invisible="not cucu_rent_response"/>
-                    
+
                 </page>
             </xpath>
 
@@ -103,13 +115,13 @@
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='draft']" position="after">
                 <separator/>
-                <filter string="🏠 Facturas Alquileres"
+                <filter string="&#127968; Facturas Alquileres"
                         name="rent_invoices"
                         domain="[('is_rent_invoice', '=', True)]"/>
-                <filter string="✅ Con CUF (Alquileres)"
+                <filter string="&#9989; Con CUF (Alquileres)"
                         name="with_rent_cuf"
                         domain="[('cucu_rent_cuf', '!=', False)]"/>
-                <filter string="❌ Rechazadas (Alquileres)"
+                <filter string="&#10060; Rechazadas (Alquileres)"
                         name="rent_rejected"
                         domain="[('cucu_rent_state', '=', 'rejected')]"/>
             </xpath>
