@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ========== FORMULARIO: toggle + botón debajo de is_sin ========== -->
-    <!-- Hereda de cucu_fact_core porque is_sin vive en esa vista heredada -->
+    <!-- ========== FORMULARIO: toggle + botón al final de header_left_group ========== -->
+    <!-- priority=20 garantiza que se ejecuta después de cucu_fact_core (priority=16)    -->
+    <!-- que es quien agrega is_sin al grupo. Así el toggle queda justo debajo de is_sin -->
     <record id="view_move_form_rent_is_sin" model="ir.ui.view">
         <field name="name">account.move.form.rent.is_sin</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="cucu_fact_core.view_move_form_inherit"/>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">20</field>
         <field name="arch" type="xml">
 
-            <!-- Toggle + Botón CUCU justo después del campo is_sin -->
-            <xpath expr="//group[@id='header_left_group']//field[@name='is_sin']" position="after">
+            <xpath expr="//group[@id='header_left_group']" position="inside">
                 <field name="is_rent_invoice"
                        widget="boolean_toggle"
                        invisible="not is_sin"
@@ -31,7 +32,6 @@
     </record>
 
     <!-- ========== FORMULARIO: campos específicos + pestaña alquileres ========== -->
-    <!-- Hereda de account.view_move_form (vista base Odoo) -->
     <record id="view_move_form_rent_invoice" model="ir.ui.view">
         <field name="name">account.move.form.rent.invoice</field>
         <field name="model">account.move</field>
