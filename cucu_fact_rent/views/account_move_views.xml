@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ========== FORMULARIO: toggle + botón, anclado en group_cucu_invoice ========== -->
+    <!-- ========== FORMULARIO: toggle + botón ========== -->
     <!--
-        Estategia:
-        - Heredamos de cucu_fact_core.view_move_form_inherit, que ya tiene group_cucu_invoice
-          con invisible="is_sin == False". Al poner nuestro bloque ANTES de ese group,
-          aparece en la misma zona visual (bajo "Facturar productos") sin referenciar is_sin.
-        - NUNCA referenciamos is_sin en invisible porque pertenece a cucu_fact_core
-          y Odoo lanza error de permisos de acceso al validar la vista.
-        - El toggle is_rent_invoice y el botón solo usan campos propios: is_rent_invoice,
-          state, cucu_rent_cuf.
+        xpath verificado con Odoo Studio:
+        //form[1]/sheet[1]/group[1]/group[1]/field[@name='pos_id']
+        pos_id es el último campo que agrega cucu_fact_core en header_left_group,
+        justo después de is_sin. Anclamos aquí para quedar inmediatamente debajo.
+        Heredamos de cucu_fact_core.view_move_form_inherit para que pos_id exista
+        en el árbol al momento de validar.
+        NUNCA referenciamos is_sin: pertenece a cucu_fact_core y causa error de permisos.
     -->
     <record id="view_move_form_rent_toggle" model="ir.ui.view">
         <field name="name">account.move.form.rent.toggle</field>
@@ -18,13 +17,11 @@
         <field name="inherit_id" ref="cucu_fact_core.view_move_form_inherit"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//group[@id='group_cucu_invoice']" position="before">
-                <group string="Alquileres" id="group_rent_toggle">
-                    <field name="is_rent_invoice"
-                           widget="boolean_toggle"
-                           options="{'autosave': False}"/>
-                    <label for="is_rent_invoice" string="Factura Alquileres"/>
-                </group>
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='pos_id']" position="after">
+                <field name="is_rent_invoice"
+                       widget="boolean_toggle"
+                       options="{'autosave': False}"/>
+                <label for="is_rent_invoice" string="Factura Alquileres"/>
                 <div invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf">
                     <button name="action_send_rent_invoice_cucu"
                             string="&#128228; Enviar a CUCU (Alquileres)"
@@ -45,7 +42,6 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
 
-            <!-- Período facturado y tipo operación junto a invoice_date -->
             <xpath expr="//field[@name='invoice_date']" position="after">
                 <field name="rent_billed_period"
                        invisible="not is_rent_invoice"
@@ -55,18 +51,15 @@
                        invisible="not is_rent_invoice"/>
             </xpath>
 
-            <!-- Pestaña adicional: Datos Alquileres -->
             <xpath expr="//notebook" position="inside">
                 <page string="&#127968; Datos Alquileres"
                       name="rent_data"
                       invisible="not is_rent_invoice">
-
                     <group>
                         <group string="Información del Inmueble">
                             <field name="rent_property_address"
                                    placeholder="Dirección completa del inmueble en alquiler"/>
                         </group>
-
                         <group string="Estado CUCU">
                             <field name="cucu_rent_state"
                                    widget="badge"
@@ -79,14 +72,12 @@
                                    widget="CopyClipboardChar"/>
                         </group>
                     </group>
-
                     <separator string="Respuesta CUCU API"/>
                     <field name="cucu_rent_response"
                            readonly="1"
                            widget="ace"
                            options="{'mode': 'json'}"
                            invisible="not cucu_rent_response"/>
-
                 </page>
             </xpath>
 
