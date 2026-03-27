@@ -1,30 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ========== FORMULARIO: toggle + botón dentro de group_cucu_invoice ========== -->
-    <!-- group_cucu_invoice ya tiene invisible="is_sin == False" definido en cucu_fact_core -->
-    <!-- Al insertar aquí, heredamos esa visibilidad sin referenciar is_sin directamente  -->
-    <record id="view_move_form_rent_is_sin" model="ir.ui.view">
-        <field name="name">account.move.form.rent.is_sin</field>
+    <!-- ========== FORMULARIO: toggle + botón, anclado en group_cucu_invoice ========== -->
+    <!--
+        Estategia:
+        - Heredamos de cucu_fact_core.view_move_form_inherit, que ya tiene group_cucu_invoice
+          con invisible="is_sin == False". Al poner nuestro bloque ANTES de ese group,
+          aparece en la misma zona visual (bajo "Facturar productos") sin referenciar is_sin.
+        - NUNCA referenciamos is_sin en invisible porque pertenece a cucu_fact_core
+          y Odoo lanza error de permisos de acceso al validar la vista.
+        - El toggle is_rent_invoice y el botón solo usan campos propios: is_rent_invoice,
+          state, cucu_rent_cuf.
+    -->
+    <record id="view_move_form_rent_toggle" model="ir.ui.view">
+        <field name="name">account.move.form.rent.toggle</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="cucu_fact_core.view_move_form_inherit"/>
         <field name="arch" type="xml">
 
-            <!-- Insertamos al inicio del group_cucu_invoice, antes de "Datos Cliente" -->
             <xpath expr="//group[@id='group_cucu_invoice']" position="before">
-                <group id="group_rent_invoice" invisible="not is_rent_invoice and True">
+                <group string="Alquileres" id="group_rent_toggle">
                     <field name="is_rent_invoice"
                            widget="boolean_toggle"
                            options="{'autosave': False}"/>
                     <label for="is_rent_invoice" string="Factura Alquileres"/>
+                </group>
+                <div invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf">
                     <button name="action_send_rent_invoice_cucu"
                             string="&#128228; Enviar a CUCU (Alquileres)"
                             type="object"
                             class="btn btn-primary"
-                            invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
                             icon="fa-paper-plane"
                             help="Enviar factura a CUCU API para obtener CUF"/>
-                </group>
+                </div>
             </xpath>
 
         </field>
