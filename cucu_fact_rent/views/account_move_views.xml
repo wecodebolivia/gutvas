@@ -3,26 +3,26 @@
 
     <!-- ========== FORMULARIO: toggle + botón ========== -->
     <!--
-        xpath verificado con Odoo Studio:
-        //form[1]/sheet[1]/group[1]/group[1]/field[@name='pos_id']
-        pos_id es el último campo que agrega cucu_fact_core en header_left_group,
-        justo después de is_sin. Anclamos aquí para quedar inmediatamente debajo.
-        Heredamos de cucu_fact_core.view_move_form_inherit para que pos_id exista
-        en el árbol al momento de validar.
-        NUNCA referenciamos is_sin: pertenece a cucu_fact_core y causa error de permisos.
+        is_sin ahora es campo computed/related de cucu_fact_rent (account_move.py)
+        por lo tanto Odoo ya no lanza error de permisos al usarlo en invisible.
+        Heredamos de account.view_move_form y usamos header_left_group que sí
+        existe en la vista base.
     -->
     <record id="view_move_form_rent_toggle" model="ir.ui.view">
         <field name="name">account.move.form.rent.toggle</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="cucu_fact_core.view_move_form_inherit"/>
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='pos_id']" position="after">
+            <xpath expr="//group[@id='header_left_group']" position="inside">
                 <field name="is_rent_invoice"
                        widget="boolean_toggle"
+                       invisible="not is_sin"
                        options="{'autosave': False}"/>
-                <label for="is_rent_invoice" string="Factura Alquileres"/>
-                <div invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf">
+                <label for="is_rent_invoice"
+                       string="Factura Alquileres"
+                       invisible="not is_sin"/>
+                <div invisible="not is_sin or not is_rent_invoice or state != 'posted' or cucu_rent_cuf">
                     <button name="action_send_rent_invoice_cucu"
                             string="&#128228; Enviar a CUCU (Alquileres)"
                             type="object"
