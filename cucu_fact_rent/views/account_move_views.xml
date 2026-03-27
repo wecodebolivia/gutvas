@@ -1,112 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ========== FORMULARIO: toggle + botón dentro de group_cucu_invoice ========== -->
-    <!-- group_cucu_invoice ya tiene invisible="is_sin == False" definido en cucu_fact_core -->
-    <!-- Al insertar aquí, heredamos esa visibilidad sin referenciar is_sin directamente  -->
-    <record id="view_move_form_rent_is_sin" model="ir.ui.view">
-        <field name="name">account.move.form.rent.is_sin</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="cucu_fact_core.view_move_form_inherit"/>
-        <field name="arch" type="xml">
-
-            <!-- Insertamos al inicio del group_cucu_invoice, antes de "Datos Cliente" -->
-            <xpath expr="//group[@id='group_cucu_invoice']" position="before">
-                <group id="group_rent_invoice" invisible="not is_rent_invoice and True">
-                    <field name="is_rent_invoice"
-                           widget="boolean_toggle"
-                           options="{'autosave': False}"/>
-                    <label for="is_rent_invoice" string="Factura Alquileres"/>
-                    <button name="action_send_rent_invoice_cucu"
-                            string="&#128228; Enviar a CUCU (Alquileres)"
-                            type="object"
-                            class="btn btn-primary"
-                            invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
-                            icon="fa-paper-plane"
-                            help="Enviar factura a CUCU API para obtener CUF"/>
-                </group>
-            </xpath>
-
-        </field>
-    </record>
-
-    <!-- ========== FORMULARIO: campos específicos + pestaña alquileres ========== -->
-    <record id="view_move_form_rent_invoice" model="ir.ui.view">
-        <field name="name">account.move.form.rent.invoice</field>
+    <!-- ========== 1. Botón de acción en el HEADER ========== -->
+    <!--
+        Heredamos de account.view_move_form.
+        Solo campos propios en invisible: is_rent_invoice, state, cucu_rent_cuf.
+    -->
+    <record id="view_move_form_rent_header" model="ir.ui.view">
+        <field name="name">account.move.form.rent.header</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-
-            <!-- Período facturado y tipo operación junto a invoice_date -->
-            <xpath expr="//field[@name='invoice_date']" position="after">
-                <field name="rent_billed_period"
-                       invisible="not is_rent_invoice"
-                       required="is_rent_invoice"
-                       placeholder="Ej: Mayo 2026"/>
-                <field name="rent_type_operation"
-                       invisible="not is_rent_invoice"/>
+            <xpath expr="//header" position="inside">
+                <button name="action_send_rent_invoice_cucu"
+                        string="&#128228; Enviar a CUCU (Alquileres)"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
+                        help="Enviar factura de alquiler a CUCU API para obtener CUF"/>
             </xpath>
-
-            <!-- Pestaña adicional: Datos Alquileres -->
-            <xpath expr="//notebook" position="inside">
-                <page string="&#127968; Datos Alquileres"
-                      name="rent_data"
-                      invisible="not is_rent_invoice">
-
-                    <group>
-                        <group string="Información del Inmueble">
-                            <field name="rent_property_address"
-                                   placeholder="Dirección completa del inmueble en alquiler"/>
-                        </group>
-
-                        <group string="Estado CUCU">
-                            <field name="cucu_rent_state"
-                                   widget="badge"
-                                   decoration-success="cucu_rent_state == 'validated'"
-                                   decoration-danger="cucu_rent_state == 'rejected'"
-                                   decoration-warning="cucu_rent_state == 'sent'"
-                                   decoration-muted="cucu_rent_state == 'draft'"/>
-                            <field name="cucu_rent_cuf"
-                                   readonly="1"
-                                   widget="CopyClipboardChar"/>
-                        </group>
-                    </group>
-
-                    <separator string="Respuesta CUCU API"/>
-                    <field name="cucu_rent_response"
-                           readonly="1"
-                           widget="ace"
-                           options="{'mode': 'json'}"
-                           invisible="not cucu_rent_response"/>
-
-                </page>
-            </xpath>
-
         </field>
     </record>
 
-    <!-- ========== VISTA DE LISTA ========== -->
+    <!-- ========== 2. Toggle en header_left_group ========== -->
+    <!--
+        Heredamos de account.view_move_form.
+        Sin <label> explícito, Odoo genera el label desde field.string.
+        Solo usamos is_rent_invoice (campo propio) en la vista.
+    -->
+    <record id="view_move_form_rent_toggle" model="ir.ui.view">
+        <field name="name">account.move.form.rent.toggle</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@id='header_left_group']" position="inside">
+                <field name="is_rent_invoice" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========== 3. Grupo de campos de alquiler en el SHEET ========== -->
+    <!--
+        REGLA: nunca heredar de cucu_fact_core.view_move_form_inherit con
+        atributos invisible/required que referencien campos de cucu_fact_rent.
+        Odoo valida contra la vista padre directa y lanza error "campo no existe".
+
+        Solución: heredar de account.view_move_form y crear nuestro propio
+        group_rent_invoice después de //form//sheet//group, igual que
+        cucu_fact_core crea group_cucu_invoice.
+        Todos los invisible usan solo campos propios: is_rent_invoice, cucu_rent_cuf, cucu_rent_state.
+    -->
+    <record id="view_move_form_rent_fields" model="ir.ui.view">
+        <field name="name">account.move.form.rent.fields</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form//sheet//group" position="after">
+                <group id="group_rent_invoice" invisible="not is_rent_invoice">
+                    <group string="Datos Alquileres">
+                        <field name="rent_billed_period"
+                               required="is_rent_invoice"
+                               placeholder="Ej: Marzo 2026"/>
+                        <field name="rent_type_operation"/>
+                        <field name="rent_property_address"
+                               placeholder="Dirección del inmueble"/>
+                    </group>
+                    <group string="Estado CUCU">
+                        <field name="cucu_rent_state"
+                               widget="badge"
+                               decoration-success="cucu_rent_state == 'validated'"
+                               decoration-danger="cucu_rent_state == 'rejected'"
+                               decoration-warning="cucu_rent_state == 'sent'"
+                               decoration-muted="cucu_rent_state == 'draft'"/>
+                        <field name="cucu_rent_cuf" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========== 4. VISTA DE LISTA ========== -->
     <record id="view_invoice_tree_rent" model="ir.ui.view">
         <field name="name">account.move.tree.rent</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_invoice_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="is_rent_invoice"
-                       optional="show"
-                       widget="boolean_toggle"/>
-                <field name="cucu_rent_state"
-                       optional="hide"
-                       widget="badge"
+                <field name="is_rent_invoice" optional="show" widget="boolean_toggle"/>
+                <field name="cucu_rent_state" optional="hide" widget="badge"
                        decoration-success="cucu_rent_state == 'validated'"
                        decoration-danger="cucu_rent_state == 'rejected'"/>
-                <field name="cucu_rent_cuf"
-                       optional="hide"/>
+                <field name="cucu_rent_cuf" optional="hide"/>
             </xpath>
         </field>
     </record>
 
-    <!-- ========== FILTROS DE BÚSQUEDA ========== -->
+    <!-- ========== 5. FILTROS DE BÚSQUEDA ========== -->
     <record id="view_account_invoice_filter_rent" model="ir.ui.view">
         <field name="name">account.move.filter.rent</field>
         <field name="model">account.move</field>
@@ -114,14 +103,11 @@
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='draft']" position="after">
                 <separator/>
-                <filter string="&#127968; Facturas Alquileres"
-                        name="rent_invoices"
+                <filter string="&#127968; Facturas Alquileres" name="rent_invoices"
                         domain="[('is_rent_invoice', '=', True)]"/>
-                <filter string="&#9989; Con CUF (Alquileres)"
-                        name="with_rent_cuf"
+                <filter string="&#9989; Con CUF (Alquileres)" name="with_rent_cuf"
                         domain="[('cucu_rent_cuf', '!=', False)]"/>
-                <filter string="&#10060; Rechazadas (Alquileres)"
-                        name="rent_rejected"
+                <filter string="&#10060; Rechazadas (Alquileres)" name="rent_rejected"
                         domain="[('cucu_rent_state', '=', 'rejected')]"/>
             </xpath>
         </field>
