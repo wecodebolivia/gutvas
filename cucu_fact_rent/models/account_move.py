@@ -9,30 +9,6 @@ _logger = logging.getLogger(__name__)
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    # ========== RELATED de cucu_fact_core para uso en vistas ==========
-    # Necesario para referenciar is_sin en atributos invisible sin que Odoo
-    # lance error de permisos de acceso (el campo debe pertenecer a este módulo)
-    is_sin = fields.Boolean(
-        related='id',  # placeholder: se sobreescribe con el related real abajo
-        string='Facturar productos SIN',
-        store=False,
-        readonly=True,
-    )
-
-    # Override correcto: related apunta al campo original de cucu_fact_core
-    is_sin = fields.Boolean(
-        string='Facturar productos SIN',
-        related=False,
-        store=False,
-        readonly=True,
-        compute='_compute_is_sin',
-    )
-
-    def _compute_is_sin(self):
-        for rec in self:
-            rec.is_sin = rec.sudo().read(['is_sin'])[0].get('is_sin', False) \
-                if 'is_sin' in self.env['account.move']._fields else False
-
     # ========== IDENTIFICACIÓN SECTOR ALQUILERES ==========
     is_rent_invoice = fields.Boolean(
         string='Factura Alquileres',
