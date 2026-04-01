@@ -111,6 +111,13 @@ class AccountMove(models.Model):
                 'priceUnit': line.price_unit
             })
 
+        # Resolución de email: cucu_email (campo personalizado) > email estándar > fallback genérico
+        client_email = (
+            getattr(self.partner_id, 'cucu_email', None)
+            or self.partner_id.email
+            or 'sin-email@facturacion.bo'
+        )
+
         payload = {
             'posId': 1,
             'clientReasonSocial': self.partner_id.name,
@@ -128,7 +135,7 @@ class AccountMove(models.Model):
             'paramCurrency': '1',
             'clientComplement': self.partner_id.street2 or '',
             'clientCity': self.partner_id.city or 'La Paz',
-            'clientEmail': self.partner_id.email or '',
+            'clientEmail': client_email,
             'typeInvoice': 1,
             'typeOperation': int(self.rent_type_operation) if self.rent_type_operation else 2,
             'billedPeriod': self.rent_billed_period,
