@@ -53,7 +53,7 @@ class AccountMove(models.Model):
         ('rejected', 'Rechazada'),
         ('cancelled', 'Anulada'),
     ], string='Estado CUCU Alquileres', default='draft', readonly=True, copy=False)
-       
+
     # ========== INTERCEPCIÓN PIPELINE cucu_fact_core ==========
     def create_invoice_account(self):
         """
@@ -66,7 +66,6 @@ class AccountMove(models.Model):
         if self.is_rent_invoice:
             return None
         return super().create_invoice_account()
-
 
     # ========== ONCHANGE ==========
     @api.onchange('is_rent_invoice')
@@ -82,6 +81,68 @@ class AccountMove(models.Model):
             now = datetime.now()
             self.rent_billed_period = f"{month_names[now.month]} {now.year}"
 
+    # ========== PREPARAR DETALLE DE LÍNEAS ==========
+    def _prepare_cucu_rent_detail_line(self, line):
+        """
+        Construye el dict de detalle para una línea de factura de alquiler.
+        Lee activityEconomic, codeProductSin y unitMeasure directamente del
+        producto (igual que cucu_fact_core), lanzando errores descriptivos
+        si algún campo SIN no está configurado.
+        """
+        product = line.product_id
+        tmpl = product.product_tmpl_id
+
+        # ── activityEconomic ──────────────────────────────────────────────
+        activity_code = (
+            tmpl.code_type_activity
+            or getattr(tmpl.code_activity_sin_id, 'code_type', None)
+        )
+        if not activity_code:
+            raise UserError(
+                f'El producto "{product.display_name}" no tiene configurada la '
+                f'Actividad Económica SIN (code_activity_sin_id).\n\n'
+                f'Configúralo en: Producto > pestaña SIN > "Actividad Económica".'
+            )
+
+        # ── codeProductSin ────────────────────────────────────────────────
+        code_product_sin = tmpl.sin_code_product or product.sin_code_product
+        if not code_product_sin:
+            raise UserError(
+                f'El producto "{product.display_name}" no tiene configurado el '
+                f'Código de Producto SIN (code_product_sin_id).\n\n'
+                f'Configúralo en: Producto > pestaña SIN > "Código Producto SIN".'
+            )
+
+        # ── unitMeasure ───────────────────────────────────────────────────
+        unit_measure = (
+            tmpl.unit_measure_id.code_type
+            or product.unit_measure_id.code_type
+        )
+        if not unit_measure:
+            raise UserError(
+                f'El producto "{product.display_name}" no tiene configurada la '
+                f'Unidad de Medida SIN (unit_measure_id).\n\n'
+                f'Configúralo en: Producto > pestaña SIN > "Unidad de Medida".'
+            )
+
+        # ── codeProduct (referencia interna) ──────────────────────────────
+        if not product.default_code:
+            raise UserError(
+                f'El producto "{product.display_name}" no tiene Referencia Interna '
+                f'(default_code).\n\n'
+                f'Configúralo en: Producto > "Referencia Interna".'
+            )
+
+        return {
+            'activityEconomic': activity_code,
+            'unitMeasure': unit_measure,
+            'codeProductSin': int(code_product_sin),
+            'codeProduct': product.default_code,
+            'description': line.name or product.display_name,
+            'qty': line.quantity,
+            'priceUnit': line.price_unit,
+        }
+
     # ========== PREPARAR PAYLOAD ==========
     def _prepare_cucu_rent_invoice_data(self):
         """Prepara el payload JSON según especificaciones CUCU API para alquileres"""
@@ -94,36 +155,52 @@ class AccountMove(models.Model):
             )
 
         if not self.rent_billed_period:
-            raise UserError('El campo "Período Facturado" es obligatorio para facturas de alquileres')
+            raise UserError(
+                'El campo "Período Facturado" es obligatorio para facturas de alquileres.'
+            )
 
-        if not self.invoice_line_ids.filtered(lambda l: l.product_id):
-            raise UserError('La factura debe tener al menos una línea de producto/servicio')
+        lines_with_product = self.invoice_line_ids.filtered(lambda l: l.product_id)
+        if not lines_with_product:
+            raise UserError(
+                'La factura debe tener al menos una línea con producto/servicio configurado.'
+            )
 
-        detail_invoice = []
-        for line in self.invoice_line_ids.filtered(lambda l: l.product_id):
-            detail_invoice.append({
-                'activityEconomic': '465000',
-                'unitMeasure': 62,
-                'codeProductSin': 99100,
-                'codeProduct': line.product_id.default_code or f'ALQ-{line.product_id.id}',
-                'description': line.name or 'Servicio de Alquiler',
-                'qty': line.quantity,
-                'priceUnit': line.price_unit
-            })
+        # ── Cliente ───────────────────────────────────────────────────────
+        partner = self.partner_id
 
-        # Resolución de email: cucu_email (campo personalizado) > email estándar > fallback genérico
+        if not partner.vat:
+            raise UserError(
+                f'El cliente "{partner.name}" no tiene NIT/CI configurado.\n\n'
+                f'Configúralo en: Contacto > "NIT".'
+            )
+
         client_email = (
-            getattr(self.partner_id, 'cucu_email', None)
-            or self.partner_id.email
-            or 'sin-email@facturacion.bo'
+            getattr(partner, 'cucu_email', None)
+            or partner.email
         )
+        if not client_email:
+            raise UserError(
+                f'El cliente "{partner.name}" no tiene email configurado.\n\n'
+                f'Configúralo en: Contacto > "Email CUCU" o "Email".'
+            )
+
+        if not partner.city:
+            raise UserError(
+                f'El cliente "{partner.name}" no tiene Ciudad configurada.\n\n'
+                f'Configúralo en: Contacto > "Ciudad".'
+            )
+
+        # ── Detalle de líneas (con validación por producto) ───────────────
+        detail_invoice = []
+        for line in lines_with_product:
+            detail_invoice.append(self._prepare_cucu_rent_detail_line(line))
 
         payload = {
             'posId': 1,
-            'clientReasonSocial': self.partner_id.name,
-            'clientDocumentType': '1',
-            'clientNroDocument': self.partner_id.vat or '0',
-            'clientCode': self.partner_id.ref or f'CLI-{self.partner_id.id}',
+            'clientReasonSocial': partner.name,
+            'clientDocumentType': getattr(partner.doc_id, 'code_type', '1') or '1',
+            'clientNroDocument': partner.vat,
+            'clientCode': partner.ref or f'CLI-{partner.id}',
             'paramPaymentMethod': '1',
             'dateEmission': (
                 self.invoice_date.strftime('%Y-%m-%dT%H:%M:%S')
@@ -133,13 +210,13 @@ class AccountMove(models.Model):
             'userPos': 'A4INC12ABCH',
             'paramDocumentSector': '1',
             'paramCurrency': '1',
-            'clientComplement': self.partner_id.street2 or '',
-            'clientCity': self.partner_id.city or 'La Paz',
+            'clientComplement': partner.complement if getattr(partner, 'complement', None) else '',
+            'clientCity': partner.city,
             'clientEmail': client_email,
             'typeInvoice': 1,
             'typeOperation': int(self.rent_type_operation) if self.rent_type_operation else 2,
             'billedPeriod': self.rent_billed_period,
-            'detailInvoice': detail_invoice
+            'detailInvoice': detail_invoice,
         }
 
         return payload
@@ -150,10 +227,10 @@ class AccountMove(models.Model):
         self.ensure_one()
 
         if not self.is_rent_invoice:
-            raise UserError('Esta factura no está marcada como factura de alquileres')
+            raise UserError('Esta factura no está marcada como factura de alquileres.')
 
         if self.state != 'posted':
-            raise UserError('Solo se pueden enviar facturas confirmadas (estado: Publicado)')
+            raise UserError('Solo se pueden enviar facturas confirmadas (estado: Publicado).')
 
         if self.cucu_rent_cuf:
             raise UserError(
@@ -172,7 +249,7 @@ class AccountMove(models.Model):
             self.write({
                 'cucu_rent_cuf': result.get('cuf'),
                 'cucu_rent_response': json.dumps(result, indent=2, ensure_ascii=False),
-                'cucu_rent_state': 'validated' if result.get('cuf') else 'rejected'
+                'cucu_rent_state': 'validated' if result.get('cuf') else 'rejected',
             })
 
             _logger.info(f'Factura {self.name} enviada exitosamente. CUF: {result.get("cuf")}')
@@ -194,7 +271,7 @@ class AccountMove(models.Model):
 
             self.write({
                 'cucu_rent_response': f'ERROR: {error_msg}',
-                'cucu_rent_state': 'rejected'
+                'cucu_rent_state': 'rejected',
             })
 
             raise UserError(f'❌ Error al enviar factura a CUCU:\n\n{error_msg}')
