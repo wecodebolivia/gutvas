@@ -31,6 +31,7 @@ class AccountMove(models.Model):
 
     # ========== RESPUESTA CUCU ALQUILERES ==========
     cucu_rent_cuf = fields.Char(string='CUF Alquileres', readonly=True, copy=False)
+    cucu_rent_invoice_code = fields.Char(string='Invoice Code Alquileres', readonly=True, copy=False)
     cucu_rent_response = fields.Text(string='Respuesta API Alquileres', readonly=True, copy=False)
     cucu_rent_state = fields.Selection([
         ('draft', 'Borrador'),
@@ -207,20 +208,19 @@ class AccountMove(models.Model):
             'detailInvoice': detail_invoice,
         }
 
-    # ========== GUARDAR RESPUESTA (análogo a cucu_invoice.create_invoice) ==========
+    # ========== GUARDAR RESPUESTA ==========
     def _save_cucu_rent_response(self, data, pos_data):
         """
-        Replica el flujo de cucu_invoice.create_invoice():
-        - Crea registro cucu.invoice vinculado al account.move
-        - Llena invoice_xml, invoice_json, qr_code, url_cucu, invoice_number, etc.
-        - Actualiza campos SIN en el account.move (sin_code_state, invoice_code, invoice_number)
+        Replica cucu_invoice.create_invoice():
+        - Crea registro cucu.invoice con invoice_xml, invoice_json, qr_code, url_cucu, etc.
+        - Vincula al account.move via invoice_id (4, id)
+        - Actualiza campos SIN en account.move
         """
         self.ensure_one()
         company = self.company_id
         cucu_pos = pos_data['cucu_pos']
         branch = pos_data['branch']
 
-        # Parsear JSON de cabecera para extraer montos (igual que cucu_invoice.create_invoice)
         invoice_json_raw = data.get('invoiceJson', '{}')
         try:
             json_cabecera = json.loads(invoice_json_raw).get('cabecera', {})
@@ -262,20 +262,29 @@ class AccountMove(models.Model):
             'company_id': company.id,
         }
 
-        # Crear registro cucu.invoice (mismo modelo que compraventa)
-        cucu_invoice = self.env['cucu.invoice'].create(cucu_invoice_vals)
+        # Buscar si ya existe un cucu.invoice para este account.move
+        existing = self.env['cucu.invoice'].search([
+            ('account_move_id', '=', self.id)
+        ], limit=1)
 
-        # Actualizar account.move con los mismos campos que usa cucu_fact_core
+        if existing:
+            existing.write(cucu_invoice_vals)
+            cucu_invoice = existing
+        else:
+            cucu_invoice = self.env['cucu.invoice'].create(cucu_invoice_vals)
+
+        # Vincular via invoice_id (igual que cucu_fact_core create_invoice_sale)
         self.write({
             'cucu_rent_cuf': data.get('cuf', ''),
+            'cucu_rent_invoice_code': data.get('invoiceCode', ''),
             'cucu_rent_response': json.dumps(data, indent=2, ensure_ascii=False),
             'cucu_rent_state': 'validated' if data.get('cuf') else 'rejected',
-            # Campos heredados de cucu_fact_core account.move
             'sin_code_state': data.get('siatCodeState', 0),
             'sin_code_reception': data.get('siatCodeReception', '0000'),
             'sin_description_status': data.get('siatDescriptionStatus', ''),
             'invoice_code': data.get('invoiceCode', ''),
             'invoice_number': str(data.get('invoiceNumber', '')),
+            'invoice_id': [(4, cucu_invoice.id)],
         })
 
         return cucu_invoice
@@ -295,32 +304,25 @@ class AccountMove(models.Model):
                 f'Para reenviar, primero debe anularla.'
             )
 
-        # Obtener pos_data antes del envio (se necesita para _save_cucu_rent_response)
         pos_data = self._get_cucu_rent_pos_data()
         api_service = self.env['cucu.rent.api']
 
         try:
             _logger.info('=== Enviando factura %s a CUCU (Alquileres) ===', self.name)
-
             result = api_service.send_rent_invoice(self)
-
-            # Guardar respuesta completa igual que cucu_fact_core
             cucu_invoice = self._save_cucu_rent_response(result, pos_data)
-
             _logger.info('Factura %s enviada. CUF: %s | invoice_id: %s',
                          self.name, result.get('cuf'), cucu_invoice.id)
-
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': '✅ Factura Enviada a CUCU',
-                    'message': f'CUF: {result.get("cuf")} | Número: {result.get("invoiceNumber", "")}',
+                    'title': '\u2705 Factura Enviada a CUCU',
+                    'message': f'CUF: {result.get("cuf")} | N\u00famero: {result.get("invoiceNumber", "")}',
                     'type': 'success',
                     'sticky': True,
                 }
             }
-
         except Exception as e:
             error_msg = str(e)
             _logger.error('Error al enviar factura %s: %s', self.name, error_msg)
@@ -328,4 +330,68 @@ class AccountMove(models.Model):
                 'cucu_rent_response': f'ERROR: {error_msg}',
                 'cucu_rent_state': 'rejected',
             })
-            raise UserError(f'❌ Error al enviar factura a CUCU:\n\n{error_msg}')
+            raise UserError(f'\u274c Error al enviar factura a CUCU:\n\n{error_msg}')
+
+    # ========== ACCIÓN: RECUPERAR DATOS POST-EMISIÓN ==========
+    def action_recover_rent_invoice_data(self):
+        """
+        Recupera invoice_json, invoice_xml, qr_code, url_cucu, invoice_number, etc.
+        llamando al endpoint GET /api/v1/invoice/electronic/rent/status.
+
+        Usar cuando la factura fue emitida pero los datos no se guardaron
+        (solo existe el CUF). Requiere cucu_rent_invoice_code o se pide manual.
+        """
+        self.ensure_one()
+
+        if not self.is_rent_invoice:
+            raise UserError('Esta factura no está marcada como factura de alquileres.')
+
+        invoice_code = self.cucu_rent_invoice_code or self.invoice_code
+        if not invoice_code:
+            raise UserError(
+                'No se encontró el Invoice Code (código interno CUCU).\n\n'
+                'Pídele al desarrollador de CUCU el invoiceCode de esta factura '
+                '(ej: B14C0F32) e intróducelo en el campo "Invoice Code Alquileres".'
+            )
+
+        pos_data = self._get_cucu_rent_pos_data()
+        api_service = self.env['cucu.rent.api']
+
+        try:
+            _logger.info('=== Recuperando datos de factura %s (invoiceCode: %s) ===',
+                         self.name, invoice_code)
+
+            result = api_service.get_rent_invoice_status(
+                invoice=self,
+                invoice_code=invoice_code,
+            )
+
+            cucu_invoice = self._save_cucu_rent_response(result, pos_data)
+
+            _logger.info('Datos recuperados para factura %s. cucu.invoice id: %s',
+                         self.name, cucu_invoice.id)
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': '\u2705 Datos Recuperados',
+                    'message': 'invoice_json, invoice_xml, QR y URL recuperados correctamente.',
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        except Exception as e:
+            error_msg = str(e)
+            _logger.error('Error al recuperar datos de factura %s: %s', self.name, error_msg)
+            raise UserError(f'\u274c Error al recuperar datos:\n\n{error_msg}')
+
+    # ========== BOTONES DE REPORTE (análogo a cucu_fact_core) ==========
+    def action_report_rent_invoice_a4(self):
+        return self.invoice_id._get_url_open('A4')
+
+    def action_report_rent_invoice_ticket(self):
+        return self.invoice_id._get_url_open('TICKET')
+
+    def action_report_rent_invoice_sin(self):
+        return self.invoice_id._get_url_open('SIN')
