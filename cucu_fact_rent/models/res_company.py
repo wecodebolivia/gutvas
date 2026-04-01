@@ -5,7 +5,7 @@ from datetime import datetime
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
-    
+
     # ========== CREDENCIALES SECTOR ALQUILERES ==========
     cucu_rent_username = fields.Char(
         string='CUCU Usuario Alquileres',
@@ -25,7 +25,15 @@ class ResCompany(models.Model):
         readonly=True,
         help='Fecha de expiración del token (renovación automática)'
     )
-    
+
+    # ========== SUCURSAL / PUNTO DE VENTA ALQUILERES ==========
+    cucu_rent_branch_id = fields.Many2one(
+        'cucu.branch.office',
+        string='Sucursal Alquileres',
+        help='Sucursal CUCU asociada al sector alquileres. '
+             'La ciudad (municipality) de esta sucursal se usa como clientCity en el payload.'
+    )
+
     # ========== CAFC SECTOR ALQUILERES ==========
     cucu_rent_cafc_online = fields.Char(
         string='CAFC Alquileres (Electrónica en línea)',
@@ -34,7 +42,7 @@ class ResCompany(models.Model):
              'Sandbox: 10228BFCF149E (rango 1-1000)\n'
              'Producción: Solicitar a SIN'
     )
-    
+
     # ========== ENDPOINTS API ALQUILERES ==========
     cucu_rent_endpoint = fields.Char(
         string='Endpoint Emisión',
@@ -56,21 +64,21 @@ class ResCompany(models.Model):
         default='https://sandbox.cucu.ai/auth/login',
         help='Endpoint POST para obtener token JWT'
     )
-    
+
     def action_test_rent_connection(self):
         """Acción de botón: Probar conexión con API de alquileres"""
         self.ensure_one()
-        
+
         if not self.cucu_rent_username or not self.cucu_rent_password:
             raise UserError(
                 'Configure primero el usuario y contraseña CUCU para sector alquileres'
             )
-        
+
         api_service = self.env['cucu.rent.api']
-        
+
         try:
             token = api_service._get_auth_token(self)
-            
+
             if token:
                 return {
                     'type': 'ir.actions.client',

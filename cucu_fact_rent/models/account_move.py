@@ -92,7 +92,7 @@ class AccountMove(models.Model):
         product = line.product_id
         tmpl = product.product_tmpl_id
 
-        # ── activityEconomic ──────────────────────────────────────────────
+        # ── activityEconomic ──────────────────────────────────────────────────
         activity_code = (
             tmpl.code_type_activity
             or getattr(tmpl.code_activity_sin_id, 'code_type', None)
@@ -104,7 +104,7 @@ class AccountMove(models.Model):
                 f'Configúralo en: Producto > pestaña SIN > "Actividad Económica".'
             )
 
-        # ── codeProductSin ────────────────────────────────────────────────
+        # ── codeProductSin ────────────────────────────────────────────────────
         code_product_sin = tmpl.sin_code_product or product.sin_code_product
         if not code_product_sin:
             raise UserError(
@@ -113,7 +113,7 @@ class AccountMove(models.Model):
                 f'Configúralo en: Producto > pestaña SIN > "Código Producto SIN".'
             )
 
-        # ── unitMeasure ───────────────────────────────────────────────────
+        # ── unitMeasure ───────────────────────────────────────────────────────
         unit_measure = (
             tmpl.unit_measure_id.code_type
             or product.unit_measure_id.code_type
@@ -125,7 +125,7 @@ class AccountMove(models.Model):
                 f'Configúralo en: Producto > pestaña SIN > "Unidad de Medida".'
             )
 
-        # ── codeProduct (referencia interna) ──────────────────────────────
+        # ── codeProduct (referencia interna) ──────────────────────────────────
         if not product.default_code:
             raise UserError(
                 f'El producto "{product.display_name}" no tiene Referencia Interna '
@@ -147,8 +147,9 @@ class AccountMove(models.Model):
     def _prepare_cucu_rent_invoice_data(self):
         """Prepara el payload JSON según especificaciones CUCU API para alquileres"""
         self.ensure_one()
+        company = self.company_id
 
-        if not self.company_id.cucu_rent_username:
+        if not company.cucu_rent_username:
             raise UserError(
                 'Configure las credenciales CUCU para sector alquileres en:\n'
                 'Configuración > Compañías > Facturación Alquileres'
@@ -165,7 +166,22 @@ class AccountMove(models.Model):
                 'La factura debe tener al menos una línea con producto/servicio configurado.'
             )
 
-        # ── Cliente ───────────────────────────────────────────────────────
+        # ── Ciudad desde la sucursal CUCU (igual que cucu_fact_core usa branch_id.municipality)
+        branch = company.cucu_rent_branch_id
+        if not branch:
+            raise UserError(
+                'No hay Sucursal Alquileres configurada en la compañía.\n\n'
+                'Configúrala en: Configuración > Compañías > pestaña "Facturación Alquileres" '
+                '> campo "Sucursal Alquileres".'
+            )
+        client_city = branch.municipality or branch.city
+        if not client_city:
+            raise UserError(
+                f'La sucursal "{branch.name}" no tiene Municipality ni City configurados.\n\n'
+                f'Configúrala en: CUCU > Sucursales > "{branch.name}".'
+            )
+
+        # ── Cliente ───────────────────────────────────────────────────────────
         partner = self.partner_id
 
         if not partner.vat:
@@ -184,13 +200,7 @@ class AccountMove(models.Model):
                 f'Configúralo en: Contacto > "Email CUCU" o "Email".'
             )
 
-        if not partner.city:
-            raise UserError(
-                f'El cliente "{partner.name}" no tiene Ciudad configurada.\n\n'
-                f'Configúralo en: Contacto > "Ciudad".'
-            )
-
-        # ── Detalle de líneas (con validación por producto) ───────────────
+        # ── Detalle de líneas (con validación por producto) ───────────────────
         detail_invoice = []
         for line in lines_with_product:
             detail_invoice.append(self._prepare_cucu_rent_detail_line(line))
@@ -211,7 +221,7 @@ class AccountMove(models.Model):
             'paramDocumentSector': '1',
             'paramCurrency': '1',
             'clientComplement': partner.complement if getattr(partner, 'complement', None) else '',
-            'clientCity': partner.city,
+            'clientCity': client_city,
             'clientEmail': client_email,
             'typeInvoice': 1,
             'typeOperation': int(self.rent_type_operation) if self.rent_type_operation else 2,
