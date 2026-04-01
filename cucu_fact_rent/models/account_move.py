@@ -53,7 +53,7 @@ class AccountMove(models.Model):
         ('rejected', 'Rechazada'),
         ('cancelled', 'Anulada'),
     ], string='Estado CUCU Alquileres', default='draft', readonly=True, copy=False)
-    
+       
     # ========== INTERCEPCIÓN PIPELINE cucu_fact_core ==========
     def create_invoice_account(self):
         """
@@ -96,11 +96,11 @@ class AccountMove(models.Model):
         if not self.rent_billed_period:
             raise UserError('El campo "Período Facturado" es obligatorio para facturas de alquileres')
 
-        if not self.invoice_line_ids.filtered(lambda l: not l.display_type):
+        if not self.invoice_line_ids.filtered(lambda l: l.product_id):
             raise UserError('La factura debe tener al menos una línea de producto/servicio')
 
         detail_invoice = []
-        for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
+        for line in self.invoice_line_ids.filtered(lambda l: l.product_id):
             detail_invoice.append({
                 'activityEconomic': '465000',
                 'unitMeasure': 62,
