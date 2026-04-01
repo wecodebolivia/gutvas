@@ -53,6 +53,20 @@ class AccountMove(models.Model):
         ('rejected', 'Rechazada'),
         ('cancelled', 'Anulada'),
     ], string='Estado CUCU Alquileres', default='draft', readonly=True, copy=False)
+    
+    # ========== INTERCEPCIÓN PIPELINE cucu_fact_core ==========
+    def create_invoice_account(self):
+        """
+        Intercepción del pipeline de cucu_fact_core:
+        Las facturas de alquileres NO deben procesarse a través del webservice
+        de ventas/compras. El envío se realiza manualmente mediante el botón
+        'Enviar a CUCU (Alquileres)' que usa los endpoints y credenciales
+        propios de cucu_fact_rent.
+        """
+        if self.is_rent_invoice:
+            return None
+        return super().create_invoice_account()
+
 
     # ========== ONCHANGE ==========
     @api.onchange('is_rent_invoice')
