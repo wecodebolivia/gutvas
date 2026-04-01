@@ -38,6 +38,7 @@
     'depends': [
         'account',
         'l10n_bo',
+        'cucu_fact_core',
     ],
     'data': [
         'security/ir.model.access.csv',
