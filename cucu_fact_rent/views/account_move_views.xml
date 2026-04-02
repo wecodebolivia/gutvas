@@ -28,7 +28,7 @@
         </field>
     </record>
 
-    <!-- ========== 2. Toggle en header_left_group ========== -->
+    <!-- ========== 2. Toggle en header_left_group (solo form) ========== -->
     <record id="view_move_form_rent_toggle" model="ir.ui.view">
         <field name="name">account.move.form.rent.toggle</field>
         <field name="model">account.move</field>
@@ -41,7 +41,7 @@
         </field>
     </record>
 
-    <!-- ========== 3. Grupo de campos en el SHEET ========== -->
+    <!-- ========== 3. Grupo de campos en el SHEET (solo form) ========== -->
     <record id="view_move_form_rent_fields" model="ir.ui.view">
         <field name="name">account.move.form.rent.fields</field>
         <field name="model">account.move</field>
@@ -50,7 +50,6 @@
             <xpath expr="//form//sheet//group" position="after">
                 <group id="group_rent_invoice" invisible="not is_rent_invoice">
 
-                    <!-- Datos visibles al usuario -->
                     <group string="Datos del Alquiler">
                         <field name="rent_billed_period"
                                required="is_rent_invoice"
@@ -61,7 +60,6 @@
                                string="Dirección del Inmueble"/>
                     </group>
 
-                    <!-- Estado CUCU: solo lo que el usuario necesita ver -->
                     <group string="Estado CUCU">
                         <field name="cucu_rent_state"
                                string="Estado"
@@ -76,8 +74,8 @@
                                invisible="not cucu_rent_cuf"/>
                     </group>
 
-                    <!-- Campos técnicos: solo visibles si ya están rellenados (recovery manual) -->
-                    <group string="Datos Técnicos (solo si recuperación manual)" invisible="not cucu_rent_invoice_code and not cucu_rent_invoice_number">
+                    <group string="Datos Técnicos (recuperación manual)"
+                           invisible="not cucu_rent_invoice_code and not cucu_rent_invoice_number">
                         <field name="cucu_rent_invoice_code"
                                string="Invoice Code"
                                placeholder="Ej: B14C0F32"
@@ -100,8 +98,6 @@
         <field name="inherit_id" ref="account.view_invoice_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="is_rent_invoice" optional="hide" widget="boolean_toggle"
-                       string="Alquiler"/>
                 <field name="rent_billed_period" optional="show" string="Período"/>
                 <field name="cucu_rent_state" optional="show" widget="badge"
                        string="Estado CUCU"
