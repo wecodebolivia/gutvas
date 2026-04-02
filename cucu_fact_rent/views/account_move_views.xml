@@ -8,28 +8,22 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <!-- Enviar (sin CUF aún) -->
                 <button name="action_send_rent_invoice_cucu"
-                        string="&#128228; Enviar a CUCU (Alquileres)"
+                        string="&#128228; Enviar a CUCU"
                         type="object" class="btn-primary"
                         invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf"/>
-                <!-- Recuperar datos (tiene CUF pero falta cucu.invoice) -->
                 <button name="action_recover_rent_invoice_data"
-                        string="&#128260; Recuperar datos de CUCU"
+                        string="&#128260; Recuperar de CUCU"
                         type="object" class="btn-secondary"
                         invisible="not is_rent_invoice or not cucu_rent_cuf or cucu_rent_state == 'cancelled'"/>
-                <!-- Anular -->
                 <button name="action_anulate_rent_invoice_wizard"
-                        string="&#128683; Anular en CUCU"
+                        string="&#128683; Anular"
                         type="object" class="btn-danger"
-                        invisible="not is_rent_invoice or not cucu_rent_cuf or cucu_rent_state == 'cancelled'"
-                        confirm="¿Desea anular esta factura en CUCU y el SIN? Esta acción no se puede deshacer."/>
-                <!-- Revertir -->
+                        invisible="not is_rent_invoice or not cucu_rent_cuf or cucu_rent_state == 'cancelled'"/>
                 <button name="action_revert_rent_invoice_wizard"
-                        string="&#8617;&#65039; Revertir en CUCU"
+                        string="&#8617;&#65039; Revertir"
                         type="object" class="btn-warning"
-                        invisible="not is_rent_invoice or not cucu_rent_cuf or cucu_rent_state == 'cancelled'"
-                        confirm="¿Desea revertir esta factura en CUCU?"/>
+                        invisible="not is_rent_invoice or not cucu_rent_cuf or cucu_rent_state == 'cancelled'"/>
             </xpath>
         </field>
     </record>
@@ -41,7 +35,8 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//group[@id='header_left_group']" position="inside">
-                <field name="is_rent_invoice" widget="boolean_toggle"/>
+                <field name="is_rent_invoice" widget="boolean_toggle"
+                       string="Factura de Alquiler"/>
             </xpath>
         </field>
     </record>
@@ -54,29 +49,45 @@
         <field name="arch" type="xml">
             <xpath expr="//form//sheet//group" position="after">
                 <group id="group_rent_invoice" invisible="not is_rent_invoice">
-                    <group string="Datos Alquileres">
+
+                    <!-- Datos visibles al usuario -->
+                    <group string="Datos del Alquiler">
                         <field name="rent_billed_period"
                                required="is_rent_invoice"
-                               placeholder="Ej: Marzo 2026"/>
-                        <field name="rent_type_operation"/>
+                               placeholder="Ej: Marzo 2026"
+                               string="Período Facturado"/>
                         <field name="rent_property_address"
-                               placeholder="Dirección del inmueble"/>
+                               placeholder="Ej: Av. Arce 1234, piso 3"
+                               string="Dirección del Inmueble"/>
                     </group>
+
+                    <!-- Estado CUCU: solo lo que el usuario necesita ver -->
                     <group string="Estado CUCU">
                         <field name="cucu_rent_state"
+                               string="Estado"
                                widget="badge"
                                decoration-success="cucu_rent_state == 'validated'"
                                decoration-danger="cucu_rent_state in ('rejected', 'cancelled')"
                                decoration-warning="cucu_rent_state == 'sent'"
                                decoration-muted="cucu_rent_state == 'draft'"/>
-                        <field name="cucu_rent_cuf" readonly="1"/>
-                        <field name="cucu_rent_invoice_code"
-                               placeholder="Ej: B14C0F32"
-                               help="Código interno CUCU para recuperar/anular."/>
-                        <field name="cucu_rent_invoice_number"
-                               placeholder="Ej: 2"
-                               help="Número correlativo SIN. Necesario para recuperar/anular."/>
+                        <field name="cucu_rent_cuf"
+                               string="CUF"
+                               readonly="1"
+                               invisible="not cucu_rent_cuf"/>
                     </group>
+
+                    <!-- Campos técnicos: solo visibles si ya están rellenados (recovery manual) -->
+                    <group string="Datos Técnicos (solo si recuperación manual)" invisible="not cucu_rent_invoice_code and not cucu_rent_invoice_number">
+                        <field name="cucu_rent_invoice_code"
+                               string="Invoice Code"
+                               placeholder="Ej: B14C0F32"
+                               help="Solo necesario para recuperar datos de facturas emitidas sin CUF."/>
+                        <field name="cucu_rent_invoice_number"
+                               string="Número Factura"
+                               placeholder="Ej: 2"
+                               help="Número correlativo SIN. Solo para recuperación manual."/>
+                    </group>
+
                 </group>
             </xpath>
         </field>
@@ -89,11 +100,14 @@
         <field name="inherit_id" ref="account.view_invoice_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="is_rent_invoice" optional="show" widget="boolean_toggle"/>
-                <field name="cucu_rent_state" optional="hide" widget="badge"
+                <field name="is_rent_invoice" optional="hide" widget="boolean_toggle"
+                       string="Alquiler"/>
+                <field name="rent_billed_period" optional="show" string="Período"/>
+                <field name="cucu_rent_state" optional="show" widget="badge"
+                       string="Estado CUCU"
                        decoration-success="cucu_rent_state == 'validated'"
-                       decoration-danger="cucu_rent_state in ('rejected','cancelled')"/>
-                <field name="cucu_rent_cuf" optional="hide"/>
+                       decoration-danger="cucu_rent_state in ('rejected','cancelled')"
+                       decoration-warning="cucu_rent_state == 'sent'"/>
             </xpath>
         </field>
     </record>
@@ -106,9 +120,9 @@
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='draft']" position="after">
                 <separator/>
-                <filter string="&#127968; Facturas Alquileres" name="rent_invoices"
+                <filter string="&#127968; Alquileres" name="rent_invoices"
                         domain="[('is_rent_invoice', '=', True)]"/>
-                <filter string="&#9989; Con CUF (Alquileres)" name="with_rent_cuf"
+                <filter string="&#9989; Enviadas a SIN" name="with_rent_cuf"
                         domain="[('cucu_rent_cuf', '!=', False)]"/>
                 <filter string="&#10060; Rechazadas" name="rent_rejected"
                         domain="[('cucu_rent_state', '=', 'rejected')]"/>
