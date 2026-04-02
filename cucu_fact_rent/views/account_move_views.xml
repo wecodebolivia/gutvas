@@ -8,14 +8,12 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <!-- Botón enviar (solo si aún no tiene CUF) -->
                 <button name="action_send_rent_invoice_cucu"
                         string="&#128228; Enviar a CUCU (Alquileres)"
                         type="object"
                         class="btn-primary"
                         invisible="not is_rent_invoice or state != 'posted' or cucu_rent_cuf"
                         help="Enviar factura de alquiler a CUCU API para obtener CUF"/>
-                <!-- Botón recuperar datos (solo si ya tiene CUF pero falta el invoice_id) -->
                 <button name="action_recover_rent_invoice_data"
                         string="&#128260; Recuperar datos de CUCU"
                         type="object"
@@ -65,6 +63,9 @@
                         <field name="cucu_rent_invoice_code"
                                placeholder="Ej: B14C0F32"
                                help="Código interno CUCU. Necesario para recuperar datos post-emisión."/>
+                        <field name="cucu_rent_invoice_number"
+                               placeholder="Ej: 2"
+                               help="Número correlativo de factura en CUCU (del SIN). Necesario para recuperar datos post-emisión."/>
                     </group>
                 </group>
             </xpath>
