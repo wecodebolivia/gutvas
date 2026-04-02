@@ -31,7 +31,8 @@ class AccountMove(models.Model):
 
     # ========== RESPUESTA CUCU ALQUILERES ==========
     cucu_rent_cuf = fields.Char(string='CUF Alquileres', readonly=True, copy=False)
-    cucu_rent_invoice_code = fields.Char(string='Invoice Code Alquileres', readonly=True, copy=False)
+    # editable: el usuario puede ingresar manualmente el invoiceCode para recuperar datos post-emisión
+    cucu_rent_invoice_code = fields.Char(string='Invoice Code Alquileres', copy=False)
     cucu_rent_response = fields.Text(string='Respuesta API Alquileres', readonly=True, copy=False)
     cucu_rent_state = fields.Selection([
         ('draft', 'Borrador'),
@@ -212,7 +213,7 @@ class AccountMove(models.Model):
     def _save_cucu_rent_response(self, data, pos_data):
         """
         Replica cucu_invoice.create_invoice():
-        - Crea registro cucu.invoice con invoice_xml, invoice_json, qr_code, url_cucu, etc.
+        - Crea/actualiza registro cucu.invoice con invoice_xml, invoice_json, qr_code, url_cucu, etc.
         - Vincula al account.move via invoice_id (4, id)
         - Actualiza campos SIN en account.move
         """
@@ -262,7 +263,7 @@ class AccountMove(models.Model):
             'company_id': company.id,
         }
 
-        # Buscar si ya existe un cucu.invoice para este account.move
+        # Upsert: buscar cucu.invoice existente para este account.move
         existing = self.env['cucu.invoice'].search([
             ('account_move_id', '=', self.id)
         ], limit=1)
@@ -337,9 +338,7 @@ class AccountMove(models.Model):
         """
         Recupera invoice_json, invoice_xml, qr_code, url_cucu, invoice_number, etc.
         llamando al endpoint GET /api/v1/invoice/electronic/rent/status.
-
-        Usar cuando la factura fue emitida pero los datos no se guardaron
-        (solo existe el CUF). Requiere cucu_rent_invoice_code o se pide manual.
+        Requiere cucu_rent_invoice_code ingresado manualmente.
         """
         self.ensure_one()
 
@@ -360,17 +359,13 @@ class AccountMove(models.Model):
         try:
             _logger.info('=== Recuperando datos de factura %s (invoiceCode: %s) ===',
                          self.name, invoice_code)
-
             result = api_service.get_rent_invoice_status(
                 invoice=self,
                 invoice_code=invoice_code,
             )
-
             cucu_invoice = self._save_cucu_rent_response(result, pos_data)
-
             _logger.info('Datos recuperados para factura %s. cucu.invoice id: %s',
                          self.name, cucu_invoice.id)
-
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
