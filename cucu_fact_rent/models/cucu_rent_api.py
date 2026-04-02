@@ -88,10 +88,8 @@ class CucuRentAPI(models.AbstractModel):
         """Extrae el host base del endpoint de alquileres configurado"""
         endpoint = company.cucu_rent_endpoint or 'https://sandbox.cucu.ai/api/v1/invoice/electronic/rent'
         endpoint = endpoint.strip().rstrip('/')
-        # Remover la ruta /rent del final para obtener el host base
         if '/api/v1/invoice/electronic/rent' in endpoint:
             return endpoint.replace('/api/v1/invoice/electronic/rent', '')
-        # Si el endpoint es el host base directamente
         return endpoint.replace('/api/v1', '')
 
     def send_rent_invoice(self, invoice):
@@ -136,28 +134,24 @@ class CucuRentAPI(models.AbstractModel):
         except requests.exceptions.RequestException as e:
             raise UserError(f'Error de conexion:\n\n{str(e)}')
 
-    def get_rent_invoice_status(self, invoice, invoice_code):
+    def get_rent_invoice_status(self, invoice, invoice_code, invoice_number):
         """
         Recupera datos completos de una factura de alquiler ya emitida.
         GET /api/v1/invoice/electronic/rent/status
-        Params: invoiceCode, posId, branchId
-
-        Analogo a send_status_invoice de cucu_fact_core pero para sector rent.
-        Devuelve el data completo con invoiceJson, invoiceXml, qrCode, etc.
+        Params requeridos: invoiceCode, invoiceNumber, posId, branchId
         """
         company = invoice.company_id
         token = self._get_auth_token(company)
         headers = self._create_header(token)
 
-        # Resolver pos y branch desde el invoice
         pos_data = invoice._get_cucu_rent_pos_data()
 
-        # Construir URL de status: host + /api/v1/invoice/electronic/rent/status
         host = self._get_rent_base_url(company)
         url = f'{host}/api/v1/invoice/electronic/rent/status'
 
         params = {
             'invoiceCode': invoice_code,
+            'invoiceNumber': int(invoice_number),
             'posId': pos_data['posId'],
             'branchId': pos_data['branchId'],
         }
@@ -183,9 +177,14 @@ class CucuRentAPI(models.AbstractModel):
                 return data
             else:
                 error_msg = result.get('message', 'Error desconocido')
+                errors = result.get('errors', [])
+                if errors:
+                    error_msg += '\n\nCampos requeridos faltantes:\n'
+                    for e in errors:
+                        error_msg += f'  - {e.get("field")}: {e.get("message")}\n'
                 raise UserError(
-                    f'Error al recuperar datos de la factura:\n\n{error_msg}\n\n'
-                    f'invoiceCode: {invoice_code}'
+                    f'Error al recuperar datos de la factura:\n\n{error_msg}\n'
+                    f'invoiceCode: {invoice_code} | invoiceNumber: {invoice_number}'
                 )
 
         except UserError:
