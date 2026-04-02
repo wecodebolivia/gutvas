@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_cucu_rent_api_user,cucu.rent.api user,model_cucu_rent_api,base.group_user,1,0,0,0
-access_cucu_rent_api_manager,cucu.rent.api manager,model_cucu_rent_api,account.group_account_manager,1,1,1,1
+access_cucu_rent_anulation_wizard,cucu.rent.anulation.wizard access,model_cucu_rent_anulation_wizard,,1,1,1,1
