@@ -10,28 +10,22 @@ _logger = logging.getLogger(__name__)
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    # ========== IDENTIFICACIÓN SECTOR ALQUILERES ==========
     is_rent_invoice = fields.Boolean(
         string='Factura Alquileres',
         help='Marcar si esta factura pertenece al sector alquileres'
     )
 
-    # ========== CAMPOS ESPECÍFICOS SECTOR ALQUILERES ==========
     rent_billed_period = fields.Char(
         string='Período Facturado',
         help='Período de alquiler. Ejemplo: "mayo 2026"'
     )
-    rent_property_address = fields.Text(
-        string='Dirección Inmueble',
-    )
+    rent_property_address = fields.Text(string='Dirección Inmueble')
     rent_type_operation = fields.Selection([
         ('1', 'Alquiler'),
         ('2', 'Venta'),
     ], string='Tipo Operación', default='2')
 
-    # ========== RESPUESTA CUCU ALQUILERES ==========
     cucu_rent_cuf = fields.Char(string='CUF Alquileres', readonly=True, copy=False)
-    # editable: el usuario puede ingresar manualmente para recuperar datos post-emisión
     cucu_rent_invoice_code = fields.Char(string='Invoice Code Alquileres', copy=False)
     cucu_rent_invoice_number = fields.Char(string='Número Factura Alquileres', copy=False)
     cucu_rent_response = fields.Text(string='Respuesta API Alquileres', readonly=True, copy=False)
@@ -43,13 +37,11 @@ class AccountMove(models.Model):
         ('cancelled', 'Anulada'),
     ], string='Estado CUCU Alquileres', default='draft', readonly=True, copy=False)
 
-    # ========== INTERCEPCIÓN PIPELINE cucu_fact_core ==========
     def create_invoice_account(self):
         if self.is_rent_invoice:
             return None
         return super().create_invoice_account()
 
-    # ========== ONCHANGE ==========
     @api.onchange('is_rent_invoice')
     def _onchange_is_rent_invoice(self):
         if self.is_rent_invoice and not self.rent_billed_period:
@@ -62,31 +54,18 @@ class AccountMove(models.Model):
             now = datetime.now()
             self.rent_billed_period = f"{month_names[now.month]} {now.year}"
 
-    # ========== RESOLVER POS / SUCURSAL ==========
     def _get_cucu_rent_pos_data(self):
         if not self.pos_id:
-            raise UserError(
-                'La factura no tiene un Punto de Venta (POS) asignado.\n\n'
-                'Asignálo en: Factura > campo "Point Of Sale".'
-            )
+            raise UserError('La factura no tiene un Punto de Venta (POS) asignado.')
         cucu_pos = self.pos_id.cucu_pos_id
         if not cucu_pos:
-            raise UserError(
-                f'El Punto de Venta "{self.pos_id.name}" no tiene un POS CUCU configurado.\n\n'
-                f'Configúralo en: CUCU > Puntos de Venta.'
-            )
+            raise UserError(f'El POS "{self.pos_id.name}" no tiene un POS CUCU configurado.')
         branch = cucu_pos.branch_id
         if not branch:
-            raise UserError(
-                f'El POS CUCU "{cucu_pos.name}" no tiene Sucursal asignada.\n\n'
-                f'Configúrala en: CUCU > Puntos de Venta > "{cucu_pos.name}".'
-            )
+            raise UserError(f'El POS CUCU "{cucu_pos.name}" no tiene Sucursal asignada.')
         city = branch.municipality or branch.city
         if not city:
-            raise UserError(
-                f'La sucursal "{branch.name}" no tiene Municipality ni City configurados.\n\n'
-                f'Configúrala en: CUCU > Sucursales > "{branch.name}".'
-            )
+            raise UserError(f'La sucursal "{branch.name}" no tiene Municipality ni City configurados.')
         return {
             'posId': cucu_pos.pos_id,
             'branchId': branch.branch_id,
@@ -96,44 +75,20 @@ class AccountMove(models.Model):
             'branch': branch,
         }
 
-    # ========== DETALLE DE LÍNEAS ==========
     def _prepare_cucu_rent_detail_line(self, line):
         product = line.product_id
         tmpl = product.product_tmpl_id
-
-        activity_code = (
-            tmpl.code_type_activity
-            or getattr(tmpl.code_activity_sin_id, 'code_type', None)
-        )
+        activity_code = tmpl.code_type_activity or getattr(tmpl.code_activity_sin_id, 'code_type', None)
         if not activity_code:
-            raise UserError(
-                f'Producto "{product.display_name}": sin Actividad Económica SIN.\n'
-                f'Configúralo en: Producto > SIN > "Actividad Económica".'
-            )
-
+            raise UserError(f'Producto "{product.display_name}": sin Actividad Económica SIN.')
         code_product_sin = tmpl.sin_code_product or product.sin_code_product
         if not code_product_sin:
-            raise UserError(
-                f'Producto "{product.display_name}": sin Código Producto SIN.\n'
-                f'Configúralo en: Producto > SIN > "Código Producto SIN".'
-            )
-
-        unit_measure = (
-            tmpl.unit_measure_id.code_type
-            or product.unit_measure_id.code_type
-        )
+            raise UserError(f'Producto "{product.display_name}": sin Código Producto SIN.')
+        unit_measure = tmpl.unit_measure_id.code_type or product.unit_measure_id.code_type
         if not unit_measure:
-            raise UserError(
-                f'Producto "{product.display_name}": sin Unidad de Medida SIN.\n'
-                f'Configúralo en: Producto > SIN > "Unidad de Medida".'
-            )
-
+            raise UserError(f'Producto "{product.display_name}": sin Unidad de Medida SIN.')
         if not product.default_code:
-            raise UserError(
-                f'Producto "{product.display_name}": sin Referencia Interna.\n'
-                f'Configúralo en: Producto > "Referencia Interna".'
-            )
-
+            raise UserError(f'Producto "{product.display_name}": sin Referencia Interna.')
         return {
             'activityEconomic': activity_code,
             'unitMeasure': unit_measure,
@@ -144,43 +99,24 @@ class AccountMove(models.Model):
             'priceUnit': line.price_unit,
         }
 
-    # ========== PREPARAR PAYLOAD ==========
     def _prepare_cucu_rent_invoice_data(self):
         self.ensure_one()
         company = self.company_id
-
         if not company.cucu_rent_username:
-            raise UserError(
-                'Configure las credenciales CUCU para sector alquileres en:\n'
-                'Configuración > Compañías > pestaña "Facturación Alquileres".'
-            )
+            raise UserError('Configure las credenciales CUCU en: Configuración > Compañías > Facturación Alquileres.')
         if not self.rent_billed_period:
             raise UserError('El campo "Período Facturado" es obligatorio.')
-
         lines_with_product = self.invoice_line_ids.filtered(lambda l: l.product_id)
         if not lines_with_product:
             raise UserError('La factura debe tener al menos una línea con producto.')
-
         pos_data = self._get_cucu_rent_pos_data()
-
         partner = self.partner_id
         if not partner.vat:
-            raise UserError(
-                f'Cliente "{partner.name}": sin NIT/CI.\n'
-                f'Configúralo en: Contacto > "NIT".'
-            )
+            raise UserError(f'Cliente "{partner.name}": sin NIT/CI.')
         client_email = getattr(partner, 'cucu_email', None) or partner.email
         if not client_email:
-            raise UserError(
-                f'Cliente "{partner.name}": sin email.\n'
-                f'Configúralo en: Contacto > "Email CUCU" o "Email".'
-            )
-
-        detail_invoice = [
-            self._prepare_cucu_rent_detail_line(line)
-            for line in lines_with_product
-        ]
-
+            raise UserError(f'Cliente "{partner.name}": sin email.')
+        detail_invoice = [self._prepare_cucu_rent_detail_line(l) for l in lines_with_product]
         return {
             'posId': pos_data['posId'],
             'clientReasonSocial': partner.name,
@@ -205,22 +141,18 @@ class AccountMove(models.Model):
             'detailInvoice': detail_invoice,
         }
 
-    # ========== GUARDAR RESPUESTA ==========
     def _save_cucu_rent_response(self, data, pos_data):
         self.ensure_one()
         company = self.company_id
         cucu_pos = pos_data['cucu_pos']
         branch = pos_data['branch']
-
         invoice_json_raw = data.get('invoiceJson', '{}')
         try:
             json_cabecera = json.loads(invoice_json_raw).get('cabecera', {})
         except Exception:
             json_cabecera = {}
-
         host = cucu_pos.manager_id.host if cucu_pos.manager_id else ''
         invoice_url = data.get('invoiceUrl', '')
-
         cucu_invoice_vals = {
             'account_move_id': self.id,
             'manager_id': cucu_pos.manager_id.id if cucu_pos.manager_id else False,
@@ -252,17 +184,12 @@ class AccountMove(models.Model):
             'doc_sector': 1,
             'company_id': company.id,
         }
-
-        existing = self.env['cucu.invoice'].search([
-            ('account_move_id', '=', self.id)
-        ], limit=1)
-
+        existing = self.env['cucu.invoice'].search([('account_move_id', '=', self.id)], limit=1)
         if existing:
             existing.write(cucu_invoice_vals)
             cucu_invoice = existing
         else:
             cucu_invoice = self.env['cucu.invoice'].create(cucu_invoice_vals)
-
         self.write({
             'cucu_rent_cuf': data.get('cuf', ''),
             'cucu_rent_invoice_code': data.get('invoiceCode', ''),
@@ -276,30 +203,20 @@ class AccountMove(models.Model):
             'invoice_number': str(data.get('invoiceNumber', '')),
             'invoice_id': [(4, cucu_invoice.id)],
         })
-
         return cucu_invoice
 
-    # ========== ACCIÓN: ENVIAR A CUCU ==========
+    # ========== ACCIÓN: ENVIAR ==========
     def action_send_rent_invoice_cucu(self):
         self.ensure_one()
-
         if not self.is_rent_invoice:
             raise UserError('Esta factura no está marcada como factura de alquileres.')
         if self.state != 'posted':
-            raise UserError('Solo se pueden enviar facturas confirmadas (estado: Publicado).')
+            raise UserError('Solo se pueden enviar facturas confirmadas.')
         if self.cucu_rent_cuf:
-            raise UserError(
-                f'Esta factura ya fue enviada a CUCU.\n'
-                f'CUF: {self.cucu_rent_cuf}\n\n'
-                f'Para reenviar, primero debe anularla.'
-            )
-
+            raise UserError(f'Esta factura ya fue enviada a CUCU.\nCUF: {self.cucu_rent_cuf}')
         pos_data = self._get_cucu_rent_pos_data()
-        api_service = self.env['cucu.rent.api']
-
         try:
-            _logger.info('=== Enviando factura %s a CUCU (Alquileres) ===', self.name)
-            result = api_service.send_rent_invoice(self)
+            result = self.env['cucu.rent.api'].send_rent_invoice(self)
             cucu_invoice = self._save_cucu_rent_response(result, pos_data)
             _logger.info('Factura %s enviada. CUF: %s | invoice_id: %s',
                          self.name, result.get('cuf'), cucu_invoice.id)
@@ -307,70 +224,78 @@ class AccountMove(models.Model):
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': '\u2705 Factura Enviada a CUCU',
-                    'message': f'CUF: {result.get("cuf")} | N\u00famero: {result.get("invoiceNumber", "")}',
+                    'title': '✅ Factura Enviada a CUCU',
+                    'message': f'CUF: {result.get("cuf")} | Número: {result.get("invoiceNumber", "")}',
                     'type': 'success',
                     'sticky': True,
                 }
             }
         except Exception as e:
-            error_msg = str(e)
-            _logger.error('Error al enviar factura %s: %s', self.name, error_msg)
-            self.write({
-                'cucu_rent_response': f'ERROR: {error_msg}',
-                'cucu_rent_state': 'rejected',
-            })
-            raise UserError(f'\u274c Error al enviar factura a CUCU:\n\n{error_msg}')
+            self.write({'cucu_rent_response': f'ERROR: {str(e)}', 'cucu_rent_state': 'rejected'})
+            raise UserError(f'❌ Error al enviar factura a CUCU:\n\n{str(e)}')
 
-    # ========== ACCIÓN: RECUPERAR DATOS POST-EMISIÓN ==========
+    # ========== ACCIÓN: RECUPERAR DATOS ==========
     def action_recover_rent_invoice_data(self):
         self.ensure_one()
-
         if not self.is_rent_invoice:
             raise UserError('Esta factura no está marcada como factura de alquileres.')
-
         invoice_code = self.cucu_rent_invoice_code or self.invoice_code
         if not invoice_code:
-            raise UserError(
-                'Falta el Invoice Code (ej: B14C0F32).\n'
-                'Intróducelo en el campo "Invoice Code Alquileres" y guarda.'
-            )
-
+            raise UserError('Falta el Invoice Code (ej: B14C0F32). Introdúcelo en "Invoice Code Alquileres" y guarda.')
         invoice_number = self.cucu_rent_invoice_number or self.invoice_number
         if not invoice_number:
-            raise UserError(
-                'Falta el Número de Factura (ej: 2).\n'
-                'Intróducelo en el campo "Número Factura Alquileres" y guarda.'
-            )
-
+            raise UserError('Falta el Número de Factura (ej: 2). Introdúcelo en "Número Factura Alquileres" y guarda.')
         pos_data = self._get_cucu_rent_pos_data()
-        api_service = self.env['cucu.rent.api']
-
         try:
-            _logger.info('=== Recuperando datos de factura %s (invoiceCode: %s, invoiceNumber: %s) ===',
-                         self.name, invoice_code, invoice_number)
-            result = api_service.get_rent_invoice_status(
-                invoice=self,
-                invoice_code=invoice_code,
-                invoice_number=invoice_number,
-            )
+            result = self.env['cucu.rent.api'].get_rent_invoice_status(
+                invoice=self, invoice_code=invoice_code, invoice_number=invoice_number)
             cucu_invoice = self._save_cucu_rent_response(result, pos_data)
-            _logger.info('Datos recuperados para factura %s. cucu.invoice id: %s',
-                         self.name, cucu_invoice.id)
+            _logger.info('Datos recuperados para %s. cucu.invoice id: %s', self.name, cucu_invoice.id)
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': '\u2705 Datos Recuperados',
+                    'title': '✅ Datos Recuperados',
                     'message': 'invoice_json, invoice_xml, QR y URL recuperados correctamente.',
                     'type': 'success',
                     'sticky': False,
                 }
             }
         except Exception as e:
-            error_msg = str(e)
-            _logger.error('Error al recuperar datos de factura %s: %s', self.name, error_msg)
-            raise UserError(f'\u274c Error al recuperar datos:\n\n{error_msg}')
+            _logger.error('Error al recuperar datos de %s: %s', self.name, str(e))
+            raise UserError(f'❌ Error al recuperar datos:\n\n{str(e)}')
+
+    # ========== ACCIÓN: ANULAR (abre wizard) ==========
+    def action_anulate_rent_invoice_wizard(self):
+        self.ensure_one()
+        if not self.cucu_rent_cuf:
+            raise UserError('Esta factura no tiene CUF — no fue enviada a CUCU.')
+        if self.cucu_rent_state == 'cancelled':
+            raise UserError('Esta factura ya está anulada.')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '🚫 Anular Factura Alquiler',
+            'res_model': 'cucu.rent.anulation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_invoice_id': self.id, 'default_action': 'anulate'},
+        }
+
+    # ========== ACCIÓN: REVERTIR (abre wizard) ==========
+    def action_revert_rent_invoice_wizard(self):
+        self.ensure_one()
+        if not self.cucu_rent_cuf:
+            raise UserError('Esta factura no tiene CUF — no fue enviada a CUCU.')
+        if self.cucu_rent_state == 'cancelled':
+            raise UserError('Esta factura ya está anulada/revertida.')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '↩️ Revertir Factura Alquiler',
+            'res_model': 'cucu.rent.anulation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_invoice_id': self.id, 'default_action': 'revert'},
+        }
 
     # ========== BOTONES DE REPORTE ==========
     def action_report_rent_invoice_a4(self):

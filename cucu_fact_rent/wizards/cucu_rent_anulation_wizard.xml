@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cucu_rent_anulation_wizard_form" model="ir.ui.view">
+        <field name="name">cucu.rent.anulation.wizard.form</field>
+        <field name="model">cucu.rent.anulation.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="confirm_message" readonly="1"
+                               style="font-weight:bold; color:#e74c3c; font-size:13px;"/>
+                    </group>
+                    <group string="¿Está seguro?">
+                        <p>Esta operación se enviará a CUCU y al SIN. No se puede deshacer desde Odoo.</p>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" string="Confirmar" type="object"
+                            class="btn-danger" data-hotkey="v"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
