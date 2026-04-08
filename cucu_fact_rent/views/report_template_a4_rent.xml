@@ -15,32 +15,38 @@
         -->
         <template id="report_a4_rent_title" inherit_id="cucu_fact_report.cucu_report_a4">
 
-            <!-- 1. SOBRESCRIBIR TÍTULO: Factura → FACTURA DE ALQUILER -->
-            <!--    El bloque original está dentro de div.text-center     -->
-            <!--    bajo la condición t-if="header['doc_sector']== 1"      -->
-            <xpath expr="//div[@class='text-center']//t[@t-if=\"header['doc_sector']== 1\"]" position="replace">
-                <t t-if="header['doc_sector'] == 1">
-                    <t t-if="o.is_rent_invoice">
-                        <!-- Título específico para alquileres -->
-                        <div class="text-2xl font-bold uppercase" t-attf-style="color: #{o.company_id.color_primary};">
-                            FACTURA DE ALQUILER
-                        </div>
-                        <div style="font-size:12px; font-weight: 600;">
-                            (CON DERECHO A CRÉDITO FISCAL)
+            <!-- 1. SOBRESCRIBIR TÍTULO: reemplaza todo el div.text-center -->
+            <xpath expr="//div[@class='text-center']" position="replace">
+                <div class="text-center">
+                    <t t-if="header['doc_sector'] == 1">
+                        <t t-if="o.is_rent_invoice">
+                            <div class="text-2xl font-bold uppercase"
+                                 t-attf-style="color: #{o.company_id.color_primary};">
+                                FACTURA DE ALQUILER
+                            </div>
+                            <div style="font-size:12px; font-weight: 600;">
+                                (CON DERECHO A CRÉDITO FISCAL)
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="text-4xl font-bold"
+                                 t-attf-style="color: #{o.company_id.color_primary};">
+                                Factura
+                            </div>
+                            <div style="font-size:13px">(Con Derecho a Crédito Fiscal)</div>
+                        </t>
+                    </t>
+                    <t t-if="header['doc_sector'] == 24">
+                        <div class="font-bold"
+                             t-attf-style="color: #{o.company_id.color_primary};font-size: 24px;">
+                            NOTA CRÉDITO-DÉBITO
                         </div>
                     </t>
-                    <t t-else="">
-                        <!-- Título original para facturas normales -->
-                        <div class="text-4xl font-bold" t-attf-style="color: #{o.company_id.color_primary};">
-                            Factura
-                        </div>
-                        <div style="font-size:13px">(Con Derecho a Crédito Fiscal)</div>
-                    </t>
-                </t>
+                </div>
             </xpath>
 
             <!-- 2. AGREGAR "PERIODO FACTURADO" en la columna derecha del cliente -->
-            <!--    Se inserta después de la fila "Cod. Cliente"                   -->
+            <!--    Se inserta al final de la tabla dentro de invoice_client_right  -->
             <xpath expr="//div[@id='invoice_client_right']//table" position="inside">
                 <t t-if="o.is_rent_invoice and o.rent_billed_period">
                     <tr>
@@ -49,7 +55,8 @@
                             Periodo Facturado:
                         </td>
                         <td class="text-sm">
-                            <div style="font-weight: 600;" t-esc="o.rent_billed_period.upper() if o.rent_billed_period else ''"/>
+                            <div style="font-weight: 600;"
+                                 t-esc="o.rent_billed_period.upper() if o.rent_billed_period else ''"/>
                         </td>
                     </tr>
                 </t>
