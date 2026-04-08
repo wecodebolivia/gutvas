@@ -54,6 +54,97 @@ class AccountMove(models.Model):
             now = datetime.now()
             self.rent_billed_period = f"{month_names[now.month]} {now.year}"
 
+    # ========== OVERRIDE render_invoice() ==========
+    def render_invoice(self):
+        """
+        Override para facturas de alquiler.
+        - Llama al super() que procesa el invoice_json normalmente.
+        - Si falla (invoice_json vacio o campos faltantes), devuelve
+          un header minimo construido desde los campos del account.move.
+        - Siempre sincroniza rent_billed_period desde periodoFacturado
+          del JSON si el campo del move estaba vacio.
+        """
+        if not self.is_rent_invoice:
+            return super().render_invoice()
+
+        try:
+            res = super().render_invoice()
+        except Exception as e:
+            _logger.warning(
+                'cucu_fact_rent: render_invoice() fallo para move %s, '
+                'construyendo header de fallback. Error: %s', self.name, e
+            )
+            res = None
+
+        if not res:
+            # Fallback: construir header minimo desde campos del account.move
+            # para que el reporte no explote aunque invoice_json este vacio
+            from ..lib.qr_image import generate_qr  # noqa — mismo patron que el base
+            invoice = self.invoice_id[-1] if self.invoice_id else False
+            qr_raw = invoice.qr_code if invoice else ''
+            try:
+                qr_b64 = 'data:image/png;base64,' + generate_qr(qr_raw) if qr_raw else ''
+            except Exception:
+                qr_b64 = ''
+            header = {
+                'cuf': self.cucu_rent_cuf or '',
+                'nitEmisor': self.company_id.vat or '',
+                'razonSocialEmisor': self.company_id.name or '',
+                'numeroFactura': self.cucu_rent_invoice_number or '',
+                'fechaEmision': str(self.invoice_date or ''),
+                'nombreRazonSocial': self.partner_id.name or '',
+                'numeroDocumento': self.partner_id.vat or '',
+                'codigoTipoDocumentoIdentidad': 5,
+                'complemento': '',
+                'codigoCliente': self.partner_id.ref or '',
+                'codigoPuntoVenta': f'No. Punto de Venta {self.pos_id.cucu_pos_id.pos_id if self.pos_id and self.pos_id.cucu_pos_id else 0}',
+                'municipio': '',
+                'direccion': self.company_id.street or '',
+                'telefono': '',
+                'montoTotal': f'{self.amount_total:.2f}',
+                'montoTotalMoneda': f'{self.amount_total:.2f}',
+                'montoTotalSujetoIva': f'{self.amount_total:.2f}',
+                'descuentoAdicional': '0.00',
+                'montoGiftCard': '0.00',
+                'leyenda': '',
+                'observations': '',
+                'montoLiteral': invoice.amount_literal if invoice else '',
+                'doc_sector': 2,
+                'periodoFacturado': self.rent_billed_period or '',
+                'qr': qr_b64,
+                'qr_code': qr_raw,
+                'invoice_url': invoice.url_cucu if invoice else '',
+                'payment_key': 'ok' if self.is_sin else 'no',
+                'branch_name': self.pos_id.cucu_pos_id.branch_id.name if self.pos_id and self.pos_id.cucu_pos_id else '',
+            }
+            detail = []
+            for line in self.invoice_line_ids.filtered(lambda l: l.product_id):
+                detail.append({
+                    'codigoProducto': line.product_id.default_code or '',
+                    'cantidad': f'{line.quantity:.2f}',
+                    'unit_description': '',
+                    'descripcion': line.name or line.product_id.name or '',
+                    'precioUnitario': f'{line.price_unit:.2f}',
+                    'montoDescuento': '0.00',
+                    'subTotal': f'{line.price_subtotal:.2f}',
+                })
+            res = {'header': header, 'detail': detail}
+
+        # Siempre sincronizar periodoFacturado desde el JSON si el campo
+        # del move esta vacio (puede ocurrir en facturas recuperadas)
+        header = res.get('header', {})
+        if not header.get('periodoFacturado'):
+            header['periodoFacturado'] = self.rent_billed_period or ''
+        elif not self.rent_billed_period:
+            # El JSON tiene el dato pero el campo del move estaba vacio: sincronizar
+            try:
+                self.sudo().write({'rent_billed_period': header['periodoFacturado']})
+            except Exception:
+                pass
+
+        res['header'] = header
+        return res
+
     def _get_cucu_rent_pos_data(self):
         if not self.pos_id:
             raise UserError('La factura no tiene un Punto de Venta (POS) asignado.')
@@ -148,9 +239,15 @@ class AccountMove(models.Model):
         branch = pos_data['branch']
         invoice_json_raw = data.get('invoiceJson', '{}')
         try:
-            json_cabecera = json.loads(invoice_json_raw).get('cabecera', {})
+            invoice_json_parsed = json.loads(invoice_json_raw)
+            json_cabecera = invoice_json_parsed.get('cabecera', {})
         except Exception:
+            invoice_json_parsed = {}
             json_cabecera = {}
+
+        # FIX: leer doc_sector desde el JSON real (alquileres = 2, no 1)
+        doc_sector = int(json_cabecera.get('codigoDocumentoSector', 2))
+
         host = cucu_pos.manager_id.host if cucu_pos.manager_id else ''
         invoice_url = data.get('invoiceUrl', '')
         cucu_invoice_vals = {
@@ -181,7 +278,7 @@ class AccountMove(models.Model):
             'amount_gift_card': json_cabecera.get('montoGiftCard', 0),
             'amount_total_currency': json_cabecera.get('montoTotalMoneda', self.amount_total),
             'additional_discount': json_cabecera.get('descuentoAdicional', 0),
-            'doc_sector': 1,
+            'doc_sector': doc_sector,  # FIX: era hardcodeado a 1
             'company_id': company.id,
         }
         existing = self.env['cucu.invoice'].search([('account_move_id', '=', self.id)], limit=1)
@@ -241,10 +338,10 @@ class AccountMove(models.Model):
             raise UserError('Esta factura no está marcada como factura de alquileres.')
         invoice_code = self.cucu_rent_invoice_code or self.invoice_code
         if not invoice_code:
-            raise UserError('Falta el Invoice Code (ej: B14C0F32). Introdúcelo en "Invoice Code Alquileres" y guarda.')
+            raise UserError('Falta el Invoice Code (ej: B14C0F32). Intróducelo en "Invoice Code Alquileres" y guarda.')
         invoice_number = self.cucu_rent_invoice_number or self.invoice_number
         if not invoice_number:
-            raise UserError('Falta el Número de Factura (ej: 2). Introdúcelo en "Número Factura Alquileres" y guarda.')
+            raise UserError('Falta el Número de Factura (ej: 2). Intróducelo en "Número Factura Alquileres" y guarda.')
         pos_data = self._get_cucu_rent_pos_data()
         try:
             result = self.env['cucu.rent.api'].get_rent_invoice_status(
