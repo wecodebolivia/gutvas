@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -51,8 +54,26 @@ class AccountMove(models.Model):
         return res
 
     def render_invoice(self):
-        """Asegura 2 decimales también cuando el reporte usa render_invoice() (ticket y/o A4 según CUCU)."""
-        res = super().render_invoice()
+        """Asegura 2 decimales en el header del reporte A4/ticket.
+
+        Para facturas de alquiler (is_rent_invoice=True), el modulo base
+        cucu_fact_report puede fallar con KeyError si el invoice_json no
+        contiene todos los campos esperados. En ese caso dejamos que el
+        override de cucu_fact_rent maneje el fallback — aqui solo nos
+        aseguramos de no romper el flujo.
+        """
+        try:
+            res = super().render_invoice()
+        except Exception as e:
+            if getattr(self, 'is_rent_invoice', False):
+                # cucu_fact_rent.render_invoice() deberia manejar este caso;
+                # si llegamos aqui es porque cucu_fact_rent no esta en el MRO
+                # por encima de este modulo — loguear y propagar para debugging
+                _logger.warning(
+                    'cucu_fact_report_ext: render_invoice() fallo para move %s '
+                    '(is_rent_invoice=True). Error: %s', self.name, e
+                )
+            raise
         if not res:
             return res
         header = res.get('header') or {}
