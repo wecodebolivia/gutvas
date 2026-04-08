@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CUCU - Facturación Electrónica Sector Alquileres',
-    'version': '1.0.3',
+    'version': '1.0.4',
     'category': 'Accounting/Localizations',
     'summary': 'Integración CUCU API para sector alquileres Bolivia',
     'description': '''
@@ -30,7 +30,7 @@
         * POST /api/v1/invoice/electronic/rent/revert
 
         Autor: LargoTek / WeCodeBolivia
-        Versión: 1.0.3
+        Versión: 1.0.4
     ''',
     'author': 'LargoTek',
     'website': 'https://www.largotek.com',
@@ -38,6 +38,7 @@
         'account',
         'l10n_bo',
         'cucu_fact_core',
+        'cucu_fact_report_ext',  # Necesario para MRO correcto en render_invoice()
     ],
     'data': [
         'security/ir.model.access.csv',
