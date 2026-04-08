@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 Largotek SRL -->
+<!-- Reporte A4 específico para Facturas de Alquiler (cucu_fact_rent) -->
+<odoo>
+    <data>
+        <!--
+            Este template hereda el reporte base A4 de cucu_fact_report
+            y sobrescribe únicamente los elementos específicos para
+            la Factura de Alquiler:
+              1. Título: "FACTURA DE ALQUILER" en lugar de "Factura"
+              2. Período Facturado: campo adicional junto a Cod. Cliente
+
+            NOTA: La fila "IMPORTE BASE CRÉDITO FISCAL" ya existe en el
+            template base (cucu_report_a4 / tfoot), no se duplica.
+        -->
+        <template id="report_a4_rent_title" inherit_id="cucu_fact_report.cucu_report_a4">
+
+            <!-- 1. SOBRESCRIBIR TÍTULO: Factura → FACTURA DE ALQUILER -->
+            <!--    El bloque original está dentro de div.text-center     -->
+            <!--    bajo la condición t-if="header['doc_sector']== 1"      -->
+            <xpath expr="//div[@class='text-center']//t[@t-if=\"header['doc_sector']== 1\"]" position="replace">
+                <t t-if="header['doc_sector'] == 1">
+                    <t t-if="o.is_rent_invoice">
+                        <!-- Título específico para alquileres -->
+                        <div class="text-2xl font-bold uppercase" t-attf-style="color: #{o.company_id.color_primary};">
+                            FACTURA DE ALQUILER
+                        </div>
+                        <div style="font-size:12px; font-weight: 600;">
+                            (CON DERECHO A CRÉDITO FISCAL)
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <!-- Título original para facturas normales -->
+                        <div class="text-4xl font-bold" t-attf-style="color: #{o.company_id.color_primary};">
+                            Factura
+                        </div>
+                        <div style="font-size:13px">(Con Derecho a Crédito Fiscal)</div>
+                    </t>
+                </t>
+            </xpath>
+
+            <!-- 2. AGREGAR "PERIODO FACTURADO" en la columna derecha del cliente -->
+            <!--    Se inserta después de la fila "Cod. Cliente"                   -->
+            <xpath expr="//div[@id='invoice_client_right']//table" position="inside">
+                <t t-if="o.is_rent_invoice and o.rent_billed_period">
+                    <tr>
+                        <td class="font-bold min-w-[180px] text-left pr-2 align-text-top"
+                            t-attf-style="color: #{o.company_id.color_primary};">
+                            Periodo Facturado:
+                        </td>
+                        <td class="text-sm">
+                            <div style="font-weight: 600;" t-esc="o.rent_billed_period.upper() if o.rent_billed_period else ''"/>
+                        </td>
+                    </tr>
+                </t>
+            </xpath>
+
+        </template>
+    </data>
+</odoo>

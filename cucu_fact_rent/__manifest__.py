@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CUCU - Facturación Electrónica Sector Alquileres',
-    'version': '1.0.2',
+    'version': '1.0.3',
     'category': 'Accounting/Localizations',
     'summary': 'Integración CUCU API para sector alquileres Bolivia',
     'description': '''
@@ -19,6 +19,7 @@
         * Gestión automática de tokens JWT con renovación
         * CAFC configurables (sandbox/producción)
         * Logging detallado para debugging
+        * Reporte A4 específico: título "FACTURA DE ALQUILER" + Período Facturado
 
         Endpoints:
         ==========
@@ -29,7 +30,7 @@
         * POST /api/v1/invoice/electronic/rent/revert
 
         Autor: LargoTek / WeCodeBolivia
-        Versión: 1.0.2
+        Versión: 1.0.3
     ''',
     'author': 'LargoTek',
     'website': 'https://www.largotek.com',
@@ -42,6 +43,7 @@
         'security/ir.model.access.csv',
         'views/res_company_views.xml',
         'views/account_move_views.xml',
+        'views/report_template_a4_rent.xml',
         'wizards/cucu_rent_anulation_wizard.xml',
     ],
     'external_dependencies': {
