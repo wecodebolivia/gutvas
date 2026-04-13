@@ -77,9 +77,9 @@ class AccountMove(models.Model):
             res = None
 
         if not res:
-            # Fallback: construir header minimo desde campos del account.move
+            # Fallback: construir header desde campos del account.move
             # para que el reporte no explote aunque invoice_json este vacio
-            from ..lib.qr_image import generate_qr  # noqa — mismo patron que el base
+            from odoo.addons.cucu_fact_report.lib.qr_image import generate_qr
             invoice = self.invoice_id[-1] if self.invoice_id else False
             qr_raw = invoice.qr_code if invoice else ''
             try:
@@ -136,7 +136,6 @@ class AccountMove(models.Model):
         if not header.get('periodoFacturado'):
             header['periodoFacturado'] = self.rent_billed_period or ''
         elif not self.rent_billed_period:
-            # El JSON tiene el dato pero el campo del move estaba vacio: sincronizar
             try:
                 self.sudo().write({'rent_billed_period': header['periodoFacturado']})
             except Exception:
@@ -278,7 +277,7 @@ class AccountMove(models.Model):
             'amount_gift_card': json_cabecera.get('montoGiftCard', 0),
             'amount_total_currency': json_cabecera.get('montoTotalMoneda', self.amount_total),
             'additional_discount': json_cabecera.get('descuentoAdicional', 0),
-            'doc_sector': doc_sector,  # FIX: era hardcodeado a 1
+            'doc_sector': doc_sector,
             'company_id': company.id,
         }
         existing = self.env['cucu.invoice'].search([('account_move_id', '=', self.id)], limit=1)
