@@ -17,17 +17,29 @@ class CucuRentAnulationWizard(models.TransientModel):
     _name = 'cucu.rent.anulation.wizard'
     _description = 'Wizard Anulación / Reversión Factura Alquileres'
 
-    invoice_id = fields.Many2one('account.move', string='Factura', readonly=True)
-    action = fields.Selection([
-        ('anulate', 'Anular'),
-        ('revert', 'Revertir'),
-    ], string='Operación', default='anulate', readonly=True)
+    invoice_id = fields.Many2one(
+        'account.move',
+        string='Factura',
+        readonly=True,
+    )
+
+    action = fields.Selection(
+        [
+            ('anulate', 'Anular'),
+            ('revert', 'Revertir'),
+        ],
+        string='Operación',
+        default='anulate',
+        readonly=True,
+    )
+
     motive = fields.Selection(
         MOTIVE_SELECTION,
         string='Motivo de anulación',
         default='1',
         required=True,
     )
+
     confirm_message = fields.Char(
         string='Confirmación',
         compute='_compute_confirm_message',
@@ -45,29 +57,25 @@ class CucuRentAnulationWizard(models.TransientModel):
 
     def action_confirm(self):
         self.ensure_one()
+
         if not self.motive:
             raise UserError('Debe seleccionar el Motivo de Anulación antes de continuar.')
+
         invoice = self.invoice_id
         api = self.env['cucu.rent.api']
+
         try:
             if self.action == 'anulate':
                 api.anulate_rent_invoice(invoice, motive=int(self.motive))
-                msg = f'✅ Factura {invoice.name} anulada correctamente en CUCU.'
             else:
                 api.revert_rent_invoice(invoice, motive=int(self.motive))
-                msg = f'✅ Factura {invoice.name} revertida correctamente en CUCU.'
-            _logger.info(msg)
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': '✅ Operación exitosa',
-                    'message': msg,
-                    'type': 'success',
-                    'sticky': False,
-                }
-            }
+
+            # Si todo va bien, cerrar el popup
+            return {'type': 'ir.actions.act_window_close'}
+
         except UserError:
+            # Dejar que el UserError se muestre en el wizard (no se cierra)
             raise
         except Exception as e:
+            # Cualquier otro error también se muestra en el wizard
             raise UserError(f'❌ Error en operación:\n\n{str(e)}')
