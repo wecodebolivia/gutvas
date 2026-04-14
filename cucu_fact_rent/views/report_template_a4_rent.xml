@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (c) 2026 Largotek SRL -->
-<!-- Reporte A4 específico para Facturas de Alquiler (cucu_fact_rent) -->
+<!-- Reporte A4 especifico para Facturas de Alquiler (cucu_fact_rent) -->
 <odoo>
     <data>
         <template id="report_a4_rent_title" inherit_id="cucu_fact_report.cucu_report_a4">
 
-            <!-- 1. TÍTULO: FACTURA DE ALQUILER -->
+            <!-- 1. TITULO: FACTURA DE ALQUILER -->
             <xpath expr="//div[@class='text-center']" position="replace">
                 <div class="text-center">
                     <t t-if="header['doc_sector'] == 1">
@@ -15,7 +15,7 @@
                                 FACTURA DE ALQUILER
                             </div>
                             <div style="font-size:12px; font-weight: 600;">
-                                (CON DERECHO A CRÉDITO FISCAL)
+                                (CON DERECHO A CREDITO FISCAL)
                             </div>
                         </t>
                         <t t-else="">
@@ -23,26 +23,23 @@
                                  t-attf-style="color: #{o.company_id.color_primary};">
                                 Factura
                             </div>
-                            <div style="font-size:13px">(Con Derecho a Crédito Fiscal)</div>
+                            <div style="font-size:13px">(Con Derecho a Credito Fiscal)</div>
                         </t>
                     </t>
                     <t t-if="header['doc_sector'] == 24">
                         <div class="font-bold"
                              t-attf-style="color: #{o.company_id.color_primary};font-size: 24px;">
-                            NOTA CRÉDITO-DÉBITO
+                            NOTA CREDITO-DEBITO
                         </div>
                     </t>
                 </div>
             </xpath>
 
-            <!--
-                2. PERIODO FACTURADO debajo de Cod. Cliente.
-                La tabla invoice_client_right tiene exactamente 2 filas:
-                  - NIT/CI/CEX
-                  - Cod. Cliente   <-- ultima fila
-                position=inside agrega la nueva fila al final de la tabla,
-                quedando naturalmente debajo de Cod. Cliente.
-            -->
+            <!-- 2. PERIODO FACTURADO debajo de Cod. Cliente.
+                 La tabla invoice_client_right tiene exactamente 2 filas:
+                 NIT/CI/CEX y Cod. Cliente (ultima fila).
+                 position=inside agrega la nueva fila al final de la tabla,
+                 quedando naturalmente debajo de Cod. Cliente. -->
             <xpath expr="//div[@id='invoice_client_right']//table" position="inside">
                 <t t-if="o.is_rent_invoice and o.rent_billed_period">
                     <tr>
@@ -58,7 +55,7 @@
                 </t>
             </xpath>
 
-            <!-- 3. DIRECCIÓN INMUEBLE debajo de la descripción en el detalle -->
+            <!-- 3. DIRECCION INMUEBLE debajo de la descripcion en el detalle -->
             <xpath expr="//div[@id='invoice_sale']//tbody//td[@class='text-left px-1 py-1']" position="replace">
                 <td class="text-left px-1 py-1" style="vertical-align: middle;">
                     <div t-esc="line['descripcion']"/>
