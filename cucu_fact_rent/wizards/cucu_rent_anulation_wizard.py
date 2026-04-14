@@ -5,6 +5,13 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+# Motivos de anulación según catálogo SIN Bolivia
+MOTIVE_SELECTION = [
+    ('1', '1 - Factura mal emitida'),
+    ('2', '2 - Nota de crédito-débito'),
+    ('3', '3 - Devolución de bienes'),
+]
+
 
 class CucuRentAnulationWizard(models.TransientModel):
     _name = 'cucu.rent.anulation.wizard'
@@ -15,6 +22,12 @@ class CucuRentAnulationWizard(models.TransientModel):
         ('anulate', 'Anular'),
         ('revert', 'Revertir'),
     ], string='Operación', default='anulate', readonly=True)
+    motive = fields.Selection(
+        MOTIVE_SELECTION,
+        string='Motivo de anulación',
+        default='1',
+        required=True,
+    )
     confirm_message = fields.Char(
         string='Confirmación',
         compute='_compute_confirm_message',
@@ -32,14 +45,16 @@ class CucuRentAnulationWizard(models.TransientModel):
 
     def action_confirm(self):
         self.ensure_one()
+        if not self.motive:
+            raise UserError('Debe seleccionar el Motivo de Anulación antes de continuar.')
         invoice = self.invoice_id
         api = self.env['cucu.rent.api']
         try:
             if self.action == 'anulate':
-                api.anulate_rent_invoice(invoice)
+                api.anulate_rent_invoice(invoice, motive=int(self.motive))
                 msg = f'✅ Factura {invoice.name} anulada correctamente en CUCU.'
             else:
-                api.revert_rent_invoice(invoice)
+                api.revert_rent_invoice(invoice, motive=int(self.motive))
                 msg = f'✅ Factura {invoice.name} revertida correctamente en CUCU.'
             _logger.info(msg)
             return {
@@ -52,5 +67,7 @@ class CucuRentAnulationWizard(models.TransientModel):
                     'sticky': False,
                 }
             }
+        except UserError:
+            raise
         except Exception as e:
             raise UserError(f'❌ Error en operación:\n\n{str(e)}')
