@@ -257,7 +257,8 @@ class AccountMove(models.Model):
         if not client_email:
             raise UserError(f'Cliente "{partner.name}": sin email.')
         detail_invoice = [self._prepare_cucu_rent_detail_line(l) for l in lines_with_product]
-        return {
+
+        payload = {
             'posId': pos_data['posId'],
             'clientReasonSocial': partner.name,
             'clientDocumentType': getattr(partner.doc_id, 'code_type', '1') or '1',
@@ -277,9 +278,17 @@ class AccountMove(models.Model):
             'clientEmail': client_email,
             'typeInvoice': 1,
             'typeOperation': int(self.rent_type_operation) if self.rent_type_operation else 2,
+            # ---- Campos especificos sector alquileres ----
             'billedPeriod': self.rent_billed_period,
             'detailInvoice': detail_invoice,
         }
+
+        # propertyAddress: campo opcional — se incluye solo si tiene valor
+        # La API CUCU rent lo acepta como campo raiz del payload
+        if self.rent_property_address:
+            payload['propertyAddress'] = self.rent_property_address.strip()
+
+        return payload
 
     def _save_cucu_rent_response(self, data, pos_data):
         self.ensure_one()

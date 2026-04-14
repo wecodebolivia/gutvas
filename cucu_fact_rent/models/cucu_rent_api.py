@@ -23,10 +23,34 @@ class CucuRentAPI(models.AbstractModel):
         return {'content-type': 'application/json'}
 
     def _log_request(self, method, url, payload):
+        """Log COMPLETO del payload enviado a CUCU/SIAT.
+
+        Muestra todos los campos incluyendo detailInvoice expandido
+        para facilitar debug y verificar que propertyAddress y
+        billedPeriod se envian correctamente.
+        """
+        # Copia del payload ocultando password si existiera
+        safe_payload = {k: v for k, v in payload.items() if k not in ('password',)}
+
+        # Resumen ejecutivo de campos clave
+        summary_lines = [
+            f"  ▶ Endpoint      : {method} {url}",
+            f"  ▶ posId          : {payload.get('posId', 'N/A')}",
+            f"  ▶ clientNro      : {payload.get('clientNroDocument', 'N/A')}",
+            f"  ▶ clientRazon    : {payload.get('clientReasonSocial', 'N/A')}",
+            f"  ▶ billedPeriod   : {payload.get('billedPeriod', '*** AUSENTE ***')}",
+            f"  ▶ propertyAddress: {payload.get('propertyAddress', '(no incluido)')} ",
+            f"  ▶ typeOperation  : {payload.get('typeOperation', 'N/A')}",
+            f"  ▶ dateEmission   : {payload.get('dateEmission', 'N/A')}",
+            f"  ▶ lines          : {len(payload.get('detailInvoice', []))}",
+        ]
+
         _logger.info(
-            '\n%s\n[CUCU-RENT] REQUEST  %s %s\n%s\nPAYLOAD:\n%s\n%s',
+            '\n%s\n[CUCU-RENT] REQUEST  %s %s\n%s\nSUMMARY:\n%s\n%s\nPAYLOAD COMPLETO:\n%s\n%s',
             SEP, method, url, SEP_THIN,
-            json.dumps(payload, indent=2, ensure_ascii=False),
+            '\n'.join(summary_lines),
+            SEP_THIN,
+            json.dumps(safe_payload, indent=2, ensure_ascii=False),
             SEP
         )
 
@@ -142,12 +166,6 @@ class CucuRentAPI(models.AbstractModel):
         headers = self._create_header(token)
         payload = invoice._prepare_cucu_rent_invoice_data()
 
-        _logger.info(
-            '[CUCU-RENT] EMISIÓN payload generado:\n  billedPeriod: %s\n  lines: %d\n  partner: %s\n  posId: %s',
-            payload.get('billedPeriod'), len(payload.get('detailInvoice', [])),
-            payload.get('clientReasonSocial'), payload.get('posId')
-        )
-
         endpoint = company.cucu_rent_endpoint or 'https://sandbox.cucu.ai/api/v1/invoice/electronic/rent'
         endpoint = endpoint.strip().rstrip('/')
 
@@ -261,7 +279,7 @@ class CucuRentAPI(models.AbstractModel):
             self._log_error('STATUS-CONNECTION', e)
             raise UserError(f'Error de conexión al recuperar factura:\n\n{str(e)}')
 
-    # ========================= PAYLOAD ANULACIÓN / REVERSIÓN =========================
+    # ========================= PAYLOAD ANULACIÓN / REERSIÓN =========================
 
     def _build_anulation_payload(self, invoice):
         pos_data = invoice._get_cucu_rent_pos_data()
@@ -344,7 +362,7 @@ class CucuRentAPI(models.AbstractModel):
             self._log_error('ANULACION-CONNECTION', e)
             raise UserError(f'Error de conexión al anular:\n\n{str(e)}')
 
-    # ========================= REVERSIÓN =========================
+    # ========================= REERSIÓN =========================
 
     def revert_rent_invoice(self, invoice):
         """
@@ -362,7 +380,7 @@ class CucuRentAPI(models.AbstractModel):
         endpoint = f'{host}/api/v1/invoice/electronic/rent/revert'
 
         _logger.info(
-            '\n%s\n[CUCU-RENT] REVERSIÓN  Factura: %s\n%s\nEndpoint: %s\nPayload: %s\n%s',
+            '\n%s\n[CUCU-RENT] REERSIÓN  Factura: %s\n%s\nEndpoint: %s\nPayload: %s\n%s',
             SEP, invoice.name, SEP_THIN, endpoint,
             json.dumps(payload, indent=2, ensure_ascii=False), SEP
         )
@@ -381,11 +399,11 @@ class CucuRentAPI(models.AbstractModel):
 
             if result.get('success'):
                 invoice.write({'cucu_rent_state': 'cancelled'})
-                _logger.info('[CUCU-RENT] REVERSIÓN OK  Factura %s revertida.', invoice.name)
+                _logger.info('[CUCU-RENT] REERSIÓN OK  Factura %s revertida.', invoice.name)
                 return result.get('data', {})
             else:
                 error_msg = result.get('message', 'Error desconocido')
-                _logger.error('[CUCU-RENT] REVERSIÓN FALLIDA: %s', error_msg)
+                _logger.error('[CUCU-RENT] REERSIÓN FALLIDA: %s', error_msg)
                 raise UserError(f'Error al revertir:\n\n{error_msg}')
 
         except UserError:
