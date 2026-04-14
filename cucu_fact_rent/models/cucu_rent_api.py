@@ -276,13 +276,15 @@ class CucuRentAPI(models.AbstractModel):
             self._log_error('STATUS-UNEXPECTED', e)
             raise UserError(f'Error inesperado al recuperar factura:\n\n{str(e)}')
 
-    # ========================= PAYLOAD ANULACION / REVERSION =========================
+     # ========================= PAYLOAD ANULACION / REVERSION =========================
 
-    def _build_anulation_payload(self, invoice):
+    def _build_anulation_payload(self, invoice, motive=1):
         """
-        Construye el payload minimo para anular o revertir.
-        Valida todos los campos antes de intentar convertir a int
-        para evitar ValueError que Odoo convierte en 'invalid method arguments'.
+        Construye el payload para anular o revertir.
+        codeMotive según catálogo SIN Bolivia:
+            1 = Factura mal emitida
+            2 = Nota de crédito-débito
+            3 = Devolución de bienes
         """
         invoice.ensure_one()
         pos_data = invoice._get_cucu_rent_pos_data()
@@ -301,8 +303,9 @@ class CucuRentAPI(models.AbstractModel):
         pos_id = pos_data.get('posId')
 
         _logger.info(
-            '[CUCU-RENT] _build_anulation_payload cuf=%s | invoiceCode=%s | invoiceNumber=%s | posId=%s',
-            cuf, invoice_code, invoice_number_raw, pos_id
+            '[CUCU-RENT] _build_anulation_payload cuf=%s | invoiceCode=%s | '
+            'invoiceNumber=%s | posId=%s | codeMotive=%s',
+            cuf, invoice_code, invoice_number_raw, pos_id, motive
         )
 
         if not cuf:
@@ -312,13 +315,13 @@ class CucuRentAPI(models.AbstractModel):
             )
         if not invoice_number_raw:
             raise UserError(
-                'Falta el Numero de Factura.\n'
-                'Revise el campo "Numero Factura Alquileres" o recupere los datos desde CUCU.'
+                'Falta el Número de Factura.\n'
+                'Revise el campo "Número Factura Alquileres" o recupere los datos desde CUCU.'
             )
         if not invoice_number_raw.isdigit():
             raise UserError(
-                f'El Numero de Factura no es valido: "{invoice_number_raw}".\n'
-                'Debe ser un numero entero devuelto por CUCU.'
+                f'El Número de Factura no es válido: "{invoice_number_raw}".\n'
+                'Debe ser un número entero devuelto por CUCU.'
             )
         if not invoice_code:
             raise UserError(
@@ -328,7 +331,7 @@ class CucuRentAPI(models.AbstractModel):
         if pos_id in (None, False, ''):
             raise UserError(
                 'No se pudo determinar el POS de la factura.\n'
-                'Verifique la configuracion del Punto de Venta CUCU.'
+                'Verifique la configuración del Punto de Venta CUCU.'
             )
 
         return {
@@ -336,14 +339,13 @@ class CucuRentAPI(models.AbstractModel):
             'invoiceNumber': int(invoice_number_raw),
             'invoiceCode': invoice_code,
             'posId': int(pos_id),
+            'codeMotive': int(motive),
         }
 
     # ========================= ANULACION =========================
 
-    def anulate_rent_invoice(self, invoice):
-        """
-        POST /api/v1/invoice/electronic/rent/anulation
-        """
+    def anulate_rent_invoice(self, invoice, motive=1):
+        """POST /api/v1/invoice/electronic/rent/anulation"""
         invoice.ensure_one()
         company = invoice.company_id
 
@@ -352,7 +354,7 @@ class CucuRentAPI(models.AbstractModel):
 
         token = self._get_auth_token(company)
         headers = self._create_header(token)
-        payload = self._build_anulation_payload(invoice)
+        payload = self._build_anulation_payload(invoice, motive=motive)
 
         endpoint = (
             company.cucu_rent_anulation_endpoint
@@ -372,8 +374,10 @@ class CucuRentAPI(models.AbstractModel):
             if response.status_code == 401:
                 response = self._handle_401(
                     company, endpoint,
-                    lambda t: requests.post(url=endpoint, json=payload,
-                                            headers=self._create_header(t), timeout=60)
+                    lambda t: requests.post(
+                        url=endpoint, json=payload,
+                        headers=self._create_header(t), timeout=60
+                    )
                 )
                 self._log_response(response, 'ANULACION-RETRY')
 
@@ -390,7 +394,6 @@ class CucuRentAPI(models.AbstractModel):
                 error_msg += '\n\nDetalles:\n' + ''.join(
                     f'  - {e.get("field", "?")}: {e.get("message", "?")}\n' for e in errors
                 )
-            _logger.error('[CUCU-RENT] ANULACION FALLIDA: %s', error_msg)
             raise UserError(f'Error al anular:\n\n{error_msg}')
 
         except UserError:
@@ -400,17 +403,15 @@ class CucuRentAPI(models.AbstractModel):
             raise UserError(f'Timeout al anular factura.\nURL: {endpoint}')
         except requests.exceptions.RequestException as e:
             self._log_error('ANULACION-CONNECTION', e)
-            raise UserError(f'Error de conexion al anular:\n\n{str(e)}')
+            raise UserError(f'Error de conexión al anular:\n\n{str(e)}')
         except Exception as e:
             self._log_error('ANULACION-UNEXPECTED', e)
             raise UserError(f'Error inesperado al anular:\n\n{str(e)}')
 
     # ========================= REVERSION =========================
 
-    def revert_rent_invoice(self, invoice):
-        """
-        POST /api/v1/invoice/electronic/rent/revert
-        """
+    def revert_rent_invoice(self, invoice, motive=1):
+        """POST /api/v1/invoice/electronic/rent/revert"""
         invoice.ensure_one()
         company = invoice.company_id
 
@@ -419,7 +420,7 @@ class CucuRentAPI(models.AbstractModel):
 
         token = self._get_auth_token(company)
         headers = self._create_header(token)
-        payload = self._build_anulation_payload(invoice)
+        payload = self._build_anulation_payload(invoice, motive=motive)
 
         endpoint = (
             company.cucu_rent_revert_endpoint
@@ -439,8 +440,10 @@ class CucuRentAPI(models.AbstractModel):
             if response.status_code == 401:
                 response = self._handle_401(
                     company, endpoint,
-                    lambda t: requests.post(url=endpoint, json=payload,
-                                            headers=self._create_header(t), timeout=60)
+                    lambda t: requests.post(
+                        url=endpoint, json=payload,
+                        headers=self._create_header(t), timeout=60
+                    )
                 )
                 self._log_response(response, 'REVERSION-RETRY')
 
@@ -457,7 +460,6 @@ class CucuRentAPI(models.AbstractModel):
                 error_msg += '\n\nDetalles:\n' + ''.join(
                     f'  - {e.get("field", "?")}: {e.get("message", "?")}\n' for e in errors
                 )
-            _logger.error('[CUCU-RENT] REVERSION FALLIDA: %s', error_msg)
             raise UserError(f'Error al revertir:\n\n{error_msg}')
 
         except UserError:
@@ -467,7 +469,7 @@ class CucuRentAPI(models.AbstractModel):
             raise UserError(f'Timeout al revertir factura.\nURL: {endpoint}')
         except requests.exceptions.RequestException as e:
             self._log_error('REVERSION-CONNECTION', e)
-            raise UserError(f'Error de conexion al revertir:\n\n{str(e)}')
+            raise UserError(f'Error de conexión al revertir:\n\n{str(e)}')
         except Exception as e:
             self._log_error('REVERSION-UNEXPECTED', e)
             raise UserError(f'Error inesperado al revertir:\n\n{str(e)}')
