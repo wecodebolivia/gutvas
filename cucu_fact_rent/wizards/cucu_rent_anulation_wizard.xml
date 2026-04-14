@@ -7,8 +7,7 @@
             <form string="Anular / Revertir Factura Alquiler">
                 <sheet>
                     <group>
-                        <field name="confirm_message" readonly="1"
-                               attrs="{'invisible': [('confirm_message', '=', False)]}"/>
+                        <field name="confirm_message" readonly="1"/>
                     </group>
                     <group>
                         <field name="motive" required="1"/>
