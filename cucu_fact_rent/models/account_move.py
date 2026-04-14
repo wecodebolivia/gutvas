@@ -57,92 +57,92 @@ class AccountMove(models.Model):
     # ========== OVERRIDE render_invoice() ==========
     def render_invoice(self):
         """
-        Override para facturas de alquiler.
-        - Llama al super() que procesa el invoice_json normalmente.
-        - Si falla (invoice_json vacio o campos faltantes), devuelve
-          un header minimo construido desde los campos del account.move.
-        - Siempre sincroniza rent_billed_period desde periodoFacturado
-          del JSON si el campo del move estaba vacio.
+        Override completo para facturas de alquiler.
+
+        El modulo base cucu_fact_report solo procesa doc_sector 1 y 24.
+        Las facturas de alquiler tienen doc_sector=2 en el JSON, por lo
+        que el base deja header={} y falla. Este override lee el
+        invoice_json directamente y construye el header correcto,
+        forzando doc_sector=1 para que el template base muestre
+        la tabla de detalle (invoice_sale).
         """
         if not self.is_rent_invoice:
             return super().render_invoice()
 
+        from odoo.addons.cucu_fact_report.lib.qr_image import generate_qr
+        from odoo.addons.cucu_fact_report.lib.string_utils import number_to_date
+
+        if not self.invoice_id:
+            return None
+
+        invoice = self.invoice_id[-1]
+
+        # Leer invoice_json guardado por _save_cucu_rent_response
         try:
-            res = super().render_invoice()
-        except Exception as e:
-            _logger.warning(
-                'cucu_fact_rent: render_invoice() fallo para move %s, '
-                'construyendo header de fallback. Error: %s', self.name, e
-            )
-            res = None
+            invoice_json = json.loads(invoice.invoice_json or '{}')
+        except Exception:
+            invoice_json = {}
 
-        if not res:
-            # Fallback: construir header desde campos del account.move
-            # para que el reporte no explote aunque invoice_json este vacio
-            from odoo.addons.cucu_fact_report.lib.qr_image import generate_qr
-            invoice = self.invoice_id[-1] if self.invoice_id else False
-            qr_raw = invoice.qr_code if invoice else ''
-            try:
-                qr_b64 = 'data:image/png;base64,' + generate_qr(qr_raw) if qr_raw else ''
-            except Exception:
-                qr_b64 = ''
-            header = {
-                'cuf': self.cucu_rent_cuf or '',
-                'nitEmisor': self.company_id.vat or '',
-                'razonSocialEmisor': self.company_id.name or '',
-                'numeroFactura': self.cucu_rent_invoice_number or '',
-                'fechaEmision': str(self.invoice_date or ''),
-                'nombreRazonSocial': self.partner_id.name or '',
-                'numeroDocumento': self.partner_id.vat or '',
-                'codigoTipoDocumentoIdentidad': 5,
-                'complemento': '',
-                'codigoCliente': self.partner_id.ref or '',
-                'codigoPuntoVenta': f'No. Punto de Venta {self.pos_id.cucu_pos_id.pos_id if self.pos_id and self.pos_id.cucu_pos_id else 0}',
-                'municipio': '',
-                'direccion': self.company_id.street or '',
-                'telefono': '',
-                'montoTotal': f'{self.amount_total:.2f}',
-                'montoTotalMoneda': f'{self.amount_total:.2f}',
-                'montoTotalSujetoIva': f'{self.amount_total:.2f}',
-                'descuentoAdicional': '0.00',
-                'montoGiftCard': '0.00',
-                'leyenda': '',
-                'observations': '',
-                'montoLiteral': invoice.amount_literal if invoice else '',
-                'doc_sector': 2,
-                'periodoFacturado': self.rent_billed_period or '',
-                'qr': qr_b64,
-                'qr_code': qr_raw,
-                'invoice_url': invoice.url_cucu if invoice else '',
-                'payment_key': 'ok' if self.is_sin else 'no',
-                'branch_name': self.pos_id.cucu_pos_id.branch_id.name if self.pos_id and self.pos_id.cucu_pos_id else '',
-            }
-            detail = []
-            for line in self.invoice_line_ids.filtered(lambda l: l.product_id):
-                detail.append({
-                    'codigoProducto': line.product_id.default_code or '',
-                    'cantidad': f'{line.quantity:.2f}',
-                    'unit_description': '',
-                    'descripcion': line.name or line.product_id.name or '',
-                    'precioUnitario': f'{line.price_unit:.2f}',
-                    'montoDescuento': '0.00',
-                    'subTotal': f'{line.price_subtotal:.2f}',
-                })
-            res = {'header': header, 'detail': detail}
+        cabecera = invoice_json.get('cabecera', {})
+        detalle = invoice_json.get('detalle', [])
 
-        # Siempre sincronizar periodoFacturado desde el JSON si el campo
-        # del move esta vacio (puede ocurrir en facturas recuperadas)
-        header = res.get('header', {})
-        if not header.get('periodoFacturado'):
-            header['periodoFacturado'] = self.rent_billed_period or ''
-        elif not self.rent_billed_period:
+        # QR
+        qr_raw = invoice.qr_code or ''
+        try:
+            qr_b64 = 'data:image/png;base64,' + generate_qr(qr_raw) if qr_raw else ''
+        except Exception:
+            qr_b64 = ''
+
+        # Fecha con formato legible
+        fecha_raw = cabecera.get('fechaEmision', str(self.invoice_date or ''))
+        try:
+            fecha = number_to_date(fecha_raw)
+        except Exception:
+            fecha = str(fecha_raw)
+
+        # numeroDocumento con complemento (igual que el base)
+        doc_type = int(cabecera.get('codigoTipoDocumentoIdentidad', 5))
+        nro_doc = cabecera.get('numeroDocumento', self.partner_id.vat or '')
+        complemento = cabecera.get('complemento', '')
+        if doc_type == 1 and complemento:
+            nro_doc = f'{nro_doc}-{complemento}'
+
+        # Periodo facturado: sincronizar move <-> JSON
+        periodo = cabecera.get('periodoFacturado', '') or self.rent_billed_period or ''
+        if periodo and not self.rent_billed_period:
             try:
-                self.sudo().write({'rent_billed_period': header['periodoFacturado']})
+                self.sudo().write({'rent_billed_period': periodo})
             except Exception:
                 pass
 
-        res['header'] = header
-        return res
+        # Branch name
+        branch_name = ''
+        if self.pos_id and self.pos_id.cucu_pos_id and self.pos_id.cucu_pos_id.branch_id:
+            branch_name = self.pos_id.cucu_pos_id.branch_id.name
+
+        header = {
+            **cabecera,
+            # Sobreescribir/agregar campos procesados
+            'fechaEmision': fecha,
+            'numeroDocumento': nro_doc,
+            'codigoPuntoVenta': f'No. Punto de Venta {cabecera.get("codigoPuntoVenta", 0)}',
+            'montoLiteral': invoice.amount_literal or '',
+            'observations': getattr(invoice, 'observations', '') or '',
+            'qr': qr_b64,
+            'qr_code': qr_raw,
+            'invoice_url': invoice.url_cucu or '',
+            'payment_key': 'ok' if self.is_sin else 'no',
+            'branch_name': branch_name,
+            'periodoFacturado': periodo,
+            # CRITICO: forzar doc_sector=1 para que el template
+            # muestre la tabla invoice_sale con el detalle
+            'doc_sector': 1,
+        }
+
+        # Detalle procesado igual que el base
+        detail = self._render_invoice_details(detalle)
+
+        return {'header': header, 'detail': detail}
 
     def _get_cucu_rent_pos_data(self):
         if not self.pos_id:
@@ -244,7 +244,7 @@ class AccountMove(models.Model):
             invoice_json_parsed = {}
             json_cabecera = {}
 
-        # FIX: leer doc_sector desde el JSON real (alquileres = 2, no 1)
+        # Leer doc_sector desde el JSON real (alquileres = 2)
         doc_sector = int(json_cabecera.get('codigoDocumentoSector', 2))
 
         host = cucu_pos.manager_id.host if cucu_pos.manager_id else ''
