@@ -9,9 +9,8 @@
             la Factura de Alquiler:
               1. Título: "FACTURA DE ALQUILER" en lugar de "Factura"
               2. Período Facturado: campo adicional junto a Cod. Cliente
-
-            NOTA: La fila "IMPORTE BASE CRÉDITO FISCAL" ya existe en el
-            template base (cucu_report_a4 / tfoot), no se duplica.
+              3. Dirección Inmueble: se muestra debajo de la descripción
+                 en la tabla de detalle
         -->
         <template id="report_a4_rent_title" inherit_id="cucu_fact_report.cucu_report_a4">
 
@@ -46,7 +45,6 @@
             </xpath>
 
             <!-- 2. AGREGAR "PERIODO FACTURADO" en la columna derecha del cliente -->
-            <!--    Se inserta al final de la tabla dentro de invoice_client_right  -->
             <xpath expr="//div[@id='invoice_client_right']//table" position="inside">
                 <t t-if="o.is_rent_invoice and o.rent_billed_period">
                     <tr>
@@ -60,6 +58,18 @@
                         </td>
                     </tr>
                 </t>
+            </xpath>
+
+            <!-- 3. DIRECCIÓN INMUEBLE debajo de la descripción en cada fila del detalle -->
+            <!--    Reemplaza la celda td de descripcion en el tbody de invoice_sale -->
+            <xpath expr="//div[@id='invoice_sale']//tbody//td[@class='text-left px-1 py-1']" position="replace">
+                <td class="text-left px-1 py-1" style="vertical-align: middle;">
+                    <div t-esc="line['descripcion']"/>
+                    <t t-if="o.is_rent_invoice and header.get('dirInmueble')">
+                        <div style="font-size:0.70rem; color:#555; margin-top:2px;"
+                             t-esc="header['dirInmueble']"/>
+                    </t>
+                </td>
             </xpath>
 
         </template>

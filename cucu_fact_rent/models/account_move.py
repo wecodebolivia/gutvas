@@ -134,6 +134,8 @@ class AccountMove(models.Model):
             'payment_key': 'ok' if self.is_sin else 'no',
             'branch_name': branch_name,
             'periodoFacturado': periodo,
+            # Direccion del inmueble para mostrar en el reporte
+            'dirInmueble': self.rent_property_address or '',
             # CRITICO: forzar doc_sector=1 para que el template
             # muestre la tabla invoice_sale con el detalle
             'doc_sector': 1,
