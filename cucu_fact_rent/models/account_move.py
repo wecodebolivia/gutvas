@@ -6,6 +6,39 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+# Campos que el template base accede con header['clave'] (sin .get())
+# La API CUCU rent puede no devolverlos todos, por eso se definen defaults
+_HEADER_DEFAULTS = {
+    'nitEmisor': '',
+    'razonSocialEmisor': '',
+    'branch_name': '',
+    'codigoPuntoVenta': '',
+    'direccion': '',
+    'telefono': '',
+    'municipio': '',
+    'numeroFactura': '',
+    'cuf': '',
+    'fechaEmision': '',
+    'nombreRazonSocial': '',
+    'numeroDocumento': '',
+    'codigoCliente': '',
+    'montoTotal': '0.00',
+    'montoTotalMoneda': '0.00',
+    'montoTotalSujetoIva': '0.00',
+    'descuentoAdicional': '0.00',
+    'montoGiftCard': '0.00',
+    'montoLiteral': '',
+    'leyenda': '',
+    'observations': '',
+    'qr': '',
+    'qr_code': '',
+    'invoice_url': '',
+    'payment_key': 'no',
+    'periodoFacturado': '',
+    'dirInmueble': '',
+    'doc_sector': 1,
+}
+
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -65,6 +98,10 @@ class AccountMove(models.Model):
         invoice_json directamente y construye el header correcto,
         forzando doc_sector=1 para que el template base muestre
         la tabla de detalle (invoice_sale).
+
+        Se aplican _HEADER_DEFAULTS primero para garantizar que todos los
+        campos que el template accede con header['clave'] (sin .get())
+        existan, incluso si la API CUCU rent no los devuelve.
         """
         if not self.is_rent_invoice:
             return super().render_invoice()
@@ -77,7 +114,6 @@ class AccountMove(models.Model):
 
         invoice = self.invoice_id[-1]
 
-        # Leer invoice_json guardado por _save_cucu_rent_response
         try:
             invoice_json = json.loads(invoice.invoice_json or '{}')
         except Exception:
@@ -100,7 +136,7 @@ class AccountMove(models.Model):
         except Exception:
             fecha = str(fecha_raw)
 
-        # numeroDocumento con complemento (igual que el base)
+        # numeroDocumento con complemento
         doc_type = int(cabecera.get('codigoTipoDocumentoIdentidad', 5))
         nro_doc = cabecera.get('numeroDocumento', self.partner_id.vat or '')
         complemento = cabecera.get('complemento', '')
@@ -120,12 +156,27 @@ class AccountMove(models.Model):
         if self.pos_id and self.pos_id.cucu_pos_id and self.pos_id.cucu_pos_id.branch_id:
             branch_name = self.pos_id.cucu_pos_id.branch_id.name
 
+        # Montos: formatear a 2 decimales como string
+        def _fmt(val, default='0.00'):
+            try:
+                return f'{float(val):.2f}'
+            except Exception:
+                return default
+
         header = {
+            # 1. Defaults para todos los campos que el template usa sin .get()
+            **_HEADER_DEFAULTS,
+            # 2. Datos reales del JSON (sobreescriben defaults)
             **cabecera,
-            # Sobreescribir/agregar campos procesados
+            # 3. Campos procesados/calculados (sobreescriben JSON crudo)
             'fechaEmision': fecha,
             'numeroDocumento': nro_doc,
             'codigoPuntoVenta': f'No. Punto de Venta {cabecera.get("codigoPuntoVenta", 0)}',
+            'montoTotal': _fmt(cabecera.get('montoTotal', self.amount_total)),
+            'montoTotalMoneda': _fmt(cabecera.get('montoTotalMoneda', self.amount_total)),
+            'montoTotalSujetoIva': _fmt(cabecera.get('montoTotalSujetoIva', self.amount_total)),
+            'descuentoAdicional': _fmt(cabecera.get('descuentoAdicional', 0)),
+            'montoGiftCard': _fmt(cabecera.get('montoGiftCard', 0)),
             'montoLiteral': invoice.amount_literal or '',
             'observations': getattr(invoice, 'observations', '') or '',
             'qr': qr_b64,
@@ -134,14 +185,11 @@ class AccountMove(models.Model):
             'payment_key': 'ok' if self.is_sin else 'no',
             'branch_name': branch_name,
             'periodoFacturado': periodo,
-            # Direccion del inmueble para mostrar en el reporte
             'dirInmueble': self.rent_property_address or '',
-            # CRITICO: forzar doc_sector=1 para que el template
-            # muestre la tabla invoice_sale con el detalle
+            # CRITICO: forzar doc_sector=1 para que el template muestre la tabla
             'doc_sector': 1,
         }
 
-        # Detalle procesado igual que el base
         detail = self._render_invoice_details(detalle)
 
         return {'header': header, 'detail': detail}
@@ -246,7 +294,6 @@ class AccountMove(models.Model):
             invoice_json_parsed = {}
             json_cabecera = {}
 
-        # Leer doc_sector desde el JSON real (alquileres = 2)
         doc_sector = int(json_cabecera.get('codigoDocumentoSector', 2))
 
         host = cucu_pos.manager_id.host if cucu_pos.manager_id else ''
