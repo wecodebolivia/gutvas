@@ -35,6 +35,7 @@ class CucuRentAPI(models.AbstractModel):
             f"  typeOperation  : {payload.get('typeOperation', 'N/A')}",
             f"  dateEmission   : {payload.get('dateEmission', 'N/A')}",
             f"  lines          : {len(payload.get('detailInvoice', []))}",
+            f"  codeMotive     : {payload.get('codeMotive', '(no aplica)')}",
         ]
         _logger.info(
             '\n%s\n[CUCU-RENT] REQUEST %s %s\n%s\nSUMMARY:\n%s\n%s\nPAYLOAD COMPLETO:\n%s\n%s',
@@ -107,8 +108,10 @@ class CucuRentAPI(models.AbstractModel):
             'password': company.cucu_rent_password.strip()
         }
         try:
-            response = requests.post(url=url, json=real_payload,
-                                     headers=self._create_header(), timeout=30)
+            response = requests.post(
+                url=url, json=real_payload,
+                headers=self._create_header(), timeout=30
+            )
             self._log_response(response, 'AUTH')
             result = response.json()
 
@@ -122,7 +125,9 @@ class CucuRentAPI(models.AbstractModel):
                 _logger.info('[CUCU-RENT] Token obtenido correctamente. Expira: %s', expiry_date)
                 return token
             else:
-                raise UserError(f'Error de autenticacion CUCU:\n{result.get("message", "Error desconocido")}')
+                raise UserError(
+                    f'Error de autenticacion CUCU:\n{result.get("message", "Error desconocido")}'
+                )
 
         except UserError:
             raise
@@ -164,8 +169,10 @@ class CucuRentAPI(models.AbstractModel):
             if response.status_code == 401:
                 response = self._handle_401(
                     company, endpoint,
-                    lambda t: requests.post(url=endpoint, json=payload,
-                                            headers=self._create_header(t), timeout=60)
+                    lambda t: requests.post(
+                        url=endpoint, json=payload,
+                        headers=self._create_header(t), timeout=60
+                    )
                 )
                 self._log_response(response, 'EMISION-RETRY')
 
@@ -231,8 +238,10 @@ class CucuRentAPI(models.AbstractModel):
             if response.status_code == 401:
                 response = self._handle_401(
                     company, url,
-                    lambda t: requests.get(url=url, json=params,
-                                           headers=self._create_header(t), timeout=30)
+                    lambda t: requests.get(
+                        url=url, json=params,
+                        headers=self._create_header(t), timeout=30
+                    )
                 )
                 self._log_response(response, 'STATUS-RETRY')
 
@@ -276,15 +285,15 @@ class CucuRentAPI(models.AbstractModel):
             self._log_error('STATUS-UNEXPECTED', e)
             raise UserError(f'Error inesperado al recuperar factura:\n\n{str(e)}')
 
-     # ========================= PAYLOAD ANULACION / REVERSION =========================
+    # ========================= PAYLOAD ANULACION / REVERSION =========================
 
     def _build_anulation_payload(self, invoice, motive=1):
         """
         Construye el payload para anular o revertir.
-        codeMotive según catálogo SIN Bolivia:
+        codeMotive segun catalogo SIN Bolivia:
             1 = Factura mal emitida
-            2 = Nota de crédito-débito
-            3 = Devolución de bienes
+            2 = Nota de credito-debito
+            3 = Devolucion de bienes
         """
         invoice.ensure_one()
         pos_data = invoice._get_cucu_rent_pos_data()
@@ -315,13 +324,13 @@ class CucuRentAPI(models.AbstractModel):
             )
         if not invoice_number_raw:
             raise UserError(
-                'Falta el Número de Factura.\n'
-                'Revise el campo "Número Factura Alquileres" o recupere los datos desde CUCU.'
+                'Falta el Numero de Factura.\n'
+                'Revise el campo "Numero Factura Alquileres" o recupere los datos desde CUCU.'
             )
         if not invoice_number_raw.isdigit():
             raise UserError(
-                f'El Número de Factura no es válido: "{invoice_number_raw}".\n'
-                'Debe ser un número entero devuelto por CUCU.'
+                f'El Numero de Factura no es valido: "{invoice_number_raw}".\n'
+                'Debe ser un numero entero devuelto por CUCU.'
             )
         if not invoice_code:
             raise UserError(
@@ -331,7 +340,7 @@ class CucuRentAPI(models.AbstractModel):
         if pos_id in (None, False, ''):
             raise UserError(
                 'No se pudo determinar el POS de la factura.\n'
-                'Verifique la configuración del Punto de Venta CUCU.'
+                'Verifique la configuracion del Punto de Venta CUCU.'
             )
 
         return {
@@ -384,9 +393,15 @@ class CucuRentAPI(models.AbstractModel):
             result = response.json()
 
             if result.get('success'):
-                invoice.write({'cucu_rent_state': 'cancelled'})
+                data = result.get('data', {}) or {}
+                invoice.write({
+                    'cucu_rent_state': 'cancelled',
+                    'sin_code_state': data.get('siatCodeState', invoice.sin_code_state),
+                    'sin_code_reception': data.get('siatCodeReception', invoice.sin_code_reception),
+                    'sin_description_status': data.get('siatDescriptionStatus', 'ANULADA'),
+                })
                 _logger.info('[CUCU-RENT] ANULACION OK Factura %s anulada.', invoice.name)
-                return result.get('data', {})
+                return data
 
             error_msg = result.get('message', 'Error desconocido')
             errors = result.get('errors', [])
@@ -403,7 +418,7 @@ class CucuRentAPI(models.AbstractModel):
             raise UserError(f'Timeout al anular factura.\nURL: {endpoint}')
         except requests.exceptions.RequestException as e:
             self._log_error('ANULACION-CONNECTION', e)
-            raise UserError(f'Error de conexión al anular:\n\n{str(e)}')
+            raise UserError(f'Error de conexion al anular:\n\n{str(e)}')
         except Exception as e:
             self._log_error('ANULACION-UNEXPECTED', e)
             raise UserError(f'Error inesperado al anular:\n\n{str(e)}')
@@ -450,9 +465,15 @@ class CucuRentAPI(models.AbstractModel):
             result = response.json()
 
             if result.get('success'):
-                invoice.write({'cucu_rent_state': 'validated'})
+                data = result.get('data', {}) or {}
+                invoice.write({
+                    'cucu_rent_state': 'validated',
+                    'sin_code_state': data.get('siatCodeState', invoice.sin_code_state),
+                    'sin_code_reception': data.get('siatCodeReception', invoice.sin_code_reception),
+                    'sin_description_status': data.get('siatDescriptionStatus', invoice.sin_description_status),
+                })
                 _logger.info('[CUCU-RENT] REVERSION OK Factura %s revertida.', invoice.name)
-                return result.get('data', {})
+                return data
 
             error_msg = result.get('message', 'Error desconocido')
             errors = result.get('errors', [])
@@ -469,7 +490,7 @@ class CucuRentAPI(models.AbstractModel):
             raise UserError(f'Timeout al revertir factura.\nURL: {endpoint}')
         except requests.exceptions.RequestException as e:
             self._log_error('REVERSION-CONNECTION', e)
-            raise UserError(f'Error de conexión al revertir:\n\n{str(e)}')
+            raise UserError(f'Error de conexion al revertir:\n\n{str(e)}')
         except Exception as e:
             self._log_error('REVERSION-UNEXPECTED', e)
             raise UserError(f'Error inesperado al revertir:\n\n{str(e)}')
