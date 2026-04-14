@@ -156,10 +156,10 @@ class AccountMove(models.Model):
         if self.pos_id and self.pos_id.cucu_pos_id and self.pos_id.cucu_pos_id.branch_id:
             branch_name = self.pos_id.cucu_pos_id.branch_id.name
 
-        # Montos: formatear a 2 decimales como string
+        # Montos: 2 decimales + separador de miles  (ej: 25,000.00)
         def _fmt(val, default='0.00'):
             try:
-                return f'{float(val):.2f}'
+                return f'{float(val):,.2f}'
             except Exception:
                 return default
 
@@ -283,8 +283,7 @@ class AccountMove(models.Model):
             'detailInvoice': detail_invoice,
         }
 
-        # propertyAddress: campo opcional — se incluye solo si tiene valor
-        # La API CUCU rent lo acepta como campo raiz del payload
+        # propertyAddress: campo opcional - se incluye solo si tiene valor
         if self.rent_property_address:
             payload['propertyAddress'] = self.rent_property_address.strip()
 
