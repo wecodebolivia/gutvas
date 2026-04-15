@@ -23,7 +23,6 @@ class CucuRentAPI(models.AbstractModel):
         return {'content-type': 'application/json'}
 
     def _log_request(self, method, url, payload):
-        """Log COMPLETO del payload enviado a CUCU/SIAT."""
         safe_payload = {k: v for k, v in payload.items() if k not in ('password',)}
         summary_lines = [
             f"  Endpoint       : {method} {url}",
@@ -70,7 +69,6 @@ class CucuRentAPI(models.AbstractModel):
         )
 
     def _handle_401(self, company, url, method_fn):
-        """Renueva token y reintenta una vez."""
         _logger.warning('[CUCU-RENT] 401 recibido - renovando token y reintentando: %s', url)
         company.sudo().write({'cucu_rent_token': False, 'cucu_rent_token_expiry': False})
         token = self._get_auth_token(company)
@@ -208,10 +206,7 @@ class CucuRentAPI(models.AbstractModel):
     # ========================= STATUS / RECUPERACION =========================
 
     def get_rent_invoice_status(self, invoice, invoice_code, invoice_number):
-        """
-        GET /api/v1/invoice/electronic/rent/status
-        Params: invoiceCode, invoiceNumber, posId, branchId
-        """
+        """GET /api/v1/invoice/electronic/rent/status"""
         company = invoice.company_id
         token = self._get_auth_token(company)
         headers = self._create_header(token)
@@ -263,10 +258,6 @@ class CucuRentAPI(models.AbstractModel):
                     detail = '\n\nCampos con error:\n' + ''.join(
                         f'  - {e.get("field", "?")}: {e.get("message", "?")}\n' for e in errors
                     )
-                _logger.warning(
-                    '[CUCU-RENT] STATUS FALLIDO invoiceCode=%s invoiceNumber=%s\nError: %s%s',
-                    invoice_code, invoice_number, error_msg, detail
-                )
                 raise UserError(
                     f'Error al recuperar datos de la factura:\n\n{error_msg}{detail}\n'
                     f'invoiceCode: {invoice_code} | invoiceNumber: {invoice_number} | '
@@ -289,7 +280,6 @@ class CucuRentAPI(models.AbstractModel):
 
     def _build_anulation_payload(self, invoice, motive=1):
         """
-        Construye el payload para anular o revertir.
         codeMotive segun catalogo SIN Bolivia:
             1 = Factura mal emitida
             2 = Nota de credito-debito
@@ -394,12 +384,17 @@ class CucuRentAPI(models.AbstractModel):
 
             if result.get('success'):
                 data = result.get('data', {}) or {}
-                invoice.write({
-                    'cucu_rent_state': 'cancelled',
-                    'sin_code_state': data.get('siatCodeState', invoice.sin_code_state),
-                    'sin_code_reception': data.get('siatCodeReception', invoice.sin_code_reception),
-                    'sin_description_status': data.get('siatDescriptionStatus', 'ANULADA'),
+
+                # Actualiza account.move + cucu.invoice usando método del módulo madre
+                # Esto sincroniza sin_description_status y sin_code_state en ambos modelos
+                invoice.update_cancel_invoice({
+                    'siatCodeState': data.get('siatCodeState', 905),
+                    'siatDescriptionStatus': data.get('siatDescriptionStatus', 'ANULADA'),
                 })
+
+                # Marca estado rent como cancelado
+                invoice.write({'cucu_rent_state': 'cancelled'})
+
                 _logger.info('[CUCU-RENT] ANULACION OK Factura %s anulada.', invoice.name)
                 return data
 
@@ -466,12 +461,16 @@ class CucuRentAPI(models.AbstractModel):
 
             if result.get('success'):
                 data = result.get('data', {}) or {}
-                invoice.write({
-                    'cucu_rent_state': 'validated',
-                    'sin_code_state': data.get('siatCodeState', invoice.sin_code_state),
-                    'sin_code_reception': data.get('siatCodeReception', invoice.sin_code_reception),
-                    'sin_description_status': data.get('siatDescriptionStatus', invoice.sin_description_status),
+
+                # Actualiza account.move + cucu.invoice usando método del módulo madre
+                invoice.update_cancel_invoice({
+                    'siatCodeState': data.get('siatCodeState', invoice.sin_code_state),
+                    'siatDescriptionStatus': data.get('siatDescriptionStatus', invoice.sin_description_status),
                 })
+
+                # Marca estado rent como validado (reversión = vuelve a borrador/validado)
+                invoice.write({'cucu_rent_state': 'validated'})
+
                 _logger.info('[CUCU-RENT] REVERSION OK Factura %s revertida.', invoice.name)
                 return data
 
