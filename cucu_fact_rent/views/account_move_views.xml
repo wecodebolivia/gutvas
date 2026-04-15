@@ -91,7 +91,7 @@
         </field>
     </record>
 
-    <!-- ========== 4. VISTA DE LISTA ========== -->
+    <!-- ========== 4. VISTA DE LISTA ========== 
     <record id="view_invoice_tree_rent" model="ir.ui.view">
         <field name="name">account.move.tree.rent</field>
         <field name="model">account.move</field>
@@ -106,7 +106,7 @@
                        decoration-warning="cucu_rent_state == 'sent'"/>
             </xpath>
         </field>
-    </record>
+    </record>-->
 
     <!-- ========== 5. FILTROS ========== -->
     <record id="view_account_invoice_filter_rent" model="ir.ui.view">
