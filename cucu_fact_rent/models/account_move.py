@@ -156,7 +156,7 @@ class AccountMove(models.Model):
         if self.pos_id and self.pos_id.cucu_pos_id and self.pos_id.cucu_pos_id.branch_id:
             branch_name = self.pos_id.cucu_pos_id.branch_id.name
 
-        # Montos: 2 decimales + separador de miles  (ej: 25,000.00)
+        # Montos: 2 decimales + separador de miles (ej: 25,000.00)
         def _fmt(val, default='0.00'):
             try:
                 return f'{float(val):,.2f}'
@@ -258,12 +258,17 @@ class AccountMove(models.Model):
             raise UserError(f'Cliente "{partner.name}": sin email.')
         detail_invoice = [self._prepare_cucu_rent_detail_line(l) for l in lines_with_product]
 
+        # reason_social viene del módulo cucu_fact_core y no lleva NIT concatenado
+        reason_social = getattr(partner, 'reason_social', None) or partner.name
+        nit_client = getattr(partner, 'nit_client', None) or partner.vat
+
         payload = {
             'posId': pos_data['posId'],
-            'clientReasonSocial': partner.name,
+            'branchId': pos_data['branchId'],                   # FIX: sucursal correcta
+            'clientReasonSocial': reason_social,                # FIX: sin NIT concatenado
             'clientDocumentType': getattr(partner.doc_id, 'code_type', '1') or '1',
-            'clientNroDocument': partner.vat,
-            'clientCode': partner.ref or f'CLI-{partner.id}',
+            'clientNroDocument': nit_client,                    # FIX: campo limpio de CUCU
+            'clientCode': nit_client,                           # FIX: consistente con módulo madre
             'paramPaymentMethod': '1',
             'dateEmission': (
                 self.invoice_date.strftime('%Y-%m-%dT%H:%M:%S')
