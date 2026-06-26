@@ -52,19 +52,26 @@ class AccountMoveDebitCredit(models.Model):
         if not origin:
             raise UserError("No se encontró la factura origen para construir la Nota D/C.")
 
-        # Datos de cabecera: se toman de la factura ORIGEN ya emitida
+        # Datos de cabecera tomados de la factura ORIGEN ya emitida en SIAT
         pos_cucu = origin.pos_id.cucu_pos_id
         if not pos_cucu:
             raise UserError("La factura origen no tiene un POS cucu configurado.")
+
+        manager = origin.pos_id.manager_id
+        if not manager:
+            raise UserError("No se encontró el ApiManager (cucu.manager) del POS de origen.")
+
+        # sync_token() renueva el JWT automáticamente si está expirado
+        token = manager.sync_token()
+        # host guarda la URL base, ej: https://largotek.cucu.ai
+        base_url = (manager.host or "").rstrip("/")
+        if not base_url:
+            raise UserError("El campo 'host' del ApiManager está vacío. Configura la URL de cucu.")
 
         user_pos = origin.invoice_user_id.partner_id.name
         pos_id = pos_cucu.pos_id
         invoice_number = int(origin.invoice_number) if origin.invoice_number else 0
         invoice_code = origin.invoice_code or ""
-
-        # Token del usuario: recuperado desde el manager del POS
-        manager = origin.pos_id.manager_id
-        token = getattr(manager, "token", None) or getattr(manager, "api_token", None)
 
         # Detalle de líneas
         detail = []
@@ -72,7 +79,7 @@ class AccountMoveDebitCredit(models.Model):
             product = line.product_id
             tmpl = product.product_tmpl_id
 
-            # Datos del catálogo SIN (reutiliza el método del core)
+            # Reutiliza el método del core para datos del catálogo SIN
             product_data = tmpl.get_data_detail_line()
 
             qty = abs(line.quantity)  # las notas de crédito tienen qty negativa en Odoo
@@ -101,7 +108,7 @@ class AccountMoveDebitCredit(models.Model):
             "userPos": user_pos,
             "detailInvoice": detail,
         }
-        return payload, token
+        return payload, token, base_url
 
     # ------------------------------------------------------------------ #
     #  Acción principal: botón "Emitir Nota D/C SIAT"                     #
@@ -113,20 +120,18 @@ class AccountMoveDebitCredit(models.Model):
         if not self.is_sin_debit_credit:
             raise UserError("Activa primero la opción 'Emitir Nota D/C SIAT'.")
 
-        payload, token = self._build_debit_credit_payload()
+        payload, token, base_url = self._build_debit_credit_payload()
 
-        # URL base del manager
-        manager = self.reversed_move_id.pos_id.manager_id
-        base_url = getattr(manager, "url", None) or getattr(manager, "host", None) or ""
-        base_url = base_url.rstrip("/")
         endpoint = f"{base_url}/api/v1/invoice/electronic/debit"
-
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
         }
 
-        _logger.info("[cucu_fact_debit_credit] Enviando Nota D/C a %s | payload: %s", endpoint, payload)
+        _logger.info(
+            "[cucu_fact_debit_credit] Enviando Nota D/C a %s | payload: %s",
+            endpoint, payload
+        )
 
         try:
             response = requests.post(endpoint, json=payload, headers=headers, timeout=30)
@@ -143,7 +148,7 @@ class AccountMoveDebitCredit(models.Model):
 
         _logger.info("[cucu_fact_debit_credit] Respuesta cucu: %s", res_json)
 
-        # Guardar los campos SIAT en la nota de crédito
+        # Persistir estado SIAT en la nota de crédito
         self.write({
             "sin_code_state": res_json.get("siatCodeState", 0),
             "sin_code_reception": res_json.get("siatCodeReception", "0000"),
@@ -153,10 +158,12 @@ class AccountMoveDebitCredit(models.Model):
         })
 
         self.message_post(
-            body=f"Nota D/C emitida al SIAT. "
-                 f"Estado: {res_json.get('siatDescriptionStatus')} | "
-                 f"Recepción: {res_json.get('siatCodeReception')} | "
-                 f"Nro. Factura: {res_json.get('invoiceNumber')}"
+            body=(
+                f"Nota D/C emitida al SIAT. "
+                f"Estado: {res_json.get('siatDescriptionStatus')} | "
+                f"Recepción: {res_json.get('siatCodeReception')} | "
+                f"Nro. Factura: {res_json.get('invoiceNumber')}"
+            )
         )
 
         return {
@@ -164,7 +171,10 @@ class AccountMoveDebitCredit(models.Model):
             "tag": "display_notification",
             "params": {
                 "title": "Nota D/C SIAT emitida",
-                "message": f"Estado: {res_json.get('siatDescriptionStatus')} | Nro: {res_json.get('invoiceNumber')}",
+                "message": (
+                    f"Estado: {res_json.get('siatDescriptionStatus')} | "
+                    f"Nro: {res_json.get('invoiceNumber')}"
+                ),
                 "type": "success",
                 "sticky": False,
             },
