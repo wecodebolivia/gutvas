@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Largotek SRL - Nota Débito/Crédito Electrónica SIAT -->
+<odoo>
+    <record id="view_move_form_debit_credit_inherit" model="ir.ui.view">
+        <field name="name">account.move.form.debit.credit.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+
+            <!-- Toggle "Emitir Nota D/C SIAT" junto al is_sin, visible solo en out_refund -->
+            <xpath expr="//group[@id='header_left_group']//field[@name='is_sin']" position="after">
+                <field
+                    name="is_sin_debit_credit"
+                    string="Emitir Nota D/C SIAT"
+                    invisible="move_type != 'out_refund'"
+                    readonly="sin_description_status in ['VALIDADA', 'VALIDA']"
+                />
+            </xpath>
+
+            <!-- Botón de emisión en el header, solo visible en notas de crédito con toggle activo -->
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_send_debit_credit_siat"
+                    string="Emitir Nota D/C SIAT"
+                    type="object"
+                    class="oe_highlight"
+                    invisible="not is_sin_debit_credit or move_type != 'out_refund' or state == 'draft' or sin_description_status in ['VALIDADA', 'VALIDA']"
+                    groups="base.group_user"
+                />
+            </xpath>
+
+            <!-- Columna "Devolver producto" en las líneas de factura -->
+            <xpath expr="//field[@name='invoice_line_ids']//list" position="inside">
+                <field
+                    name="return_product"
+                    string="Devolver"
+                    optional="show"
+                    invisible="parent.move_type != 'out_refund' or not parent.is_sin_debit_credit"
+                />
+            </xpath>
+
+            <!-- Bloque de estado SIAT para la nota D/C (reutiliza estilo del core) -->
+            <xpath expr="//group[@id='group_cucu_invoice']" position="after">
+                <group
+                    id="group_cucu_debit_credit"
+                    string="Nota D/C SIAT"
+                    invisible="not is_sin_debit_credit or move_type != 'out_refund'"
+                >
+                    <group string="Factura Origen">
+                        <field
+                            name="reversed_move_id"
+                            string="Factura Rectificada"
+                            readonly="1"
+                            invisible="not is_sin_debit_credit"
+                        />
+                    </group>
+                    <group string="Estado SIAT Nota D/C">
+                        <field
+                            name="sin_description_status"
+                            string="Estado SIAT"
+                            widget="badge"
+                            decoration-success="sin_description_status in ['VALIDADA', 'VALIDA']"
+                            decoration-danger="sin_description_status in ['ANULACION CONFIRMADA', 'ANULADA']"
+                            decoration-warning="sin_description_status in ['REVERSION DE ANULACION CONFIRMADA']"
+                            invisible="not is_sin_debit_credit"
+                            readonly="1"
+                        />
+                        <field
+                            name="invoice_number"
+                            string="Nro. Nota D/C"
+                            invisible="not is_sin_debit_credit"
+                            readonly="1"
+                        />
+                        <field
+                            name="invoice_code"
+                            string="Código Nota D/C"
+                            invisible="not is_sin_debit_credit"
+                            readonly="1"
+                        />
+                        <field
+                            name="sin_code_reception"
+                            string="Código Recepción"
+                            invisible="not is_sin_debit_credit"
+                            readonly="1"
+                        />
+                    </group>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
