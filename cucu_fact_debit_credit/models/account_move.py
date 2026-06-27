@@ -18,8 +18,18 @@ class AccountMoveDebitCredit(models.Model):
         help="Activa la emisión de Nota de Débito/Crédito electrónica hacia SIAT para esta factura rectificada.",
     )
 
+    # Campo custom para enlazar con la factura origen ya emitida en SIAT
+    # (Odoo 18 no expone reversed_move_id en account.move de forma estándar)
+    origin_move_id = fields.Many2one(
+        comodel_name="account.move",
+        string="Factura Origen (SIAT)",
+        domain="[('move_type', 'in', ['out_invoice', 'in_invoice']), ('sin_description_status', 'in', ['VALIDADA', 'VALIDA'])]",
+        tracking=True,
+        help="Factura original ya validada en SIAT sobre la que se emite esta Nota D/C.",
+    )
+
     # ------------------------------------------------------------------ #
-    #  Validación: solo aplica a facturas rectificadas con origen emitido  #
+    #  Validación al activar el toggle                                    #
     # ------------------------------------------------------------------ #
     @api.onchange("is_sin_debit_credit")
     def _onchange_is_sin_debit_credit(self):
@@ -30,14 +40,14 @@ class AccountMoveDebitCredit(models.Model):
             raise ValidationError(
                 "La emisión de Nota D/C SIAT solo aplica a facturas rectificadas (notas de crédito)."
             )
-        origin = self.reversed_move_id
-        if not origin:
-            self.is_sin_debit_credit = False
-            raise ValidationError(
-                "No se encontró la factura origen. Asegúrate de que esta nota esté vinculada a una factura."
-            )
+
+    @api.onchange("origin_move_id")
+    def _onchange_origin_move_id(self):
+        if not self.origin_move_id:
+            return
+        origin = self.origin_move_id
         if origin.sin_description_status not in ("VALIDADA", "VALIDA"):
-            self.is_sin_debit_credit = False
+            self.origin_move_id = False
             raise ValidationError(
                 f"La factura origen debe estar VALIDADA en SIAT. Estado actual: {origin.sin_description_status}"
             )
@@ -48,11 +58,13 @@ class AccountMoveDebitCredit(models.Model):
     def _build_debit_credit_payload(self):
         """Construye el payload para el endpoint de Nota D/C de cucu.ai."""
         self.ensure_one()
-        origin = self.reversed_move_id
-        if not origin:
-            raise UserError("No se encontró la factura origen para construir la Nota D/C.")
 
-        # Datos de cabecera tomados de la factura ORIGEN ya emitida en SIAT
+        origin = self.origin_move_id
+        if not origin:
+            raise UserError(
+                "Selecciona la Factura Origen (SIAT) antes de emitir la Nota D/C."
+            )
+
         pos_cucu = origin.pos_id.cucu_pos_id
         if not pos_cucu:
             raise UserError("La factura origen no tiene un POS cucu configurado.")
@@ -63,7 +75,7 @@ class AccountMoveDebitCredit(models.Model):
 
         # sync_token() renueva el JWT automáticamente si está expirado
         token = manager.sync_token()
-        # host guarda la URL base, ej: https://largotek.cucu.ai
+        # manager.host contiene la URL base, ej: https://largotek.cucu.ai
         base_url = (manager.host or "").rstrip("/")
         if not base_url:
             raise UserError("El campo 'host' del ApiManager está vacío. Configura la URL de cucu.")
@@ -75,7 +87,9 @@ class AccountMoveDebitCredit(models.Model):
 
         # Detalle de líneas
         detail = []
-        for idx, line in enumerate(self.invoice_line_ids.filtered(lambda l: l.product_id), start=1):
+        for idx, line in enumerate(
+            self.invoice_line_ids.filtered(lambda l: l.product_id), start=1
+        ):
             product = line.product_id
             tmpl = product.product_tmpl_id
 
@@ -130,7 +144,7 @@ class AccountMoveDebitCredit(models.Model):
 
         _logger.info(
             "[cucu_fact_debit_credit] Enviando Nota D/C a %s | payload: %s",
-            endpoint, payload
+            endpoint, payload,
         )
 
         try:
@@ -138,13 +152,19 @@ class AccountMoveDebitCredit(models.Model):
             response.raise_for_status()
             res_json = response.json()
         except requests.exceptions.Timeout:
-            raise UserError("Timeout al conectar con el servicio de facturación cucu. Intenta nuevamente.")
+            raise UserError(
+                "Timeout al conectar con el servicio de facturación cucu. Intenta nuevamente."
+            )
         except requests.exceptions.ConnectionError as e:
             raise UserError(f"No se pudo conectar con el servicio cucu: {e}")
         except requests.exceptions.HTTPError as e:
-            raise UserError(f"Error HTTP al emitir la Nota D/C: {e}\nRespuesta: {response.text}")
+            raise UserError(
+                f"Error HTTP al emitir la Nota D/C: {e}\nRespuesta: {response.text}"
+            )
         except ValueError:
-            raise UserError(f"Respuesta inesperada del servidor cucu: {response.text}")
+            raise UserError(
+                f"Respuesta inesperada del servidor cucu: {response.text}"
+            )
 
         _logger.info("[cucu_fact_debit_credit] Respuesta cucu: %s", res_json)
 

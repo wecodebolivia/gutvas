@@ -40,7 +40,7 @@
                 />
             </xpath>
 
-            <!-- Bloque de estado SIAT para la nota D/C (reutiliza estilo del core) -->
+            <!-- Bloque de estado SIAT para la nota D/C -->
             <xpath expr="//group[@id='group_cucu_invoice']" position="after">
                 <group
                     id="group_cucu_debit_credit"
@@ -49,9 +49,12 @@
                 >
                     <group string="Factura Origen">
                         <field
-                            name="reversed_move_id"
-                            string="Factura Rectificada"
-                            readonly="1"
+                            name="origin_move_id"
+                            string="Factura Origen (SIAT)"
+                            widget="many2one"
+                            domain="[('move_type', 'in', ['out_invoice', 'in_invoice']), ('sin_description_status', 'in', ['VALIDADA', 'VALIDA'])]"
+                            options="{'no_quick_create': True, 'no_create_edit': True}"
+                            readonly="sin_description_status in ['VALIDADA', 'VALIDA']"
                             invisible="not is_sin_debit_credit"
                         />
                     </group>
