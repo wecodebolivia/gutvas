@@ -39,7 +39,6 @@ class AccountMoveDebitCredit(models.Model):
     def _onchange_origin_move_id(self):
         if not self.origin_move_id:
             return
-        # Verificar que tenga un cucu.invoice VALIDADO
         cucu_inv = self.env["cucu.invoice"].search(
             [("account_move_id", "=", self.origin_move_id.id)], limit=1
         )
@@ -62,7 +61,7 @@ class AccountMoveDebitCredit(models.Model):
         if not origin:
             raise UserError("Selecciona la Factura Origen (SIAT) antes de emitir la Nota D/C.")
 
-        # Leer datos SIAT desde cucu.invoice (donde realmente están guardados)
+        # Datos SIAT desde cucu.invoice de la factura origen
         cucu_inv = self.env["cucu.invoice"].search(
             [("account_move_id", "=", origin.id)], limit=1
         )
@@ -75,7 +74,6 @@ class AccountMoveDebitCredit(models.Model):
                 f"La factura origen no está VALIDADA en SIAT. Estado: {cucu_inv.sin_description_status}"
             )
 
-        # Datos del POS
         pos_cucu = origin.pos_id.cucu_pos_id
         if not pos_cucu:
             raise UserError("La factura origen no tiene un POS cucu configurado.")
@@ -85,29 +83,41 @@ class AccountMoveDebitCredit(models.Model):
             raise UserError("No se encontró el ApiManager (cucu.manager) del POS de origen.")
 
         user_pos = origin.invoice_user_id.partner_id.name
-        pos_id = pos_cucu.pos_id
-
-        # invoiceNumber e invoiceCode se leen desde cucu.invoice
+        pos_id = cucu_inv.pos_id          # posId del cucu.invoice (el que registró cucu)
+        branch_id = cucu_inv.branch_id    # branchId requerido por cucu para encontrar la factura
         invoice_number = int(cucu_inv.invoice_number) if cucu_inv.invoice_number else 0
         invoice_code = cucu_inv.invoice_code or ""
 
         _logger.info(
-            "[cucu_fact_debit_credit] Factura origen: %s | invoiceNumber: %s | invoiceCode: %s",
-            origin.name, invoice_number, invoice_code
+            "[cucu_fact_debit_credit] Origen: %s | posId:%s | branchId:%s | invoiceNumber:%s | invoiceCode:%s",
+            origin.name, pos_id, branch_id, invoice_number, invoice_code
         )
 
+        # Productos de la nota de crédito (los que tiene return_product=True o False)
+        nota_lines = {}
+        for line in self.invoice_line_ids.filtered(lambda l: l.product_id):
+            key = line.product_id.default_code or line.product_id.id
+            nota_lines[key] = line
+
+        # Construir detalle con TODAS las líneas de la factura origen
+        # - Si la línea está en la nota -> returnProduct según el campo
+        # - Si no está en la nota -> returnProduct=False (no se devuelve)
         detail = []
         for idx, line in enumerate(
-            self.invoice_line_ids.filtered(lambda l: l.product_id), start=1
+            origin.invoice_line_ids.filtered(lambda l: l.product_id), start=1
         ):
             product = line.product_id
             tmpl = product.product_tmpl_id
             product_data = tmpl.get_data_detail_line()
 
-            qty = abs(line.quantity)
+            key = product.default_code or product.id
+            nota_line = nota_lines.get(key)
+
+            qty = abs(nota_line.quantity) if nota_line else abs(line.quantity)
             price_unit = line.price_unit
             discount = qty * price_unit * (line.discount / 100) if line.discount else 0.0
             sub_total = round(qty * price_unit - discount, 2)
+            return_product = nota_line.return_product if nota_line else False
 
             detail.append({
                 "detailId": idx,
@@ -120,12 +130,12 @@ class AccountMoveDebitCredit(models.Model):
                 "priceUnit": price_unit,
                 "amountDiscount": round(discount, 2),
                 "subTotal": sub_total,
-                "returnProduct": line.return_product,
+                "returnProduct": return_product,
             })
 
-        # docSector="24" -> send_invoice() usa URL /debit y header cucukey: Token {token}
         payload = {
             "posId": pos_id,
+            "branchId": branch_id,
             "invoiceNumber": invoice_number,
             "invoiceCode": invoice_code,
             "userPos": user_pos,
@@ -152,7 +162,6 @@ class AccountMoveDebitCredit(models.Model):
 
         _logger.info("[cucu_fact_debit_credit] Respuesta cucu: %s", res)
 
-        # Guardar respuesta SIAT en account.move de la nota
         self.write({
             "sin_code_state": res.get("siatCodeState", 0),
             "sin_code_reception": res.get("siatCodeReception", "0000"),
@@ -166,7 +175,7 @@ class AccountMoveDebitCredit(models.Model):
                 f"Nota D/C emitida al SIAT. "
                 f"Estado: {res.get('siatDescriptionStatus')} | "
                 f"Recepción: {res.get('siatCodeReception')} | "
-                f"Nro. Factura: {res.get('invoiceNumber')}"
+                f"Nro. Nota D/C: {res.get('invoiceNumber')}"
             )
         )
 
