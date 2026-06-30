@@ -20,7 +20,7 @@ class AccountMoveDebitCredit(models.Model):
     origin_move_id = fields.Many2one(
         comodel_name="account.move",
         string="Factura Origen (SIAT)",
-        domain="[('move_type', 'in', ['out_invoice', 'in_invoice']), ('sin_description_status', 'in', ['VALIDADA', 'VALIDA'])]",
+        domain="[('move_type', 'in', ['out_invoice', 'in_invoice'])]",
         tracking=True,
         help="Factura original ya validada en SIAT sobre la que se emite esta Nota D/C.",
     )
@@ -39,11 +39,21 @@ class AccountMoveDebitCredit(models.Model):
     def _onchange_origin_move_id(self):
         if not self.origin_move_id:
             return
-        if self.origin_move_id.sin_description_status not in ("VALIDADA", "VALIDA"):
+        # Verificar que tenga un cucu.invoice VALIDADO
+        cucu_inv = self.env["cucu.invoice"].search(
+            [("account_move_id", "=", self.origin_move_id.id)], limit=1
+        )
+        if not cucu_inv:
+            self.origin_move_id = False
+            raise ValidationError(
+                "La factura origen no tiene registro SIAT (cucu.invoice). "
+                "Asegúrate de que fue emitida electrónicamente."
+            )
+        if cucu_inv.sin_description_status not in ("VALIDADA", "VALIDA"):
             self.origin_move_id = False
             raise ValidationError(
                 f"La factura origen debe estar VALIDADA en SIAT. "
-                f"Estado actual: {self.origin_move_id.sin_description_status}"
+                f"Estado actual: {cucu_inv.sin_description_status}"
             )
 
     def _build_debit_credit_payload(self):
@@ -52,6 +62,20 @@ class AccountMoveDebitCredit(models.Model):
         if not origin:
             raise UserError("Selecciona la Factura Origen (SIAT) antes de emitir la Nota D/C.")
 
+        # Leer datos SIAT desde cucu.invoice (donde realmente están guardados)
+        cucu_inv = self.env["cucu.invoice"].search(
+            [("account_move_id", "=", origin.id)], limit=1
+        )
+        if not cucu_inv:
+            raise UserError(
+                f"No se encontró el registro SIAT (cucu.invoice) para la factura {origin.name}."
+            )
+        if cucu_inv.sin_description_status not in ("VALIDADA", "VALIDA"):
+            raise UserError(
+                f"La factura origen no está VALIDADA en SIAT. Estado: {cucu_inv.sin_description_status}"
+            )
+
+        # Datos del POS
         pos_cucu = origin.pos_id.cucu_pos_id
         if not pos_cucu:
             raise UserError("La factura origen no tiene un POS cucu configurado.")
@@ -62,8 +86,15 @@ class AccountMoveDebitCredit(models.Model):
 
         user_pos = origin.invoice_user_id.partner_id.name
         pos_id = pos_cucu.pos_id
-        invoice_number = int(origin.invoice_number) if origin.invoice_number else 0
-        invoice_code = origin.invoice_code or ""
+
+        # invoiceNumber e invoiceCode se leen desde cucu.invoice
+        invoice_number = int(cucu_inv.invoice_number) if cucu_inv.invoice_number else 0
+        invoice_code = cucu_inv.invoice_code or ""
+
+        _logger.info(
+            "[cucu_fact_debit_credit] Factura origen: %s | invoiceNumber: %s | invoiceCode: %s",
+            origin.name, invoice_number, invoice_code
+        )
 
         detail = []
         for idx, line in enumerate(
@@ -92,7 +123,7 @@ class AccountMoveDebitCredit(models.Model):
                 "returnProduct": line.return_product,
             })
 
-        # docSector="24" -> manager.send_invoice() construye /debit y usa cucukey: Token {token}
+        # docSector="24" -> send_invoice() usa URL /debit y header cucukey: Token {token}
         payload = {
             "posId": pos_id,
             "invoiceNumber": invoice_number,
@@ -114,13 +145,14 @@ class AccountMoveDebitCredit(models.Model):
         _logger.info("[cucu_fact_debit_credit] Enviando Nota D/C | payload: %s", payload)
 
         # manager.send_invoice() del core:
-        # - header: {"cucukey": "Token {token}"}  ← corrige el 401
+        # - header: {"cucukey": "Token {token}"}
         # - URL:    {host}/api/v1/invoice/electronic/debit
         # - renueva JWT automáticamente si expiró
         res = manager.send_invoice(**payload)
 
         _logger.info("[cucu_fact_debit_credit] Respuesta cucu: %s", res)
 
+        # Guardar respuesta SIAT en account.move de la nota
         self.write({
             "sin_code_state": res.get("siatCodeState", 0),
             "sin_code_reception": res.get("siatCodeReception", "0000"),
