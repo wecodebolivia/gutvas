@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_weight_area_lots" model="ir.actions.act_window">
+        <field name="name">Rollos activos</field>
+        <field name="res_model">stock.lot</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('weight_area_enabled', '=', True)]</field>
+    </record>
+    <menuitem id="menu_weight_area_root" name="Control Peso-Área" parent="stock.menu_stock_root" sequence="85" groups="stock.group_stock_user"/>
+    <menuitem id="menu_weight_area_lots" name="Rollos activos" parent="menu_weight_area_root" action="action_weight_area_lots" sequence="10" groups="stock.group_stock_user"/>
+</odoo>

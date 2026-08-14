@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_weight_area" model="ir.ui.view">
+        <field name="name">product.template.form.weight.area</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Peso-Área" invisible="not weight_area_control">
+                    <group>
+                        <group>
+                            <field name="weight_area_control"/>
+                            <field name="factor_kg_m_standard" invisible="not weight_area_control" required="weight_area_control"/>
+                        </group>
+                        <group>
+                            <field name="weight_area_variance_threshold_pct" invisible="not weight_area_control"/>
+                            <label string="Los productos controlados requieren trazabilidad por lote."/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

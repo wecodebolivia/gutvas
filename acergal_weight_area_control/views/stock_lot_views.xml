@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_lot_form_weight_area" model="ir.ui.view">
+        <field name="name">stock.lot.form.weight.area</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Control peso-área" invisible="not weight_area_enabled">
+                    <group>
+                        <field name="initial_weight_kg" readonly="weight_area_initialized"/>
+                        <field name="initial_length_m" readonly="weight_area_initialized"/>
+                        <field name="real_factor_kg_m" readonly="1"/>
+                        <field name="weight_area_initialized"/>
+                    </group>
+                    <group>
+                        <field name="consumed_weight_kg" readonly="1"/>
+                        <field name="remaining_weight_kg" readonly="1"/>
+                        <field name="consumed_length_m" readonly="1"/>
+                        <field name="remaining_length_m" readonly="1"/>
+                        <field name="variance_pct" readonly="1"/>
+                        <field name="variance_state" widget="badge" readonly="1"/>
+                    </group>
+                    <button name="action_initialize_weight_area" type="object" string="Inicializar control" class="btn-primary" invisible="weight_area_initialized"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

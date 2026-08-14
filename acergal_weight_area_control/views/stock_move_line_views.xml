@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_move_line_tree_weight_area" model="ir.ui.view">
+        <field name="name">stock.move.line.tree.weight.area</field>
+        <field name="model">stock.move.line</field>
+        <field name="inherit_id" ref="stock.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lot_id']" position="after">
+                <field name="weight_area_equivalent_kg" optional="show"/>
+                <field name="weight_area_factor_kg_m" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

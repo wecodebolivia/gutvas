@@ -1,0 +1,21 @@
+{
+    'name': 'Acergal Weight Area Control',
+    'summary': 'Trazabilidad dual de kg y metros por rollo',
+    'version': '18.0.1.0.0',
+    'category': 'Inventory/Inventory',
+    'author': 'Largotek SRL',
+    'license': 'LGPL-3',
+    'depends': ['stock', 'sale_management', 'purchase'],
+    'data': [
+        'security/weight_area_security.xml',
+        'security/ir.model.access.csv',
+        'views/product_template_views.xml',
+        'views/stock_lot_views.xml',
+        'views/stock_move_line_views.xml',
+        'views/sale_order_views.xml',
+        'views/res_config_settings_views.xml',
+        'views/weight_area_menu_views.xml',
+    ],
+    'installable': True,
+    'application': False,
+}
