@@ -12,7 +12,6 @@ class StockLot(models.Model):
         string='Factor real (kg/m)',
         compute='_compute_weight_area_values',
         store=True,
-        readonly=False,
         copy=False,
     )
     consumed_weight_kg = fields.Float(
@@ -51,16 +50,31 @@ class StockLot(models.Model):
             limit = lot.product_id.weight_area_variance_threshold_pct or threshold
             lot.variance_state = 'warning' if abs(lot.variance_pct) > limit else 'normal'
 
-    @api.depends('initial_weight_kg', 'initial_length_m', 'move_line_ids.state', 'move_line_ids.weight_area_direction', 'move_line_ids.weight_area_length_m', 'move_line_ids.weight_area_equivalent_kg')
+    @api.depends('initial_weight_kg', 'initial_length_m')
     def _compute_weight_area_balances(self):
+        MoveLine = self.env['stock.move.line']
         for lot in self:
-            lines = lot.move_line_ids.filtered(
-                lambda line: line.state == 'done' and line.weight_area_enabled
-            )
+            if not lot.id:
+                lot.consumed_length_m = 0.0
+                lot.consumed_weight_kg = 0.0
+                lot.remaining_length_m = lot.initial_length_m
+                lot.remaining_weight_kg = lot.initial_weight_kg
+                continue
+            lines = MoveLine.search([
+                ('lot_id', '=', lot.id),
+                ('state', '=', 'done'),
+                ('weight_area_enabled', '=', True),
+            ])
             output_lines = lines.filtered(lambda line: line.weight_area_direction == 'out')
             input_lines = lines.filtered(lambda line: line.weight_area_direction == 'in')
-            lot.consumed_length_m = sum(output_lines.mapped('weight_area_length_m')) - sum(input_lines.mapped('weight_area_length_m'))
-            lot.consumed_weight_kg = sum(output_lines.mapped('weight_area_equivalent_kg')) - sum(input_lines.mapped('weight_area_equivalent_kg'))
+            lot.consumed_length_m = (
+                sum(output_lines.mapped('weight_area_length_m'))
+                - sum(input_lines.mapped('weight_area_length_m'))
+            )
+            lot.consumed_weight_kg = (
+                sum(output_lines.mapped('weight_area_equivalent_kg'))
+                - sum(input_lines.mapped('weight_area_equivalent_kg'))
+            )
             lot.remaining_length_m = lot.initial_length_m - lot.consumed_length_m
             lot.remaining_weight_kg = lot.initial_weight_kg - lot.consumed_weight_kg
 
