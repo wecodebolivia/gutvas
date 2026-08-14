@@ -6,15 +6,20 @@
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page string="Peso-Área" invisible="not weight_area_control">
+                <page string="Peso-Área">
                     <group>
                         <group>
                             <field name="weight_area_control"/>
-                            <field name="factor_kg_m_standard" invisible="not weight_area_control" required="weight_area_control"/>
+                            <field name="factor_kg_m_standard"
+                                   invisible="not weight_area_control"
+                                   required="weight_area_control"/>
                         </group>
                         <group>
-                            <field name="weight_area_variance_threshold_pct" invisible="not weight_area_control"/>
-                            <label string="Los productos controlados requieren trazabilidad por lote."/>
+                            <field name="weight_area_variance_threshold_pct"
+                                   invisible="not weight_area_control"/>
+                            <div class="text-muted" invisible="not weight_area_control">
+                                Los productos controlados requieren trazabilidad por lote.
+                            </div>
                         </group>
                     </group>
                 </page>
